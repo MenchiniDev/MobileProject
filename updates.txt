@@ -1,0 +1,21 @@
+### Timestamp delle attività svolte:
+  + 22/04/2024: primo incontro, comprensione generale della struttura del progetto, analisi delle librerie da utilizzare, studio dei problemi e loro possibili soluzioni. 
+  + # Dubbi
+
+- come e dove passare i dati collezionati dai sensori
+    - i dati andranno verso il pc per la fase di addestramento
+    - per la fase di utilizzo/test devono andare verso il telefono
+- quali sensori utilizzare e come
+    
+    [Rilevamento dei volti  |  API Cloud Vision  |  Google Cloud](https://cloud.google.com/vision/docs/detecting-faces?hl=it)
+    
+    - creare un qualcosa che faccia il supervisionato sul bello o non bello per l’etichetta
+    - selezionare 25→50 immagini di quadri (li ordiniamo in base ad un id che ci riconduce alla lista di quadri, in questo modo possiamo comprendere se un quadro è bello o meno)
+- chiedere al vecchio se si può mantenere il CASE facendo features extraction
+- chiedere se il museo galileo ha poi mandato i dati del loro dataset
+
+**DOMANDE:**
+
+- cercare metodi da proporre a vecchio su come passare dati
+- cerca database da proporre al posto della raccolta dati
+- capire come funziona api google sul emotion detect
