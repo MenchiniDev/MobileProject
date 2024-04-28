@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/DataCollection"
         android:name="com.mobile.narciso.DataCollection"
-        android:label="@string/second_fragment_label"
+        android:label="@string/DataCollection"
         tools:layout="@layout/fragment_datacollection" >
         <action
             android:id="@+id/action_DataCollection_to_DataTesting"
@@ -17,20 +17,19 @@
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.mobile.narciso.FirstFragment"
-        android:label="@string/first_fragment_label"
+        android:label="Narciso"
         tools:layout="@layout/fragment_first">
-
-        <action
-            android:id="@+id/action_FirstFragment_to_DataTesting"
-            app:destination="@id/DataTesting" />
-        <action
-            android:id="@+id/action_FirstFragment_to_DataCollection"
-            app:destination="@id/DataCollection" />
-    </fragment>
+    <action
+        android:id="@+id/action_FirstFragment_to_DataCollection"
+        app:destination="@id/DataCollection" />
+    <action
+        android:id="@+id/action_FirstFragment_to_DataTesting"
+        app:destination="@id/DataTesting" />
+</fragment>
     <fragment
         android:id="@+id/DataTesting"
-        android:name="com.mobile.narciso.DataCollection"
-        android:label="@string/second_fragment_label"
+        android:name="com.mobile.narciso.DataTesting"
+        android:label="@string/DataTesting"
         tools:layout="@layout/fragment_datacollection">
         <action
             android:id="@+id/action_DataTesting_to_DataCollection"

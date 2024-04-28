@@ -16,9 +16,11 @@
     <string name="DataTesting">Data Testing</string>
 
     <string name="datacollection_text">
-        MCHECCAZZOVUOI
+        qui è dove verranno collezionati i dati relativi ai tuoi segnali fisiologici,
+        a seguito verrà creato un modello basato su questi dati!
     </string>
     <string name="DataTestingButton">go to data collection</string>
     <string name="DataCollectionButton">go to data testing</string>
+    <string name="DataTesting_text">benvenuto nel data testing, qui inizierà a breve il test dei tuoi dati con il modello pre addestrato!</string>
 
 </resources>
