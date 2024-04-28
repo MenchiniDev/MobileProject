@@ -6,14 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import com.mobile.narciso.databinding.FragmentFirstBinding
+import com.mobile.narciso.databinding.FragmentDatacollectionBinding
 
 /**
- * A simple [Fragment] subclass as the default destination in the navigation.
+ * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class FirstFragment : Fragment() {
+class DataCollection : Fragment() {
 
-    private var _binding: FragmentFirstBinding? = null
+    private var _binding: FragmentDatacollectionBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -24,7 +24,7 @@ class FirstFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        _binding = FragmentDatacollectionBinding.inflate(inflater, container, false)
         return binding.root
 
     }
@@ -33,10 +33,7 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.gotoDataTesting.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_DataTesting)
-        }
-        binding.gotoDataCollection.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_DataCollection)
+            findNavController().navigate(R.id.action_DataCollection_to_DataTesting)
         }
     }
 
