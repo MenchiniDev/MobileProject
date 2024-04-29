@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/DataCollection"
+        android:name="com.mobile.narciso.DataCollection"
+        android:label="@string/DataCollection"
+        tools:layout="@layout/fragment_datacollection" >
+        <action
+            android:id="@+id/action_DataCollection_to_DataTesting"
+            app:destination="@id/DataTesting" />
+    </fragment>
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.mobile.narciso.FirstFragment"
+        android:label="Narciso"
+        tools:layout="@layout/fragment_first">
+    <action
+        android:id="@+id/action_FirstFragment_to_DataCollection"
+        app:destination="@id/DataCollection" />
+    <action
+        android:id="@+id/action_FirstFragment_to_DataTesting"
+        app:destination="@id/DataTesting" />
+</fragment>
+    <fragment
+        android:id="@+id/DataTesting"
+        android:name="com.mobile.narciso.DataTesting"
+        android:label="@string/DataTesting"
+        tools:layout="@layout/fragment_datacollection">
+        <action
+            android:id="@+id/action_DataTesting_to_DataCollection"
+            app:destination="@id/DataCollection" />
+    </fragment>
+</navigation>
