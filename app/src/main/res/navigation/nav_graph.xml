@@ -16,9 +16,6 @@
         <action
             android:id="@+id/action_DataCollection_to_camera"
             app:destination="@id/camera" />
-        <deepLink
-            android:id="@+id/deepLink_DataCollection_to_camera"
-            app:uri="narciso://cameraActivity" />
     </fragment>
 
     <fragment
@@ -42,9 +39,9 @@
             android:id="@+id/action_DataTesting_to_DataCollection"
             app:destination="@id/DataCollection" />
     </fragment>
-    <activity
+    <fragment
         android:id="@+id/camera"
-        android:name="com.mobile.narciso.CameraActivity"
+        android:name="com.mobile.narciso.CameraFragment"
         android:label="Camera"
-        tools:layout="@layout/activity_camera"/>
+        tools:layout="@layout/fragment_camera"/>
 </navigation>

@@ -20,8 +20,8 @@ import androidx.core.content.ContextCompat
 import com.mobile.narciso.databinding.ActivityCameraBinding
 import java.util.Arrays
 
-class CameraActivity : AppCompatActivity(), TextureView.SurfaceTextureListener {
-
+class CameraActivity : AppCompatActivity() {
+    /*
     private lateinit var binding: ActivityCameraBinding
     private val handler = Handler(Looper.getMainLooper())
 
@@ -69,7 +69,7 @@ class CameraActivity : AppCompatActivity(), TextureView.SurfaceTextureListener {
     private fun initializeCamera() {
         try {
             val textureView = binding.textureView
-            val surfaceTexture = textureView.surfaceTexture ?: return
+            val surfaceTexture = textureView.surfaceTexture?: return
 
             // Imposta le dimensioni predefinite del buffer sulla larghezza e sull'altezza della TextureView
             surfaceTexture.setDefaultBufferSize(textureView.width, textureView.height)
@@ -163,5 +163,5 @@ class CameraActivity : AppCompatActivity(), TextureView.SurfaceTextureListener {
 
     override fun onSurfaceTextureUpdated(p0: SurfaceTexture) {
         TODO("Not yet implemented")
-    }
+    }*/
 }
