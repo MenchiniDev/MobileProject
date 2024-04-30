@@ -63,7 +63,6 @@ class DataCollection : Fragment() {
         }
 
         binding.gotoCamera.setOnClickListener {
-            Toast.makeText(requireContext(), "sto andando a camera!", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_DataCollection_to_camera)
         }
 

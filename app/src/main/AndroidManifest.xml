@@ -39,7 +39,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="narciso"
-                    android:host="cameraactivity" /> <!-- Definizione dell'URI -->
+                    android:host="cameraactivity" />
             </intent-filter>
         </activity>
     </application>
