@@ -1,15 +1,22 @@
 package com.mobile.narciso
 
-import com.google.android.gms.location.R
+//import com.google.firebase.database.DatabaseReference
+//import com.google.firebase.database.FirebaseDatabase
+//import com.google.mlkit.vision.common.InputImage
+//import com.google.mlkit.vision.face.FaceDetection
+
 import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.location.Geocoder
-import android.location.Location
+import android.graphics.BitmapFactory
+import android.hardware.camera2.TotalCaptureResult
+import android.icu.text.SimpleDateFormat
+import android.media.Image
+import android.media.ImageReader
+import android.net.Uri
 import android.os.Bundle
-import android.os.Looper
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -23,24 +30,24 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
-//import com.google.firebase.database.DatabaseReference
-//import com.google.firebase.database.FirebaseDatabase
-//import com.google.mlkit.vision.common.InputImage
-//import com.google.mlkit.vision.face.FaceDetection
 import com.mobile.narciso.databinding.FragmentCameraBinding
+import java.io.File
+import java.io.FileOutputStream
+import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.roundToInt
 
 
 class CameraFragment : Fragment() {
     //Binding to layout objects
     private var binding: FragmentCameraBinding? = null
+
+    private lateinit var currentPhotoPath: String
     private val fragmentCameraBinding
         get() = binding!!
 
@@ -65,7 +72,9 @@ class CameraFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         binding?.takepic?.setOnClickListener{
+            findNavController().navigate(R.id.action_camera_to_FirstFragment)
 
         }
 
@@ -81,13 +90,13 @@ class CameraFragment : Fragment() {
             if (isGranted[Manifest.permission.CAMERA]!! && isGranted[Manifest.permission.ACCESS_FINE_LOCATION]!!) {
                 //launchLocationRequester()
             } else {
-                activity?.runOnUiThread {
+                /*activity?.runOnUiThread {
                     Toast.makeText(
                         requireContext(),
                         "Permissions not granted by the user.",
                         Toast.LENGTH_SHORT
                     ).show()
-                }
+                }*/
             }
         }
 
@@ -155,14 +164,12 @@ class CameraFragment : Fragment() {
             val imageAnalyzer = ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetRotation(rotation)
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // Discard frames until the processing of the previous one is not completed
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor) { image ->
                         if (!::bitmapBuffer.isInitialized) {
-                            // The image rotation and RGB image buffer are initialized only once
-                            // the analyzer has started running
                             bitmapBuffer = Bitmap.createBitmap(
                                 image.width,
                                 image.height,
@@ -170,15 +177,18 @@ class CameraFragment : Fragment() {
                             )
                         }
 
-                        // Copy out RGB bits to the shared bitmap buffer
-                        image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
-
+                        bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer)
                         val imageRotation = image.imageInfo.rotationDegrees
 
-                        // bitmap buffer contains the captured image
-                        //detectFaces(bitmapBuffer, imageRotation)
+                        // Create and save the image file
+                        val imageFile = createImageFile()
+                        saveBitmapToFile(bitmapBuffer, imageFile)
+
+                        // You can do further processing or use the saved file here
+                        // detectFaces(bitmapBuffer, imageRotation)
                     }
                 }
+
 
             // Select front camera as a default
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
@@ -198,5 +208,61 @@ class CameraFragment : Fragment() {
 
         }, ContextCompat.getMainExecutor(requireContext()))
     }
+
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+            activity?.runOnUiThread { Toast.makeText(requireContext(), "$absolutePath", Toast.LENGTH_SHORT).show()}
+        }
+    }
+
+    private fun saveBitmapToFile(bitmap: Bitmap, file: File) {
+        val outputStream = FileOutputStream(file)
+        try {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            outputStream.close()
+        }
+    }
+
+
+    /*
+    private fun saveImage(result: TotalCaptureResult) {
+        val image: Image = imageReader.acquireLatestImage()
+        val buffer: ByteBuffer = image.planes[0].buffer
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
+        image.close()
+
+        val outputFileOptions = BitmapFactory.Options().apply {
+            inPreferredConfig = Bitmap.Config.RGB_565
+        }
+
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, outputFileOptions)
+
+        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val imageFile = File(storageDir, "image.jpg")
+
+        val outputStream = FileOutputStream(imageFile)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream.flush()
+        outputStream.close()
+
+        // Notify the media scanner to scan the image file
+        val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        val contentUri = Uri.fromFile(imageFile)
+        mediaScanIntent.data = contentUri
+        requireContext().sendBroadcast(mediaScanIntent)
+    }*/
 
 }

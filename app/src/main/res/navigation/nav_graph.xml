@@ -43,5 +43,9 @@
         android:id="@+id/camera"
         android:name="com.mobile.narciso.CameraFragment"
         android:label="Camera"
-        tools:layout="@layout/fragment_camera"/>
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_camera_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
 </navigation>
