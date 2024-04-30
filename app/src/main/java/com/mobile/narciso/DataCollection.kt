@@ -2,6 +2,7 @@ package com.mobile.narciso
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
 import java.io.File
@@ -61,6 +63,7 @@ class DataCollection : Fragment() {
         }
 
         binding.gotoCamera.setOnClickListener {
+            Toast.makeText(requireContext(), "sto andando a camera!", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_DataCollection_to_camera)
         }
 

@@ -16,7 +16,11 @@
         <action
             android:id="@+id/action_DataCollection_to_camera"
             app:destination="@id/camera" />
+        <deepLink
+            android:id="@+id/deepLink_DataCollection_to_camera"
+            app:uri="narciso://cameraActivity" />
     </fragment>
+
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.mobile.narciso.FirstFragment"
@@ -33,14 +37,14 @@
         android:id="@+id/DataTesting"
         android:name="com.mobile.narciso.DataTesting"
         android:label="@string/DataTesting"
-        tools:layout="@layout/fragment_datacollection">
+        tools:layout="@layout/fragment_datatesting">
         <action
             android:id="@+id/action_DataTesting_to_DataCollection"
             app:destination="@id/DataCollection" />
     </fragment>
-    <fragment
+    <activity
         android:id="@+id/camera"
-        android:name="com.mobile.narciso.Camera"
+        android:name="com.mobile.narciso.CameraActivity"
         android:label="Camera"
-        tools:layout="@layout/fragment_camera"/>
+        tools:layout="@layout/activity_camera"/>
 </navigation>
