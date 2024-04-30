@@ -9,7 +9,7 @@
     <string name="previous">Previous</string>
 
     <string name="presentation">
-        tu ma belva
+        Welcome to future
     </string>
 
     <string name="DataCollection">Data Collection</string>
@@ -22,5 +22,5 @@
     <string name="DataTestingButton">go to data collection</string>
     <string name="DataCollectionButton">go to data testing</string>
     <string name="DataTesting_text">benvenuto nel data testing, qui inizierà a breve il test dei tuoi dati con il modello pre addestrato!</string>
-
+    <string name="DataCollection_fun">Quanto siamo belli eh</string>
 </resources>
