@@ -13,7 +13,11 @@
         <action
             android:id="@+id/action_DataCollection_to_DataTesting"
             app:destination="@id/DataTesting" />
+        <action
+            android:id="@+id/action_DataCollection_to_camera"
+            app:destination="@id/camera" />
     </fragment>
+
     <fragment
         android:id="@+id/FirstFragment"
         android:name="com.mobile.narciso.FirstFragment"
@@ -30,9 +34,18 @@
         android:id="@+id/DataTesting"
         android:name="com.mobile.narciso.DataTesting"
         android:label="@string/DataTesting"
-        tools:layout="@layout/fragment_datacollection">
+        tools:layout="@layout/fragment_datatesting">
         <action
             android:id="@+id/action_DataTesting_to_DataCollection"
             app:destination="@id/DataCollection" />
+    </fragment>
+    <fragment
+        android:id="@+id/camera"
+        android:name="com.mobile.narciso.CameraFragment"
+        android:label="Camera"
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_camera_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
     </fragment>
 </navigation>
