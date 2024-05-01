@@ -28,6 +28,8 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -72,12 +74,6 @@ class CameraFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-        binding?.takepic?.setOnClickListener{
-            findNavController().navigate(R.id.action_camera_to_FirstFragment)
-
-        }
-
         //Retrieve username of the logged user
         val prefs =
             requireContext().getSharedPreferences("myemotiontrackerapp", Context.MODE_PRIVATE)
@@ -87,16 +83,16 @@ class CameraFragment : Fragment() {
         val cameraLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
-            if (isGranted[Manifest.permission.CAMERA]!! && isGranted[Manifest.permission.ACCESS_FINE_LOCATION]!!) {
+            if (isGranted[Manifest.permission.CAMERA]!!) {
                 //launchLocationRequester()
             } else {
-                /*activity?.runOnUiThread {
+                activity?.runOnUiThread {
                     Toast.makeText(
                         requireContext(),
                         "Permissions not granted by the user.",
                         Toast.LENGTH_SHORT
                     ).show()
-                }*/
+                }
             }
         }
 
@@ -115,10 +111,79 @@ class CameraFragment : Fragment() {
     ): View {
         // Wanted behaviour is that keyboard popup will overlap the fragment
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
         //bind layout to Kotlin objects
         binding = FragmentCameraBinding.inflate(inflater)
         return fragmentCameraBinding.root
     }
+
+    //applico l'inflate delle funzioni sui bottoni
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding?.takepic?.setOnClickListener {
+            // Cattura l'immagine attuale dalla fotocamera
+            val imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .build()
+
+            // Ottieni un file di output per salvare l'immagine
+            val imageFile = createImageFile()
+
+            // Configura le opzioni di output per l'immagine
+            val outputFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
+
+            try {
+                // Cattura l'immagine e salvala nel file specificato
+                imageCapture.takePicture(outputFileOptions, cameraExecutor,
+                    object : ImageCapture.OnImageSavedCallback {
+                        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                            activity?.runOnUiThread {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Photo saved!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+
+                        override fun onError(imageCaptureError: ImageCaptureException) {
+                            // Errore durante il salvataggio dell'immagine
+                            activity?.runOnUiThread {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Photo capture failed: ${imageCaptureError.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            imageCaptureError.printStackTrace()
+                        }
+                    })
+            } catch (e: Exception) {
+                // Eccezione generica
+                activity?.runOnUiThread {
+                    Toast.makeText(
+                        requireContext(),
+                        "${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                e.printStackTrace()
+                Log.e(TAG, "Error: ${e.message}", e)
+            }
+        }
+
+        binding?.flashtoggle?.setOnClickListener {
+            activity?.runOnUiThread {
+                Toast.makeText(
+                    requireContext(),
+                    "using flash.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
 
     override fun onStart() {
         super.onStart()
@@ -220,7 +285,7 @@ class CameraFragment : Fragment() {
         ).apply {
             // Save a file: path for use with ACTION_VIEW intents
             currentPhotoPath = absolutePath
-            activity?.runOnUiThread { Toast.makeText(requireContext(), "$absolutePath", Toast.LENGTH_SHORT).show()}
+            //activity?.runOnUiThread { Toast.makeText(requireContext(), absolutePath, Toast.LENGTH_SHORT).show()}
         }
     }
 
@@ -234,35 +299,5 @@ class CameraFragment : Fragment() {
             outputStream.close()
         }
     }
-
-
-    /*
-    private fun saveImage(result: TotalCaptureResult) {
-        val image: Image = imageReader.acquireLatestImage()
-        val buffer: ByteBuffer = image.planes[0].buffer
-        val bytes = ByteArray(buffer.remaining())
-        buffer.get(bytes)
-        image.close()
-
-        val outputFileOptions = BitmapFactory.Options().apply {
-            inPreferredConfig = Bitmap.Config.RGB_565
-        }
-
-        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, outputFileOptions)
-
-        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val imageFile = File(storageDir, "image.jpg")
-
-        val outputStream = FileOutputStream(imageFile)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        outputStream.flush()
-        outputStream.close()
-
-        // Notify the media scanner to scan the image file
-        val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-        val contentUri = Uri.fromFile(imageFile)
-        mediaScanIntent.data = contentUri
-        requireContext().sendBroadcast(mediaScanIntent)
-    }*/
 
 }
