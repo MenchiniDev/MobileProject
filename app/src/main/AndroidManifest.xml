@@ -33,8 +33,8 @@
         </activity>
 
         <activity
-            android:name="com.mobile.narciso.CameraActivity"
-            android:label="Camera"
+            android:name="com.mobile.narciso.LoginActivity"
+            android:label="Login"
             android:exported="true"> <!-- Assicurati che exported sia true -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -42,7 +42,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="narciso"
-                    android:host="cameraactivity" />
+                    android:host="loginactivity" />
             </intent-filter>
         </activity>
     </application>
