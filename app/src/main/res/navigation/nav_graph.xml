@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginActivity">
+    app:startDestination="@id/login">
 
     <fragment
         android:id="@+id/DataCollection"
@@ -48,9 +48,13 @@
             android:id="@+id/action_camera_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
-    <activity
-        android:id="@+id/loginActivity"
-        android:name="com.mobile.narciso.LoginActivity"
+    <fragment
+        android:id="@+id/login"
+        android:name="com.mobile.narciso.Login"
         android:label="Login"
-        tools:layout="@layout/activity_login"/>
+    tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
 </navigation>

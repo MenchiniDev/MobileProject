@@ -18,8 +18,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Narciso"
-        tools:targetApi="31">
+        android:theme="@style/Theme.Narciso">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -29,20 +28,6 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.mobile.narciso.LoginActivity"
-            android:label="Login"
-            android:exported="true"> <!-- Assicurati che exported sia true -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="narciso"
-                    android:host="loginactivity" />
             </intent-filter>
         </activity>
     </application>
