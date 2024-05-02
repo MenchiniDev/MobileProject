@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.mobile.narciso.databinding.FragmentLoginBinding
+import com.mobile.narciso.databinding.FragmentSignupBinding
 
-class Login : Fragment() {
+class Signup : Fragment() {
 
-    private var _binding: FragmentLoginBinding? = null
+    private var _binding: FragmentSignupBinding? = null
     private val binding get() = _binding!!
 
     //private val viewModel: LoginViewModel by activityViewModels()
@@ -20,21 +20,38 @@ class Login : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        _binding = FragmentSignupBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        binding.signup.setOnClickListener {
-            findNavController().navigate(R.id.action_login_to_signup)
-        }
+        binding.signup.isEnabled = false
 
-        binding.login.setOnClickListener {
+        val databaseHelper = DatabaseHelper(requireContext())
+
+        binding.signup.setOnClickListener {
+
             val email = binding.editTextTextEmailAddress.text.toString()
             val password = binding.editTextTextPassword.text.toString()
+            var passwordrepeted = binding.editTextTextPassword2.text.toString()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                val isInserted = verifyUser(email,password)
+            val passwordmatch = password == passwordrepeted
+
+            if(passwordmatch)
+            {
+                Toast.makeText(requireContext(),"le password corrispondono", Toast.LENGTH_SHORT).show()
+
+            }
+            else
+            {
+                Toast.makeText(requireContext(),"le password non corrispondono", Toast.LENGTH_SHORT).show()
+                binding.signup.isEnabled = true
+            }
+
+            if (email.isNotEmpty() && password.isNotEmpty() && passwordrepeted.isNotEmpty()) {
+                val isInserted = databaseHelper.addUser(email, password,)
                 if (isInserted) {
+                    //insert happened, going to login
                     Toast.makeText(requireContext(), "User registered successfully!", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(R.id.action_signup_to_login)
                 } else {
                     Toast.makeText(requireContext(), "Registration failed!", Toast.LENGTH_SHORT).show()
                 }
@@ -43,19 +60,7 @@ class Login : Fragment() {
             }
         }
 
-        binding.forgotPassword.setOnClickListener {
-            onForgotPasswordClicked()
-        }
-
         return view
-    }
-
-    private fun verifyUser(email: String, password: String): Boolean {
-        return true
-    }
-
-    private fun onForgotPasswordClicked() {
-        TODO("Not yet implemented")
     }
 
     override fun onDestroyView() {
