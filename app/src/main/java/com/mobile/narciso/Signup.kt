@@ -23,8 +23,6 @@ class Signup : Fragment() {
         _binding = FragmentSignupBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        binding.signup.isEnabled = false
-
         val databaseHelper = DatabaseHelper(requireContext())
 
         binding.signup.setOnClickListener {
@@ -35,12 +33,7 @@ class Signup : Fragment() {
 
             val passwordmatch = password == passwordrepeted
 
-            if(passwordmatch)
-            {
-                Toast.makeText(requireContext(),"le password corrispondono", Toast.LENGTH_SHORT).show()
-
-            }
-            else
+            if(!passwordmatch)
             {
                 Toast.makeText(requireContext(),"le password non corrispondono", Toast.LENGTH_SHORT).show()
                 binding.signup.isEnabled = true
@@ -59,7 +52,6 @@ class Signup : Fragment() {
                 Toast.makeText(requireContext(), "Please fill all fields!", Toast.LENGTH_SHORT).show()
             }
         }
-
         return view
     }
 
