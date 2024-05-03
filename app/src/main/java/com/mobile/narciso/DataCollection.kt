@@ -2,7 +2,6 @@ package com.mobile.narciso
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
@@ -29,19 +27,27 @@ class DataCollection : Fragment() {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
     private val CAMERA_PERMISSION_CODE = 1001
-    private var currentImageIndex = 0;
-
 
     //code needed to connect data COllection to the image adapter
-    val images = listOf(R.drawable.n001, R.drawable.a001, R.drawable.a002)
-    val adapter = ImageAdapter(images)
+    //val images = listOf(R.drawable.n001, R.drawable.a001, R.drawable.a002)
 
     private val binding get() = _binding!!
+    private var currentImageIndex = 0;
+    private var adapter = ImageAdapter(listOf())
+    val images = mutableListOf<Int>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
+
+        for (imageName in imageNames) {
+            val imageId = resources.getIdentifier(imageName, "drawable", "com.mobile.narciso")
+            images.add(imageId)
+        }
+
+        adapter = ImageAdapter(images)
 
         _binding = FragmentDatacollectionBinding.inflate(inflater, container, false)
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -64,6 +70,14 @@ class DataCollection : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.viewPager.adapter = adapter
+
+        binding.viewPager.apply {
+            adapter = ImageAdapter(images)
+
+            // Disable swipe
+            (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            isUserInputEnabled = false
+        }
 
         binding.gotoDataTestingDATACOLLECTION.setOnClickListener {
             Toast.makeText(requireContext(), "sto andando a data testing!", Toast.LENGTH_SHORT)
