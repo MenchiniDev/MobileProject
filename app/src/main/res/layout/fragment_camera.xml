@@ -14,7 +14,7 @@
         <androidx.camera.view.PreviewView
             android:id="@+id/viewFinder"
             android:layout_width="match_parent"
-            android:layout_height="635dp">
+            android:layout_height="369dp">
 
         </androidx.camera.view.PreviewView>
 
