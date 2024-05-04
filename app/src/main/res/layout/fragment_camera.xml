@@ -6,39 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".CameraFragment">
 
-    <LinearLayout
+    <androidx.camera.view.PreviewView
+        android:id="@+id/viewFinder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="397dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.camera.view.PreviewView
-            android:id="@+id/viewFinder"
-            android:layout_width="match_parent"
-            android:layout_height="635dp">
-
-        </androidx.camera.view.PreviewView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:background="@color/black">
-
-            <Button
-                android:id="@+id/takepic"
-                android:layout_width="123dp"
-                android:layout_height="90dp"
-                android:text="Scatta"
-                android:layout_marginLeft="50dp"/>
-
-            <Button
-                android:id="@+id/flashtoggle"
-                android:layout_width="123dp"
-                android:layout_height="90dp"
-                android:text="Flash"
-                android:layout_marginLeft="60dp"/>
-        </LinearLayout>
-
-    </LinearLayout>
+    </androidx.camera.view.PreviewView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

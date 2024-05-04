@@ -9,7 +9,7 @@
     <string name="previous">Previous</string>
 
     <string name="presentation">
-        Welcome to future
+        Welcome to future, %s
     </string>
 
     <string name="DataCollection">Data Collection</string>
