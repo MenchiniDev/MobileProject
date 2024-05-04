@@ -30,7 +30,6 @@
 
             </LinearLayout>
 
-
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/child_fragment_container"
                 android:layout_width="match_parent"

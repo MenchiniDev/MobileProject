@@ -37,13 +37,16 @@ class DataCollection : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // create a list of random image names to display
         val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
 
+        // get the resource id for each image name
         for (imageName in imageNames) {
             val imageId = resources.getIdentifier(imageName, "drawable", "com.mobile.narciso")
             images.add(imageId)
         }
 
+        // add the camera fragment to the fragment container
         val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
         childFragmentManager.beginTransaction().apply {
             replace(R.id.child_fragment_container, cameraFragment)
@@ -66,6 +69,7 @@ class DataCollection : Fragment() {
     private fun changeImage() {
         currentImageIndex = (currentImageIndex + 1) % images.size
         binding.viewPager.currentItem = currentImageIndex
+        //ADD: aggiungere il codice per terminare le iterazioni dopo X immagini
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

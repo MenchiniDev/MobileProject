@@ -12,15 +12,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import java.util.*
 import androidx.lifecycle.ViewModelProvider
-import com.mobile.narciso.User
 
 class Login : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    val user = MutableLiveData<User>()
-    val loginTime = MutableLiveData<Date>()
 
+    // Creazione di un'istanza di SessionManager
+    private lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,7 +30,8 @@ class Login : Fragment() {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        var viewModel = ViewModelProvider(this).get(UserViewModel::class.java)
+        // Inizializzazione di SessionManager
+        sessionManager = SessionManager(requireContext())
 
         binding.signup.setOnClickListener {
             findNavController().navigate(R.id.action_login_to_signup)
@@ -44,13 +44,11 @@ class Login : Fragment() {
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 val isInserted = databaseHelper.checkUser(email, password)
                 if (isInserted) {
-                    // Osservazione del LiveData authenticatedUser per sapere quando viene aggiornato
-                    val observer = Observer<User> { user ->
-                        // Verifica se l'utente è stato autenticato correttamente
-                        findNavController().navigate(R.id.action_loginFragment_to_FirstFragment)
-                    }
-                    viewModel.authenticatedUser.observe(viewLifecycleOwner, observer)
-                    viewModel.login(email, password)
+                    // Salvataggio del nome dell'utente nella variabile di sessione
+                    sessionManager.username = email
+
+                    Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(R.id.action_loginFragment_to_FirstFragment)
                 } else {
                     Toast.makeText(requireContext(), "Registration failed!", Toast.LENGTH_SHORT)
                         .show()
