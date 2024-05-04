@@ -121,7 +121,7 @@ class CameraFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding?.takepic?.setOnClickListener {
+        /*binding?.takepic?.setOnClickListener {
             // Cattura l'immagine attuale dalla fotocamera
             val imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
@@ -171,9 +171,9 @@ class CameraFragment : Fragment() {
                 e.printStackTrace()
                 Log.e(TAG, "Error: ${e.message}", e)
             }
-        }
+        }*/
 
-        binding?.flashtoggle?.setOnClickListener {
+        /*binding?.flashtoggle?.setOnClickListener {
             activity?.runOnUiThread {
                 Toast.makeText(
                     requireContext(),
@@ -181,7 +181,7 @@ class CameraFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        }
+        }*/
     }
 
 

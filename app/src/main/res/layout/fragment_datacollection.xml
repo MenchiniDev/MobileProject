@@ -25,32 +25,25 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/gotoDataTesting_DATACOLLECTION"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/DataCollectionButton" />
-                </LinearLayout>
+                    android:orientation="horizontal"/>
 
 
             </LinearLayout>
 
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/child_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="325dp"
+                android:layout_marginBottom="20dp" />
+
+
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
+                android:layout_height="235dp"
                 android:layout_marginTop="20dp"
-                android:layout_height="253dp" />
-
-
-            <Button
-                android:id="@+id/gotoCamera"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="268dp"
-                android:text="go to Camera" />
-
+                android:layout_marginBottom="20dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -63,7 +56,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="10dp"
                     android:layout_weight="1"
-                    android:text="Beauty" />
+                    android:text="Like" />
 
                 <Button
                     android:id="@+id/NoBeauty"
@@ -71,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:layout_weight="1"
-                    android:text="Not beauty" />
+                    android:text="Don't Like" />
             </LinearLayout>
 
         </LinearLayout>

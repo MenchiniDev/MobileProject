@@ -18,21 +18,18 @@ import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
 class DataCollection : Fragment() {
 
     private var _binding: FragmentDatacollectionBinding? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
-    private val CAMERA_PERMISSION_CODE = 1001
+    private val CAMERAPERMISSIONCODE = 1001
 
     //code needed to connect data COllection to the image adapter
     //val images = listOf(R.drawable.n001, R.drawable.a001, R.drawable.a002)
 
     private val binding get() = _binding!!
-    private var currentImageIndex = 0;
+    private var currentImageIndex = 0
     private var adapter = ImageAdapter(listOf())
     val images = mutableListOf<Int>()
 
@@ -47,6 +44,11 @@ class DataCollection : Fragment() {
             images.add(imageId)
         }
 
+        val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
+        childFragmentManager.beginTransaction().apply {
+            replace(R.id.child_fragment_container, cameraFragment)
+            commit()
+        }
         adapter = ImageAdapter(images)
 
         _binding = FragmentDatacollectionBinding.inflate(inflater, container, false)
@@ -56,7 +58,7 @@ class DataCollection : Fragment() {
             // E.g., openCamera()
         } else {
             // Request camera permission
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE)
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), CAMERAPERMISSIONCODE)
         }
 
         return binding.root
@@ -79,15 +81,12 @@ class DataCollection : Fragment() {
             isUserInputEnabled = false
         }
 
-        binding.gotoDataTestingDATACOLLECTION.setOnClickListener {
+        //CHANGE: added the following code to navigate to the next fragment after some image analysis
+        /*binding.gotoDataTestingDATACOLLECTION.setOnClickListener {
             Toast.makeText(requireContext(), "sto andando a data testing!", Toast.LENGTH_SHORT)
                 .show()
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting)
-        }
-
-        binding.gotoCamera.setOnClickListener {
-            findNavController().navigate(R.id.action_DataCollection_to_camera)
-        }
+        }*/
 
 
         binding.Beauty.setOnClickListener {
