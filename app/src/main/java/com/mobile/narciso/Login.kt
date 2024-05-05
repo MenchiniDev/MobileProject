@@ -58,7 +58,8 @@ class Login : Fragment() {
                     .show()
             }
             binding.forgotPassword.setOnClickListener {
-                // Non implementato
+                    findNavController().navigate(R.id.action_login_to_password)
+
             }
         }
         return view

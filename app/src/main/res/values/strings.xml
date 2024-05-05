@@ -26,5 +26,10 @@
     <string name="textview_watchOK">Did you connect the watch?</string>
     <string name="textview_camOK">Did you activate the cam?</string>
     <string name="textview_helmetOK">Did you connect the helmet?</string>
+    <string name="example_email">example@email.com</string>
+    <string name="password">password</string>
+    <string name="login">Log in</string>
+    <string name="signup">Sign up</string>
+    <string name="fpass">Forgot password?</string>
 
 </resources>

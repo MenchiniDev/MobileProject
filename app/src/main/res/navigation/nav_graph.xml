@@ -59,6 +59,9 @@
         <action
             android:id="@+id/action_login_to_signup"
             app:destination="@id/signup" />
+        <action
+            android:id="@+id/action_login_to_password"
+            app:destination="@id/password" />
     </fragment>
 
     <fragment
@@ -68,6 +71,14 @@
         tools:layout="@layout/fragment_signup">
         <action
             android:id="@+id/action_signup_to_login"
+            app:destination="@id/login" />
+    </fragment>
+    <fragment
+        android:id="@+id/password"
+        android:name="com.mobile.narciso.Password"
+        android:label="Password" >
+        <action
+            android:id="@+id/action_password_to_login"
             app:destination="@id/login" />
     </fragment>
 </navigation>
