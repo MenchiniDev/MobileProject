@@ -60,6 +60,17 @@ class DatabaseHelper(context: Context?) :
         }
     }
 
+    // Metodo per verificare se un indirizzo email esiste nel database
+    fun checkEmailExists(email: String?): Boolean {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT * FROM " + TABLE_NAME + " WHERE " + COL_EMAIL + "=?", arrayOf(email)
+        )
+        val count = cursor.count
+        cursor.close()
+        return count > 0 // Se il cursore ha almeno un risultato, ritorna true (l'email esiste)
+    }
+
     companion object {
         private val TAG = "DatabaseHelper"
         private val DATABASE_NAME = "user.db"

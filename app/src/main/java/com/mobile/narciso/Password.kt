@@ -10,44 +10,62 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.mobile.narciso.databinding.FragmentLoginBinding
-import java.net.Authenticator
-import java.net.PasswordAuthentication
-import java.util.Properties
+import com.mobile.narciso.databinding.FragmentPasswordBinding
 
 class Password : Fragment() {
-    private var _binding: FragmentLoginBinding? = null
+    private var _binding: FragmentPasswordBinding? = null
+    private val databaseHelper = DatabaseHelper(requireContext())
     private val binding get() = _binding!!
-    val email = binding.editTextTextEmailAddress.text.toString()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+    ): View {
+        _binding = FragmentPasswordBinding.inflate(inflater, container, false)
         val view = binding.root
+
+        val email = binding.youremail.text.toString()
+
+        binding.sendButton.setOnClickListener {
+            sendResetPasswordEmail(email)
+        }
+        Toast.makeText(requireContext(), "creo", Toast.LENGTH_SHORT).show()
 
         return view
     }
 
-    fun sendResetPasswordEmail(recipientEmail: String) {
+    private fun sendResetPasswordEmail(email: String) {
         if (email.isNotEmpty()) {
-            val mailto = "mailto:$email" +
-                    "?cc=" + "" +
-                    "&subject=" + Uri.encode("Reimpostazione della password") +
-                    "&body=" + Uri.encode("Clicca sul link per reimpostare la password.")
-
-            val emailIntent = Intent(Intent.ACTION_SENDTO)
-            emailIntent.data = Uri.parse(mailto)
-
-            try {
-                startActivity(emailIntent)
-                findNavController().navigate(R.id.action_password_to_login)
-            } catch (e: ActivityNotFoundException) {
-                Toast.makeText(requireContext(), "Non ci sono app di email installate.", Toast.LENGTH_SHORT).show()
+            if (databaseHelper.checkEmailExists(email)) {
+                sendEmail(email)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "L'indirizzo email non è registrato.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        } else {
-            Toast.makeText(requireContext(), "Inserisci un indirizzo email.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun sendEmail(email: String) {
+        val mailto = "mailto:$email" +
+                "?cc=" + "" +
+                "&subject=" + Uri.encode("Reimpostazione della password") +
+                "&body=" + Uri.encode("Clicca sul link per reimpostare la password.")
+
+        val emailIntent = Intent(Intent.ACTION_SENDTO)
+        emailIntent.data = Uri.parse(mailto)
+
+        try {
+            startActivity(emailIntent)
+            findNavController().navigate(R.id.action_password_to_login)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(
+                requireContext(),
+                "Non ci sono app di email installate.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -55,6 +73,4 @@ class Password : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-
 }
