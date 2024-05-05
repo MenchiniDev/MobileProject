@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FirstFragment">
+    tools:context=".FirstFragment"
+    android:background="@color/screen_background_color4">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,6 +19,7 @@
 
             <TextView
                 android:id="@+id/textview_first"
+                android:textColor="@color/colorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_marginBottom="30dp"
@@ -27,6 +29,7 @@
 
             <TextView
                 android:id="@+id/textview_watchOK"
+                android:textColor="@color/colorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/textview_watchOK"
@@ -38,6 +41,7 @@
 
             <TextView
                 android:id="@+id/textview_camOK"
+                android:textColor="@color/colorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/textview_camOK"
@@ -49,13 +53,14 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="297dp"
+                android:layout_height="85dp"
                 android:orientation="horizontal">
 
                 <TextView
+                    android:textColor="@color/colorSecondary"
                     android:id="@+id/textview_helmetOK"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_width="280dp"
+                    android:layout_height="40dp"
                     android:layout_marginBottom="40dp"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-light"
@@ -64,26 +69,23 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <RadioButton
+
+                <CheckBox
+                    android:buttonTint="@color/colorPrimary"
                     android:id="@+id/radioButton"
-                    android:layout_width="wrap_content"
+                    android:layout_width="4dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp" />
+                    android:layout_weight="1" />
+
             </LinearLayout>
 
-            <LinearLayout
+            <Button
+                android:id="@+id/gotoDataCollection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/gotoDataCollection"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="35dp"
-                    android:text="@string/DataCollection" />
-
-            </LinearLayout>
+                android:layout_marginEnd="35dp"
+                android:text="@string/DataCollection"
+                style="@style/ButtonStyle"/>
 
         </LinearLayout>
 
