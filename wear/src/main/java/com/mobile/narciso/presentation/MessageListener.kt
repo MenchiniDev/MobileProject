@@ -4,24 +4,50 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
+import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 
-class MessageListener : WearableListenerService() {
+class MessageListener : WearableListenerService(), MessageClient.OnMessageReceivedListener {
 
-    private val TAG = "MessageListener"
-    private val MESSAGE_PATH = "/retrieve_data"
+    private lateinit var TAG: String
+    private lateinit var MESSAGE_PATH: String
+    private lateinit var DATA_PATH: String
 
-    var lastHRsensorData: Float = 0.0f
-    var lastECGsensorData: Float = 0.0f
-    var lastPPGsensorData: Float = 0.0f
+    private var lastHRsensorData: Float = 0.0f
+    private var lastECGsensorData: Float = 0.0f
+    private var lastPPGsensorData: Float = 0.0f
+
+    private lateinit var messageClient: MessageClient
+
+    override fun onCreate() {
+        super.onCreate()
+        TAG = "MessageListener"
+        MESSAGE_PATH = "/retrieve_data"
+        DATA_PATH = "/send_data"
+        messageClient = Wearable.getMessageClient(this)
+        messageClient.addListener(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        messageClient.removeListener(this)
+    }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
         if (messageEvent.path == MESSAGE_PATH) {
-            val message = String(messageEvent.data)
-            Log.d(TAG, "Message received on wearable: $message")
-            val intent = Intent(this, ReadSensors::class.java)
-            startService(intent)
+            val messageReceived = String(messageEvent.data)
+            Log.d(TAG, "Message received on wearable: $messageReceived")
+            val nodeID = messageEvent.sourceNodeId
+            val floatList = listOf(lastHRsensorData, lastECGsensorData, lastPPGsensorData)
+            val messageToSend = floatList.joinToString(",")
+            val sendMessageTask = messageClient.sendMessage(nodeID, DATA_PATH, messageToSend.toByteArray())
+            sendMessageTask.addOnSuccessListener {
+                Log.d(TAG, "Float list sent to phone")
+            }.addOnFailureListener { e ->
+                Log.e(TAG, "Failed to send float list to phone: ${e.message}")
+            }
         } else {
             Log.e(TAG, "Message path not recognized")
         }

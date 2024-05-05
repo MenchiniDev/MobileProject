@@ -12,22 +12,26 @@ import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Node
+import com.google.android.gms.wearable.WearableListenerService
 import java.nio.charset.StandardCharsets
 
-class RequestSensors : Service(), MessageClient.OnMessageReceivedListener {
+class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceivedListener {
 
-    private val TAG = "RequestSensors"
-    private val MESSAGE_PATH = "/retrieve_data"
+    private lateinit var TAG: String
+    private lateinit var MESSAGE_PATH: String
+    private lateinit var DATA_PATH: String
+    private lateinit var MESSAGE: String
 
     private lateinit var messageClient: MessageClient
+
     override fun onCreate() {
         super.onCreate()
+        TAG = "RequestSensors"
+        MESSAGE_PATH = "/retrieve_data"
+        DATA_PATH = "/send_data"
+        MESSAGE = "Requesting sensor data"
         messageClient = Wearable.getMessageClient(this)
         messageClient.addListener(this)
-    }
-
-    override fun onBind(intent: Intent): IBinder? {
-        return null
     }
 
     override fun onDestroy() {
@@ -36,18 +40,18 @@ class RequestSensors : Service(), MessageClient.OnMessageReceivedListener {
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
-        if(messageEvent.path == MESSAGE_PATH) {
-            val message = String(messageEvent.data, StandardCharsets.UTF_8)
+        if(messageEvent.path == DATA_PATH) {
+            val message = String(messageEvent.data)
             Log.d(TAG, "Message received on wearable: $message")
             TODO("Gestisci il messaggio ricevuto")
         }
     }
 
-    private fun startServiceOnWearable(message: String) {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val wearableNodeTask: Task<List<Node>> = Wearable.getNodeClient(this).connectedNodes
         wearableNodeTask.addOnSuccessListener { nodes ->
             nodes.forEach { node ->
-                val sendMessageTask: Task<Int> = messageClient.sendMessage(node.id, MESSAGE_PATH, message.toByteArray())
+                val sendMessageTask: Task<Int> = messageClient.sendMessage(node.id, MESSAGE_PATH, MESSAGE.toByteArray())
                 sendMessageTask.addOnSuccessListener {
                     Log.d(TAG, "Message sent to wearable")
                 }.addOnFailureListener {
@@ -55,10 +59,6 @@ class RequestSensors : Service(), MessageClient.OnMessageReceivedListener {
                 }
             }
         }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startServiceOnWearable("Request sensors")
         return START_STICKY
     }
 }
