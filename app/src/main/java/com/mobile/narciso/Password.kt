@@ -1,6 +1,9 @@
 package com.mobile.narciso
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -14,30 +17,29 @@ import com.mobile.narciso.databinding.FragmentPasswordBinding
 
 class Password : Fragment() {
     private var _binding: FragmentPasswordBinding? = null
-    private val databaseHelper = DatabaseHelper(requireContext())
     private val binding get() = _binding!!
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPasswordBinding.inflate(inflater, container, false)
         val view = binding.root
-
-        val email = binding.youremail.text.toString()
-
         binding.sendButton.setOnClickListener {
+            val email = binding.youremail.text.toString()
             sendResetPasswordEmail(email)
         }
-        Toast.makeText(requireContext(), "creo", Toast.LENGTH_SHORT).show()
 
         return view
     }
 
     private fun sendResetPasswordEmail(email: String) {
+        //creating an istance of DataBaseHelper to query database
+        val databaseHelper = DatabaseHelper(requireContext())
         if (email.isNotEmpty()) {
             if (databaseHelper.checkEmailExists(email)) {
-                sendEmail(email)
+                //the user exists, send the email with the new password
+                val newpass = databaseHelper.resetPassword(email)
+                popUpPass(email,newpass)
             } else {
                 Toast.makeText(
                     requireContext(),
@@ -45,28 +47,23 @@ class Password : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        }
-    }
-
-    private fun sendEmail(email: String) {
-        val mailto = "mailto:$email" +
-                "?cc=" + "" +
-                "&subject=" + Uri.encode("Reimpostazione della password") +
-                "&body=" + Uri.encode("Clicca sul link per reimpostare la password.")
-
-        val emailIntent = Intent(Intent.ACTION_SENDTO)
-        emailIntent.data = Uri.parse(mailto)
-
-        try {
-            startActivity(emailIntent)
-            findNavController().navigate(R.id.action_password_to_login)
-        } catch (e: ActivityNotFoundException) {
+        }else{
             Toast.makeText(
                 requireContext(),
-                "Non ci sono app di email installate.",
+                "Inserisci un indirizzo email.",
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    private fun popUpPass(email: String,newpass: String) {
+        binding.newpassView.text = "La tua nuova password è: $newpass"
+
+        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("password", newpass)
+        clipboard.setPrimaryClip(clip)
+
+        Toast.makeText(requireContext(), "Password copiata negli appunti", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

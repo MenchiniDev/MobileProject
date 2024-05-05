@@ -20,7 +20,7 @@ class Login : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Creazione di un'istanza di DatabaseHelper
         val databaseHelper = DatabaseHelper(requireContext())
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
