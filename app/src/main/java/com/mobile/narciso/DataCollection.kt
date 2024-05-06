@@ -7,27 +7,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
-import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 class DataCollection : Fragment() {
 
     private var _binding: FragmentDatacollectionBinding? = null
-    private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
     private val CAMERAPERMISSIONCODE = 1001
-
-    //code needed to connect data COllection to the image adapter
-    //val images = listOf(R.drawable.n001, R.drawable.a001, R.drawable.a002)
-
     private val binding get() = _binding!!
     private var currentImageIndex = 0
     private var adapter = ImageAdapter(listOf())
@@ -36,7 +29,7 @@ class DataCollection : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // create a list of random image names to display
         val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
 
@@ -55,12 +48,8 @@ class DataCollection : Fragment() {
         adapter = ImageAdapter(images)
 
         _binding = FragmentDatacollectionBinding.inflate(inflater, container, false)
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            // Permission is already granted
-            // Proceed with camera operations
-            // E.g., openCamera()
-        } else {
-            // Request camera permission
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // Permissions not granted: request camera permission
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), CAMERAPERMISSIONCODE)
         }
 
@@ -85,7 +74,7 @@ class DataCollection : Fragment() {
             isUserInputEnabled = false
         }
 
-        //CHANGE: added the following code to navigate to the next fragment after some image analysis
+        //TODO CHANGE: added the following code to navigate to the next fragment after some image analysis
         /*binding.gotoDataTestingDATACOLLECTION.setOnClickListener {
             Toast.makeText(requireContext(), "sto andando a data testing!", Toast.LENGTH_SHORT)
                 .show()
@@ -95,10 +84,12 @@ class DataCollection : Fragment() {
 
         binding.Beauty.setOnClickListener {
             changeImage()
+            sendData(true)
         }
 
         binding.NoBeauty.setOnClickListener {
             changeImage()
+            sendData(false)
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -108,10 +99,14 @@ class DataCollection : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    fun sendData(Beauty: Boolean): Boolean {
+        //TODO: implementare il codice per inviare i dati al server
+        return Beauty
+    }
 }
 
 class ImageAdapter(private val images: List<Int>) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
-
 
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
        val imageView: ImageView = itemView.findViewById(R.id.image)

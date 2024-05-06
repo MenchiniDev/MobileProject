@@ -60,6 +60,38 @@ class DatabaseHelper(context: Context?) :
         }
     }
 
+    // Metodo per verificare se un indirizzo email esiste nel database
+    fun checkEmailExists(email: String?): Boolean {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT * FROM " + TABLE_NAME + " WHERE " + COL_EMAIL + "=?", arrayOf(email)
+        )
+        val count = cursor.count
+        cursor.close()
+        return count > 0 // Se il cursore ha almeno un risultato, ritorna true (l'email esiste)
+    }
+
+
+    fun resetPassword(email: String): String {
+        val db = this.writableDatabase
+        val newPassword = generateRandomPassword(8)
+        val hashedPassword = hashPassword(newPassword) // Hashing new password
+
+        val contentValues = ContentValues()
+        contentValues.put(COL_PASSWORD, hashedPassword)
+
+        val result = db.update(TABLE_NAME, contentValues, "$COL_EMAIL = ?", arrayOf(email))
+
+        return newPassword
+    }
+
+    private fun generateRandomPassword(length: Int): String {
+        val allowedChars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return (1..length)
+            .map { allowedChars.random() }
+            .joinToString("")
+    }
+
     companion object {
         private val TAG = "DatabaseHelper"
         private val DATABASE_NAME = "user.db"

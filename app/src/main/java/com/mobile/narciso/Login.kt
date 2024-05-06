@@ -8,10 +8,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentLoginBinding
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import java.util.*
-import androidx.lifecycle.ViewModelProvider
 
 class Login : Fragment() {
 
@@ -24,7 +20,7 @@ class Login : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Creazione di un'istanza di DatabaseHelper
         val databaseHelper = DatabaseHelper(requireContext())
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
@@ -57,9 +53,10 @@ class Login : Fragment() {
                 Toast.makeText(requireContext(), "Please fill all fields!", Toast.LENGTH_SHORT)
                     .show()
             }
-            binding.forgotPassword.setOnClickListener {
-                // Non implementato
-            }
+        }
+        binding.forgotPassword.setOnClickListener {
+            findNavController().navigate(R.id.action_login_to_password)
+
         }
         return view
     }

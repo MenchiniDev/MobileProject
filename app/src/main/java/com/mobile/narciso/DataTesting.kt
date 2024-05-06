@@ -20,9 +20,10 @@ class DataTesting : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentDatatestingBinding.inflate(inflater, container, false)
+        //TODO display all plots of data collected during dataCollection session
         return binding.root
 
     }
