@@ -43,7 +43,13 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
         if(messageEvent.path == DATA_PATH) {
             val message = String(messageEvent.data)
             Log.d(TAG, "Message received on wearable: $message")
-            TODO("Gestisci il messaggio ricevuto")
+            val floatList = message.split(",").map { it.toFloat() }
+            val HRsensorData = floatList[0]
+            val ECGsensorData = floatList[1]
+            val PPGsensorData = floatList[2]
+            Log.d(TAG, "Heart Rate: $HRsensorData")
+            Log.d(TAG, "ECG: $ECGsensorData")
+            Log.d(TAG, "PPG: $PPGsensorData")
         }
     }
 
