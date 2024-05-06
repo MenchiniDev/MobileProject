@@ -51,8 +51,7 @@ class MainActivity : ComponentActivity() {
 //    private lateinit var PPGsensorEventListener: SensorEventListener
 //    var PPGType = 65572
 
-    val intent = Intent(this, MessageListener::class.java)
-
+    private lateinit var sendIntent: Intent
     private fun HRregisterListener() {
         HRsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         HRsensor = HRsensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)!!
@@ -60,9 +59,9 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("Heart Rate", "Heart Rate: ${values[0]}")
-                intent.putExtra("SENSOR_NAME", "Heart Rate")
-                intent.putExtra("SENSOR_DATA", values[0])
-                startService(intent)
+                sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
+                sendIntent.putExtra("SENSOR_DATA", values[0])
+                startService(sendIntent)
             }
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
                 // Gestisci i cambiamenti di accuratezza se necessario
@@ -77,9 +76,9 @@ class MainActivity : ComponentActivity() {
 //            override fun onSensorChanged(event: SensorEvent) {
 //                val values = event.values
 //                Log.d("ECG", "ECG: ${values[0]}")
-//                intent.putExtra("SENSOR_NAME", "ECG")
-//                intent.putExtra("SENSOR_DATA", values[0])
-//                startService(intent)
+//                sendIntent.putExtra("SENSOR_NAME", "ECG")
+//                sendIntent.putExtra("SENSOR_DATA", values[0])
+//                startService(sendIntent)
 //            }
 //            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
 //                // Gestisci i cambiamenti di accuratezza se necessario
@@ -95,9 +94,9 @@ class MainActivity : ComponentActivity() {
 //            override fun onSensorChanged(event: SensorEvent) {
 //                val values = event.values
 //                Log.d("PPG", "PPG: ${values[0]}")
-//                intent.putExtra("SENSOR_NAME", "PPG")
-//                intent.putExtra("SENSOR_DATA", values[0])
-//                startService(intent)
+//                sendIntent.putExtra("SENSOR_NAME", "PPG")
+//                sendIntent.putExtra("SENSOR_DATA", values[0])
+//                startService(sendIntent)
 //            }
 //            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
 //                // Gestisci i cambiamenti di accuratezza se necessario
@@ -115,6 +114,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             WearApp("Android")
         }
+        sendIntent = Intent(this, MessageListener::class.java)
+
         HRregisterListener()
 //        ECGregisterListener()
 //        PPGregisterListener()
@@ -122,7 +123,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        startService(intent)
+        startService(sendIntent)
     }
 
     override fun onPause() {
