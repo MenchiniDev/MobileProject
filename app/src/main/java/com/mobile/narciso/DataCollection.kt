@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
 import java.util.concurrent.ExecutorService
@@ -25,6 +27,7 @@ class DataCollection : Fragment() {
     private var currentImageIndex = 0
     private var adapter = ImageAdapter(listOf())
     val images = mutableListOf<Int>()
+    private var imagesSeen = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,6 +55,8 @@ class DataCollection : Fragment() {
             // Permissions not granted: request camera permission
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), CAMERAPERMISSIONCODE)
         }
+
+        binding.goToDataTesting.visibility = View.GONE
 
         return binding.root
     }
@@ -85,14 +90,29 @@ class DataCollection : Fragment() {
         binding.Beauty.setOnClickListener {
             changeImage()
             sendData(true)
+            imagesSeen++
+            checkCounter()
         }
 
         binding.NoBeauty.setOnClickListener {
             changeImage()
             sendData(false)
+            imagesSeen++
+            checkCounter()
+        }
+        binding.goToDataTesting.setOnClickListener {
+            findNavController().navigate(R.id.action_DataCollection_to_DataTesting)
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+    }
+    private fun checkCounter()
+    {
+        if (imagesSeen == 10) {
+            binding.Beauty.visibility = View.GONE
+            binding.NoBeauty.visibility = View.GONE
+            binding.goToDataTesting.visibility = View.VISIBLE
+        }
     }
 
     override fun onDestroyView() {
