@@ -1,6 +1,7 @@
 package com.mobile.narciso
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -102,6 +103,11 @@ class DataCollection : Fragment() {
 
     fun sendData(Beauty: Boolean): Boolean {
         //TODO: implementare il codice per inviare i dati al server
+//        val contxt = requireContext()
+//        val reqData = Intent(contxt, RequestSensors::class.java)
+//        contxt.startService(reqData)
+        val intent = Intent(requireContext(), RequestSensors::class.java)
+        requireContext().startService(intent)
         return Beauty
     }
 }
