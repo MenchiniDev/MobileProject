@@ -122,10 +122,7 @@ class DataCollection : Fragment() {
     }
 
     fun sendData(Beauty: Boolean): Boolean {
-        //TODO: implementare il codice per inviare i dati al server
-//        val contxt = requireContext()
-//        val reqData = Intent(contxt, RequestSensors::class.java)
-//        contxt.startService(reqData)
+        //TODO: implementare il codice per inviare i dati al cloud
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
         return Beauty

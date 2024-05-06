@@ -6,63 +6,47 @@
     android:layout_height="match_parent"
     android:background="@color/screen_background_color4">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <Button
-        android:id="@+id/gotoDataCollection"
-        android:layout_width="401dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="56dp"
-        android:text="@string/DataTestingButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/idGraphView1"
-            android:layout_width="386dp"
-            android:layout_height="173dp"
-            android:layout_gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        <FrameLayout
+            android:layout_width="372dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="80dp">
 
-    </FrameLayout>
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/idGraphView1"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp" />
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        </FrameLayout>
 
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/idGraphView2"
-            android:layout_width="386dp"
-            android:layout_height="173dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="220dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        <FrameLayout
+            android:layout_width="372dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="100dp">
 
-    </FrameLayout>
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/idGraphView2"
+                android:layout_width="372dp"
+                android:layout_height="200dp" />
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        </FrameLayout>
 
-        <com.jjoe64.graphview.GraphView
-            android:id="@+id/idGraphView3"
-            android:layout_width="386dp"
-            android:layout_height="173dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="220dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        <FrameLayout
+            android:layout_width="372dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="100dp">
 
-    </FrameLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/idGraphView3"
+                android:layout_width="372dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center" />
+
+        </FrameLayout>
+    </LinearLayout>
 
 </ScrollView>

@@ -13,7 +13,7 @@
     </string>
 
     <string name="DataCollection">go to Data Collection</string>
-    <string name="DataTesting">Data Testing</string>
+    <string name="DataTesting">Results</string>
 
     <string name="datacollection_text">
         qui è dove verranno collezionati i dati relativi ai tuoi segnali fisiologici,

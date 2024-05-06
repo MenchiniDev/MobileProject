@@ -4,9 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.mobile.narciso.databinding.FragmentDatatestingBinding
@@ -29,9 +28,22 @@ class DataTesting : Fragment() {
     ): View {
 
         _binding = FragmentDatatestingBinding.inflate(inflater, container, false)
-        //TODO display all plots of data collected during dataCollection session
 
-        var lineGraphView = binding.idGraphView1
+        //TODO display all plots of data collected during dataCollection session
+        val lineGraphView1 = binding.idGraphView1
+        val lineGraphView2 = binding.idGraphView2
+        val lineGraphView3 = binding.idGraphView3
+
+        createGraph(lineGraphView1)
+        createGraph(lineGraphView2)
+        createGraph(lineGraphView3)
+
+        return binding.root
+
+    }
+
+    private fun createGraph(lineGraphView: GraphView) {
+
 
         // on below line we are adding data to our graph view.
         val series: LineGraphSeries<DataPoint> = LineGraphSeries(
@@ -69,21 +81,16 @@ class DataTesting : Fragment() {
         // on below line we are setting color for series.
         series.color = binding.root.resources.getColor(R.color.colorPrimary2)
 
-        // on below line we are adding
-        // data series to our graph view.
         lineGraphView.addSeries(series)
-
-        return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.gotoDataCollection.setOnClickListener {
+        /*binding.gotoDataCollection.setOnClickListener {
             Toast.makeText(requireContext(), "sto andando a data collection!", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_DataTesting_to_DataCollection)
-        }
+        }*/
     }
 
     override fun onDestroyView() {
