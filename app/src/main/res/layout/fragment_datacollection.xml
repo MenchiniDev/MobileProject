@@ -4,21 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DataCollection">
+    tools:context=".DataCollection"
+    android:background="@color/screen_background_color4">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
-
-        <Button
-            android:id="@+id/gotoCamera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="164dp"
-            android:text="go to Camera"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_editor_absoluteX="16dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,24 +18,56 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"/>
+
+
+            </LinearLayout>
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/child_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="325dp"
+                android:layout_marginBottom="20dp" />
+
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="235dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/gotoDataTesting_DATACOLLECTION"
-                    android:layout_width="match_parent"
+                    android:id="@+id/Beauty"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/DataCollectionButton" />
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:text="Like"
+                    style="@style/ButtonStyle"/>
+
+                <Button
+                    android:id="@+id/NoBeauty"
+                    style="@style/ButtonStyle"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1"
+                    android:text="Don't Like" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/textview_second"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/datacollection_text" />
-
 
         </LinearLayout>
 
