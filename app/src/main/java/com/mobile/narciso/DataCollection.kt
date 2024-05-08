@@ -1,9 +1,13 @@
 package com.mobile.narciso
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +33,11 @@ class DataCollection : Fragment() {
     private var adapter = ImageAdapter(listOf())
     val images = mutableListOf<Int>()
     private var imagesSeen = 0
+
+    private var HRsensorDataList: ArrayList<Float> = ArrayList()
+    private var ECGsensorDataList: ArrayList<Float> = ArrayList()
+    private var PPGsensorDataList: ArrayList<Float> = ArrayList()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +73,6 @@ class DataCollection : Fragment() {
     private fun changeImage() {
         currentImageIndex = (currentImageIndex + 1) % images.size
         binding.viewPager.currentItem = currentImageIndex
-        //ADD: aggiungere il codice per terminare le iterazioni dopo X immagini
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -80,14 +88,6 @@ class DataCollection : Fragment() {
             isUserInputEnabled = false
         }
 
-        //TODO CHANGE: added the following code to navigate to the next fragment after some image analysis
-        /*binding.gotoDataTestingDATACOLLECTION.setOnClickListener {
-            Toast.makeText(requireContext(), "sto andando a data testing!", Toast.LENGTH_SHORT)
-                .show()
-            findNavController().navigate(R.id.action_DataCollection_to_DataTesting)
-        }*/
-
-
         binding.Beauty.setOnClickListener {
             changeImage()
             sendData(true)
@@ -101,9 +101,26 @@ class DataCollection : Fragment() {
             imagesSeen++
             checkCounter()
         }
+
+        //invio i dati al fragment Datatesting (Result)
         binding.goToDataTesting.setOnClickListener {
-            findNavController().navigate(R.id.action_DataCollection_to_DataTesting)
+
+            //string conversion is mandatory, Bundle doesn't accept float data
+            val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
+            val ECGsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
+            val PPGsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
+
+            val bundle = Bundle()
+
+            bundle.putStringArrayList("HRsensorDataList", HRsensorDataListString)
+            bundle.putStringArrayList("ECGsensorDataList", ECGsensorDataListString)
+            bundle.putStringArrayList("PPGsensorDataList", PPGsensorDataListString)
+            findNavController().navigate(R.id.action_DataCollection_to_DataTesting, bundle)
         }
+
+        val filter = IntentFilter("com.mobile.narciso.SENSOR_DATA")
+        requireActivity().registerReceiver(sensorDataReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -118,14 +135,25 @@ class DataCollection : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        requireActivity().unregisterReceiver(sensorDataReceiver)
         _binding = null
+    }
+
+    private val sensorDataReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
+            ECGsensorDataList.add(intent.getFloatExtra("ECGsensorData", 0.0f))
+            PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
+        }
     }
 
     fun sendData(Beauty: Boolean): Boolean {
         //TODO: implementare il codice per inviare i dati al cloud
+        //taking sensor data and storing in a List that will be sento to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
-        return Beauty
+
+        return true
     }
 }
 
