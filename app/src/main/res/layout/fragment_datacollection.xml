@@ -46,6 +46,7 @@
                 android:layout_marginBottom="20dp" />
 
             <LinearLayout
+                style="?android:attr/buttonBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -57,7 +58,7 @@
                     android:layout_marginRight="10dp"
                     android:layout_weight="1"
                     android:text="Like"
-                    style="@style/ButtonStyle"/>
+                    style="@style/ButtonStyle" />
 
                 <Button
                     android:id="@+id/NoBeauty"
@@ -67,6 +68,15 @@
                     android:layout_marginLeft="10dp"
                     android:layout_weight="1"
                     android:text="Don't Like" />
+
+                <Button
+                    android:id="@+id/goToDataTesting"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="results" />
+
             </LinearLayout>
 
         </LinearLayout>
