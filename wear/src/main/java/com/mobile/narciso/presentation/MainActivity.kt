@@ -43,15 +43,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var HRsensor: Sensor
     private lateinit var HRsensorEventListener: SensorEventListener
 
-//    private lateinit var ECGsensorManager: SensorManager
-//    private lateinit var ECGsensor: Sensor
-//    private lateinit var ECGsensorEventListener: SensorEventListener
-//    var ECGType = 65550
-//
-//    private lateinit var PPGsensorManager: SensorManager
-//    private lateinit var PPGsensor: Sensor
-//    private lateinit var PPGsensorEventListener: SensorEventListener
-//    var PPGType = 65572
+    private lateinit var PPGsensorManager: SensorManager
+    private lateinit var PPGsensor: Sensor
+    private lateinit var PPGsensorEventListener: SensorEventListener
+    var PPGType = 65572
+    private var lastFilteredValue: Double = 0.0
 
     private lateinit var sendIntent: Intent
 
@@ -73,144 +69,37 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("Heart Rate", "Heart Rate: ${values[0]}")
-//                sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
-//                sendIntent.putExtra("SENSOR_DATA", values[0])
-//                startService(sendIntent)
+                sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
+                sendIntent.putExtra("SENSOR_DATA", values[0])
+                startService(sendIntent)
             }
-            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-                // Gestisci i cambiamenti di accuratezza se necessario
-            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
         HRsensorManager.registerListener(HRsensorEventListener, HRsensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
-//    private fun ECGregisterListener() {
-//        ECGsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-//        ECGsensor = ECGsensorManager.getDefaultSensor(ECGType)!!
-//        ECGsensorEventListener = object : SensorEventListener {
-//            override fun onSensorChanged(event: SensorEvent) {
-//                val values = event.values
-//                Log.d("ECG", "ECG: ${values[0]}")
-//                sendIntent.putExtra("SENSOR_NAME", "ECG")
-//                sendIntent.putExtra("SENSOR_DATA", values[0])
-//                startService(sendIntent)
-//            }
-//            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-//                // Gestisci i cambiamenti di accuratezza se necessario
-//            }
-//        }
-//        ECGsensorManager.registerListener(ECGsensorEventListener, ECGsensor, SensorManager.SENSOR_DELAY_NORMAL)
-//    }
-//
-//    private fun PPGregisterListener() {
-//        PPGsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-//        PPGsensor = PPGsensorManager.getDefaultSensor(PPGType)!!
-//        PPGsensorEventListener = object : SensorEventListener {
-//            override fun onSensorChanged(event: SensorEvent) {
-//                val values = event.values
-//                Log.d("PPG", "PPG: ${values[0]}")
-//                sendIntent.putExtra("SENSOR_NAME", "PPG")
-//                sendIntent.putExtra("SENSOR_DATA", values[0])
-//                startService(sendIntent)
-//            }
-//            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-//                // Gestisci i cambiamenti di accuratezza se necessario
-//            }
-//        }
-//        PPGsensorManager.registerListener(PPGsensorEventListener, PPGsensor, SensorManager.SENSOR_DELAY_NORMAL)
-//    }
-    fun tentativounpostrano() {
-        var sensorManager: SensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-        var SensorEventListener: SensorEventListener = object : SensorEventListener {
+    private fun PPGregisterListener() {
+        PPGsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        PPGsensor = PPGsensorManager.getDefaultSensor(PPGType)!!
+        PPGsensorEventListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                if (event.sensor == sensorManager?.getDefaultSensor(65554) || //eda
-                    event.sensor == sensorManager?.getDefaultSensor(65572) || //ppg
-                    event.sensor == sensorManager?.getDefaultSensor(65550)    //ecg
-                ) {
-                    try {
-                        val fileTitle =
-                            when(event.sensor) {
-                                sensorManager?.getDefaultSensor(65554) -> "eda.csv"
-                                sensorManager?.getDefaultSensor(65572) -> "ppg.csv"
-                                sensorManager?.getDefaultSensor(65550) -> "ecg.csv"
-                                else -> "test.csv"
-                            }
-                        val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
-                        val writer = OutputStreamWriter(fos)
-
-                        var header = "timestamp"
-                        if (fos.channel.size() == 0L) {
-                            for(i in 0..event.values.size) {
-                                header += ",value$i"
-                            }
-                            writer.write(header+"\n")
-                        }
-                        val timestamp = System.currentTimeMillis()
-                        val dataTest = listOf(timestamp)
-                        for(i in 0..event.values.size) {
-                            dataTest.plus(event.values[i])
-                        }
-
-                        val csvRow = dataTest.joinToString(separator = ",")
-                        writer.write(csvRow)
-                        writer.write("\n") // new line
-
-                        writer.close()
-                        fos.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
+                val values = event.values
+                Log.d("PPG", "PPG: ${values[2]}")
+                val filteredValue = filter(values[2].toDouble())
+                Log.d("PPG", "Filtered PPG: $filteredValue")
+                sendIntent.putExtra("SENSOR_NAME", "PPG")
+                sendIntent.putExtra("SENSOR_DATA", values[2])
+                startService(sendIntent)
             }
-            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-                // Gestisci i cambiamenti di accuratezza se necessario
-            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
-    val EDAsensor = sensorManager?.getDefaultSensor(65554) //eda
-    val PPGsensor = sensorManager?.getDefaultSensor(65572) //ppg
-    val ECGsensor = sensorManager?.getDefaultSensor(65550) //ecg
-    sensorManager.registerListener(SensorEventListener, EDAsensor, SensorManager.SENSOR_DELAY_NORMAL)
-    sensorManager.registerListener(SensorEventListener, PPGsensor, SensorManager.SENSOR_DELAY_NORMAL)
-    sensorManager.registerListener(SensorEventListener, ECGsensor, SensorManager.SENSOR_DELAY_NORMAL)
+        PPGsensorManager.registerListener(PPGsensorEventListener, PPGsensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
-    /*
-    if (event.sensor == sensorManager?.getDefaultSensor(65554) || //eda
-            event.sensor == sensorManager?.getDefaultSensor(65572) || //ppg
-            event.sensor == sensorManager?.getDefaultSensor(65550)    //ecg
-        ) {
-            try {
-                val fileTitle =
-                when(event.sensor) {
-                    sensorManager?.getDefaultSensor(65554) -> "eda.csv"
-                    sensorManager?.getDefaultSensor(65572) -> "ppg.csv"
-                    sensorManager?.getDefaultSensor(65550) -> "ecg.csv"
-                    else -> "test.csv"
-                }
-                val fos = openFileOutput(fileTitle, Context.MODE_APPEND)
-                val writer = OutputStreamWriter(fos)
-
-                var header = "timestamp"
-                if (fos.channel.size() == 0L) {
-                    for(i in 0..event.values.size) {
-                        header += ",value$i"
-                    }
-                    writer.write(header+"\n")
-                }
-                val dataTest = listOf(timestamp)
-                for(i in 0..event.values.size) {
-                    dataTest.plus(event.values[i])
-                }
-
-                val csvRow = dataTest.joinToString(separator = ",")
-                writer.write(csvRow)
-                writer.write("\n") // new line
-
-                writer.close()
-                fos.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-     */
+    fun filter(input: Double): Double {
+        var alpha = 0.1
+        alpha = alpha.coerceIn(0.0, 1.0)
+        lastFilteredValue = alpha * input + (1 - alpha) * lastFilteredValue
+        return lastFilteredValue
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
@@ -229,12 +118,9 @@ class MainActivity : ComponentActivity() {
         sendIntent = Intent(this, MessageListener::class.java)
 
         HRregisterListener()
-//        ECGregisterListener()
-//        PPGregisterListener()
-//        tentativounpostrano()
+        PPGregisterListener()
     }
 
-    //se l'utente non accetta i permessi chiusura dell'app
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == PERMISSION_REQUEST_CODE) {
@@ -252,15 +138,13 @@ class MainActivity : ComponentActivity() {
     override fun onPause() {
         super.onPause()
         HRsensorManager.unregisterListener(HRsensorEventListener)
-//        ECGsensorManager.unregisterListener(ECGsensorEventListener)
-//        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        PPGsensorManager.unregisterListener(PPGsensorEventListener)
     }
 
     override fun onResume() {
         super.onResume()
         HRregisterListener()
-//        ECGregisterListener()
-//        PPGregisterListener()
+        PPGregisterListener()
     }
 }
 
