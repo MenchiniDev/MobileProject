@@ -1,6 +1,7 @@
 package com.mobile.narciso
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,8 +42,11 @@ class DataTesting : Fragment() {
         val lineGraphView3 = binding.idGraphView3
 
         createGraph(lineGraphView1,HRsensorDataList)
+        Log.d("HRsensorDataList", HRsensorDataList.toString())
         createGraph(lineGraphView2,ECGsensorDataList)
+        Log.d("ECGsensorDataList", ECGsensorDataList.toString())
         createGraph(lineGraphView3,PPGsensorDataList)
+        Log.d("PPGsensorDataList", PPGsensorDataList.toString())
 
         return binding.root
 

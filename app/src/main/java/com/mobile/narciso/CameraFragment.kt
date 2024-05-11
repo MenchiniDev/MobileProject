@@ -75,9 +75,6 @@ class CameraFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         //Retrieve username of the logged user
-        val prefs =
-            requireContext().getSharedPreferences("myemotiontrackerapp", Context.MODE_PRIVATE)
-        username = prefs.getString("username", "")!!
 
         //ask for permissions
         val cameraLauncher = registerForActivityResult(
@@ -99,7 +96,7 @@ class CameraFragment : Fragment() {
         cameraLauncher.launch(
             arrayOf(
                 Manifest.permission.CAMERA,
-                Manifest.permission.ACCESS_FINE_LOCATION
+                //Manifest.permission.ACCESS_FINE_LOCATION
             )
         )
     }
