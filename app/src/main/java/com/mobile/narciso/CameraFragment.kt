@@ -6,10 +6,15 @@ package com.mobile.narciso
 //import com.google.mlkit.vision.face.FaceDetection
 
 import android.Manifest
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Paint
 import android.hardware.camera2.TotalCaptureResult
 import android.icu.text.SimpleDateFormat
 import android.media.Image
@@ -36,6 +41,9 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.*
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.FaceContour
+import com.google.mlkit.vision.face.FaceLandmark
 import com.mobile.narciso.databinding.FragmentCameraBinding
 import java.io.File
 import java.io.FileOutputStream
@@ -43,7 +51,25 @@ import java.nio.ByteBuffer
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
 
+data class FaceLandmarks(
+    val leftEye: FaceLandmark?,
+    val rightEye: FaceLandmark?,
+    val noseBase: FaceLandmark?,
+    val leftEar: FaceLandmark?,
+    val rightEar: FaceLandmark?,
+    val mouthLeft: FaceLandmark?,
+    val mouthRight: FaceLandmark?,
+    val mouthBottom: FaceLandmark?,
+    val leftCheek: FaceLandmark?,
+    val rightCheek: FaceLandmark?
+)
+
+class Faces {
+    var faceLandmarks: List<FaceLandmarks>? = null
+}
 
 class CameraFragment : Fragment() {
     //Binding to layout objects
@@ -55,7 +81,7 @@ class CameraFragment : Fragment() {
 
     //Thread that handles camera activity
     private lateinit var cameraExecutor: ExecutorService
-    private lateinit var bitmapBuffer: Bitmap
+    lateinit var bitmapBuffer: Bitmap
     private lateinit var username: String
     private var happinessAccumulator: Double = 0.0
     private var counter: Int = 0
@@ -64,18 +90,20 @@ class CameraFragment : Fragment() {
     private var locationRequesterStarted = false
     private lateinit var locCallback: LocationCallback
     private var firstCall = true
-
-    companion object {
-        private const val TAG = "CameraFragment"
-        private const val MY_PERMISSIONS_REQUEST_LOCATION = 123
-        private const val windowSize = 30
-    }
+    val options = FaceDetectorOptions.Builder()
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_NONE)
+        .setMinFaceSize(0.15f)
+        .enableTracking()
+        .build()
+    private val faceDetector = FaceDetection.getClient(options)
+    public var imageRotation: Int = 0
+    val faceFinded = Faces()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        //Retrieve username of the logged user
-
         //ask for permissions
         val cameraLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -92,11 +120,9 @@ class CameraFragment : Fragment() {
                 }
             }
         }
-
         cameraLauncher.launch(
             arrayOf(
                 Manifest.permission.CAMERA,
-                //Manifest.permission.ACCESS_FINE_LOCATION
             )
         )
     }
@@ -117,68 +143,6 @@ class CameraFragment : Fragment() {
     //applico l'inflate delle funzioni sui bottoni
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        /*binding?.takepic?.setOnClickListener {
-            // Cattura l'immagine attuale dalla fotocamera
-            val imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
-
-            // Ottieni un file di output per salvare l'immagine
-            val imageFile = createImageFile()
-
-            // Configura le opzioni di output per l'immagine
-            val outputFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-
-            try {
-                // Cattura l'immagine e salvala nel file specificato
-                imageCapture.takePicture(outputFileOptions, cameraExecutor,
-                    object : ImageCapture.OnImageSavedCallback {
-                        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                            activity?.runOnUiThread {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Photo saved!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-
-                        override fun onError(imageCaptureError: ImageCaptureException) {
-                            // Errore durante il salvataggio dell'immagine
-                            activity?.runOnUiThread {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Photo capture failed: ${imageCaptureError.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            imageCaptureError.printStackTrace()
-                        }
-                    })
-            } catch (e: Exception) {
-                // Eccezione generica
-                activity?.runOnUiThread {
-                    Toast.makeText(
-                        requireContext(),
-                        "${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                e.printStackTrace()
-                Log.e(TAG, "Error: ${e.message}", e)
-            }
-        }*/
-
-        /*binding?.flashtoggle?.setOnClickListener {
-            activity?.runOnUiThread {
-                Toast.makeText(
-                    requireContext(),
-                    "using flash.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }*/
     }
 
 
@@ -200,6 +164,12 @@ class CameraFragment : Fragment() {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+    private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
+        // Rotate the source bitmap of angle degrees
+        val matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
     private fun startCamera() {
@@ -226,12 +196,14 @@ class CameraFragment : Fragment() {
             val imageAnalyzer = ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetRotation(rotation)
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // Discard frames until the processing of the previous one is not completed
                 .setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor) { image ->
                         if (!::bitmapBuffer.isInitialized) {
+                            // The image rotation and RGB image buffer are initialized only once
+                            // the analyzer has started running
                             bitmapBuffer = Bitmap.createBitmap(
                                 image.width,
                                 image.height,
@@ -239,18 +211,15 @@ class CameraFragment : Fragment() {
                             )
                         }
 
-                        bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer)
-                        val imageRotation = image.imageInfo.rotationDegrees
+                        // Copy out RGB bits to the shared bitmap buffer
+                        image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
 
-                        // Create and save the image file
-                        val imageFile = createImageFile()
-                        saveBitmapToFile(bitmapBuffer, imageFile)
+                        imageRotation = image.imageInfo.rotationDegrees
 
-                        // You can do further processing or use the saved file here
-                        // detectFaces(bitmapBuffer, imageRotation)
+                        // bitmap buffer contains the captured image
+                        detectFaces(bitmapBuffer, imageRotation)
                     }
                 }
-
 
             // Select front camera as a default
             val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
@@ -261,14 +230,139 @@ class CameraFragment : Fragment() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageAnalyzer
-                )
+                    this, cameraSelector, preview, imageAnalyzer)
 
-            } catch (exc: Exception) {
+            } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
         }, ContextCompat.getMainExecutor(requireContext()))
+    }
+    fun detectFaces(bitmapBuffer: Bitmap, imageRotation: Int) {
+
+        // Detect faces in the current frame (bitmapBuffer)
+        val inputImage = InputImage.fromBitmap(bitmapBuffer, imageRotation)
+
+        val result = faceDetector.process(inputImage)
+            .addOnSuccessListener { faces ->
+                // Task completed successfully, faces contain the list of bounding boxes enclosing faces
+
+                for (face in faces){
+                    // Get the bounding box of the image
+                    val boundingBox = face.boundingBox
+
+                    // Rotate bitmap according to imageRotation
+                    val rotatedBitmap = rotateBitmap(bitmapBuffer, imageRotation.toFloat())
+
+                    // Process bounding box information
+                    var startingPointLeft = boundingBox.left
+                    var width = boundingBox.width()
+                    if (boundingBox.left < 0){
+                        startingPointLeft = 0
+                    }
+                    if (boundingBox.width() + startingPointLeft > rotatedBitmap.width){
+                        width = rotatedBitmap.width - startingPointLeft
+                    }
+
+                    var startingPointTop = boundingBox.top
+                    Log.d("STARTING POINT TOP", startingPointTop.toString())
+                    var height = boundingBox.height()
+                    if (boundingBox.top < 0){
+                        startingPointTop = 0
+                    }
+                    if (startingPointTop + boundingBox.height() > rotatedBitmap.height){
+                        height = rotatedBitmap.height - startingPointTop
+                    }
+
+                    //Create cropped image to get only the face
+                    val faceCropImage = Bitmap.createBitmap(rotatedBitmap, startingPointLeft, startingPointTop,
+                        width, height)
+                    faceFinded.faceLandmarks = faces.map { detectedFace ->
+                        FaceLandmarks(
+                            leftEye = detectedFace.getLandmark(FaceLandmark.LEFT_EYE),
+                            rightEye = detectedFace.getLandmark(FaceLandmark.RIGHT_EYE),
+                            noseBase = detectedFace.getLandmark(FaceLandmark.NOSE_BASE),
+                            leftEar = detectedFace.getLandmark(FaceLandmark.LEFT_EAR),
+                            rightEar = detectedFace.getLandmark(FaceLandmark.RIGHT_EAR),
+                            mouthLeft = detectedFace.getLandmark(FaceLandmark.MOUTH_LEFT),
+                            mouthRight = detectedFace.getLandmark(FaceLandmark.MOUTH_RIGHT),
+                            mouthBottom = detectedFace.getLandmark(FaceLandmark.MOUTH_BOTTOM),
+                            leftCheek = detectedFace.getLandmark(FaceLandmark.LEFT_CHEEK),
+                            rightCheek = detectedFace.getLandmark(FaceLandmark.RIGHT_CHEEK)
+                        )
+                    }
+                    drawLandmarks(faceCropImage, faceFinded.faceLandmarks!!)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Exception:", e.toString())
+            }
+    }
+    fun getFaceLandmarks(): List<FaceLandmarks>? {
+        return faceFinded.faceLandmarks
+    }
+
+    fun drawLandmarks(bitmap: Bitmap, faceLandmarks: List<FaceLandmarks>) {
+        val canvas = Canvas(bitmap)
+        val REDdotPaint = Paint().apply {
+            color = Color.RED
+            style = Paint.Style.FILL
+        }
+        val BLUEdotPaint = Paint().apply {
+            color = Color.BLUE
+            style = Paint.Style.FILL
+        }
+        val GREENtextPaint = Paint().apply {
+            color = Color.GREEN
+            textSize = 40f
+        }
+
+        faceLandmarks.forEach { faceLandmark ->
+            faceLandmark.leftEye?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, REDdotPaint)
+                //canvas.drawText("Left Eye", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.rightEye?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, REDdotPaint)
+                //canvas.drawText("Right Eye", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.noseBase?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Nose Base", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.leftEar?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Left Ear", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.rightEar?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Right Ear", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.mouthLeft?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Mouth Left", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.mouthRight?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Mouth Right", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.mouthBottom?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Mouth Bottom", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.leftCheek?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Left Cheek", it.position.x, it.position.y, textPaint)
+            }
+            faceLandmark.rightCheek?.let {
+                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
+                //canvas.drawText("Right Cheek", it.position.x, it.position.y, textPaint)
+            }
+        }
+        fragmentCameraBinding.faceOverlay.setImageBitmap(bitmap)
+        activity?.runOnUiThread {
+            fragmentCameraBinding.faceOverlay.setImageBitmap(bitmap)
+        }
     }
 
     private fun createImageFile(): File {

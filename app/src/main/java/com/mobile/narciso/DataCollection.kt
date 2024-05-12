@@ -15,23 +15,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.google.mlkit.vision.common.InputImage
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.*
 
 
 class DataCollection : Fragment() {
@@ -40,6 +35,8 @@ class DataCollection : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
     private val CAMERAPERMISSIONCODE = 1001
     private lateinit var bitmapBuffer: Bitmap
+
+    private val cameraFragment = CameraFragment()
 
     private val binding get() = _binding!!
     private var currentImageIndex = 0
@@ -87,8 +84,6 @@ class DataCollection : Fragment() {
         return binding.root
     }
 
-
-
     private fun changeImage() {
         currentImageIndex = (currentImageIndex + 1) % images.size
         binding.viewPager.currentItem = currentImageIndex
@@ -107,18 +102,17 @@ class DataCollection : Fragment() {
             isUserInputEnabled = false
         }
 
+
         binding.Beauty.setOnClickListener {
-            takePhoto()
             changeImage()
-            sendData(true)
+            sendData(true,cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
         }
 
         binding.NoBeauty.setOnClickListener {
-            takePhoto()
             changeImage()
-            sendData(false)
+            sendData(false, cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
         }
@@ -147,109 +141,6 @@ class DataCollection : Fragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
-
-    private fun saveBitmapToFile(bitmap: Bitmap, file: File) {
-        val outputStream = FileOutputStream(file)
-        try {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            outputStream.close()
-        }
-    }
-
-    private fun takePhoto() {
-        val imageCapture = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .build()
-
-        // Ottieni un file di output per salvare l'immagine
-        val imageFile = createImageFile()
-
-        // Configura le opzioni di output per l'immagine
-        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(imageFile).build()
-
-        val imageAnalyzer = ImageAnalysis.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // Discard frames until the processing of the previous one is not completed
-            .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-            .build()
-            .also {
-                it.setAnalyzer(cameraExecutor) { image ->
-                    if (!::bitmapBuffer.isInitialized) {
-                        // The image rotation and RGB image buffer are initialized only once
-                        // the analyzer has started running
-                        bitmapBuffer = Bitmap.createBitmap(
-                            image.width,
-                            image.height,
-                            Bitmap.Config.ARGB_8888
-                        )
-                    }
-
-                    // Copy out RGB bits to the shared bitmap buffer
-                    image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
-
-                    saveBitmapToFile(bitmapBuffer, imageFile)
-                    val imageRotation = image.imageInfo.rotationDegrees
-
-                    //detectFaces(bitmapBuffer,imageRotation)
-                }
-            }
-
-        // Select front camera as a default
-        val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-
-    }
-
-    /*private fun detectFaces(bitmapBuffer: Bitmap, imageRotation: Int) {
-
-        // Detect faces in the current frame (bitmapBuffer)
-        val inputImage = InputImage.fromBitmap(bitmapBuffer, imageRotation)
-
-        val result = faceDetector.process(inputImage)
-            .addOnSuccessListener { faces ->
-                // Task completed successfully, faces contain the list of bounding boxes enclosing faces
-
-                for (face in faces){
-                    // Get the bounding box of the image
-                    val boundingBox = face.boundingBox
-
-                    // Rotate bitmap according to imageRotation
-                    val rotatedBitmap = rotateBitmap(bitmapBuffer, imageRotation.toFloat())
-
-                    // Process bounding box information
-                    var startingPointLeft = boundingBox.left
-                    var width = boundingBox.width()
-                    if (boundingBox.left < 0){
-                        startingPointLeft = 0
-                    }
-                    if (boundingBox.width() + startingPointLeft > rotatedBitmap.width){
-                        width = rotatedBitmap.width - startingPointLeft
-                    }
-
-                    var startingPointTop = boundingBox.top
-                    var height = boundingBox.height()
-                    if (boundingBox.top < 0){
-                        startingPointTop = 0
-                    }
-                    if (startingPointTop + boundingBox.height() > rotatedBitmap.height){
-                        height = rotatedBitmap.height - startingPointTop
-                    }
-
-                    //Create cropped image to get only the face
-                    val faceCropImage = Bitmap.createBitmap(rotatedBitmap, startingPointLeft, startingPointTop,
-                        width, height)
-
-
-                    //Feed the deep learning model with the cropped image
-                    //emotionRecognizer.detect(faceCropImage)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("Exception:", e.toString())
-            }
-    }*/
 
     private fun getGalleryPath(): String {
         Toast.makeText(requireContext(),"${Environment.getExternalStorageDirectory()}/${Environment.DIRECTORY_DCIM}/Narciso" , Toast.LENGTH_SHORT).show()
@@ -296,12 +187,24 @@ class DataCollection : Fragment() {
         }
     }
 
-    fun sendData(Beauty: Boolean): Boolean {
+    fun sendData(Beauty: Boolean, faceLandmarks: List<FaceLandmarks>?): Boolean {
         //TODO: implementare il codice per inviare i dati al cloud
         //taking sensor data and storing in a List that will be sento to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
-
+        Toast.makeText(requireContext(), "SEND DATA: DATI RICEVUTI!", Toast.LENGTH_SHORT).show()
+        faceLandmarks?.forEach { faceLandmarks ->
+            Log.d("left eye","Left Eye: ${faceLandmarks.leftEye}")
+            Log.d("right eye","Right Eye: ${faceLandmarks.rightEye}")
+            Log.d("nose base","Nose Base: ${faceLandmarks.noseBase}")
+            Log.d("left ear","Left Ear: ${faceLandmarks.leftEar}")
+            Log.d("right ear","Right Ear: ${faceLandmarks.rightEar}")
+            Log.d("mouth left","Mouth Left: ${faceLandmarks.mouthLeft}")
+            Log.d("mouth right","Mouth Right: ${faceLandmarks.mouthRight}")
+            Log.d("mouth bottom","Mouth Bottom: ${faceLandmarks.mouthBottom}")
+            Log.d("left cheek","Left Cheek: ${faceLandmarks.leftCheek}")
+            Log.d("right cheek","Right Cheek: ${faceLandmarks.rightCheek}")
+        }
         return true
     }
 }
