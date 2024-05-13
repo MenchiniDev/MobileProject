@@ -45,7 +45,6 @@ class DataCollection : Fragment() {
     private var imagesSeen = 0
 
     private var HRsensorDataList: ArrayList<Float> = ArrayList()
-    private var ECGsensorDataList: ArrayList<Float> = ArrayList()
     private var PPGsensorDataList: ArrayList<Float> = ArrayList()
 
     //photo and saving
@@ -124,13 +123,11 @@ class DataCollection : Fragment() {
 
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
-            val ECGsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
             val PPGsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
 
             val bundle = Bundle()
 
             bundle.putStringArrayList("HRsensorDataList", HRsensorDataListString)
-            bundle.putStringArrayList("ECGsensorDataList", ECGsensorDataListString)
             bundle.putStringArrayList("PPGsensorDataList", PPGsensorDataListString)
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting, bundle)
         }

@@ -27,26 +27,27 @@ class DataTesting : Fragment() {
         _binding = FragmentDatatestingBinding.inflate(inflater, container, false)
 
         val HRsensorDataListString = arguments?.getStringArrayList("HRsensorDataList")
-        val ECGsensorDataListString = arguments?.getStringArrayList("ECGsensorDataList")
         val PPGsensorDataListString = arguments?.getStringArrayList("PPGsensorDataList")
 
         // Conversione dell'ArrayList<String> in ArrayList<Float>
         val HRsensorDataList = HRsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
-        val ECGsensorDataList = ECGsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
         val PPGsensorDataList = PPGsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
 
 
         //TODO display all plots of data collected during dataCollection session
         val lineGraphView1 = binding.idGraphView1
         val lineGraphView2 = binding.idGraphView2
-        val lineGraphView3 = binding.idGraphView3
 
         createGraph(lineGraphView1,HRsensorDataList)
+<<<<<<< HEAD
         Log.d("HRsensorDataList", HRsensorDataList.toString())
         createGraph(lineGraphView2,ECGsensorDataList)
         Log.d("ECGsensorDataList", ECGsensorDataList.toString())
         createGraph(lineGraphView3,PPGsensorDataList)
         Log.d("PPGsensorDataList", PPGsensorDataList.toString())
+=======
+        createGraph(lineGraphView2,PPGsensorDataList)
+>>>>>>> origin/main
 
         return binding.root
 

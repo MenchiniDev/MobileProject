@@ -16,7 +16,6 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
     private lateinit var DATA_PATH: String
 
     private var lastHRsensorData: Float = 0.0f
-    private var lastECGsensorData: Float = 0.0f
     private var lastPPGsensorData: Float = 0.0f
 
     private lateinit var messageClient: MessageClient
@@ -40,7 +39,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             val messageReceived = String(messageEvent.data)
             Log.d(TAG, "Message received on wearable: $messageReceived")
             val nodeID = messageEvent.sourceNodeId
-            val floatList = listOf(lastHRsensorData, lastECGsensorData, lastPPGsensorData)
+            val floatList = listOf(lastHRsensorData, lastPPGsensorData)
             val messageToSend = floatList.joinToString(",")
             val sendMessageTask = messageClient.sendMessage(nodeID, DATA_PATH, messageToSend.toByteArray())
             sendMessageTask.addOnSuccessListener {
@@ -59,7 +58,6 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             val sensorData = intent.getFloatExtra("SENSOR_DATA", 0.0f)
             when (sensorName) {
                 "Heart Rate" -> lastHRsensorData = sensorData
-                "ECG" -> lastECGsensorData = sensorData
                 "PPG" -> lastPPGsensorData = sensorData
             }
         }
