@@ -179,10 +179,9 @@ class DataCollection : Fragment() {
     private val sensorDataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
-            ECGsensorDataList.add(intent.getFloatExtra("ECGsensorData", 0.0f))
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
             Log.d("HRsensorData", intent.getFloatExtra("HRsensorData", 0.0f).toString())
-            Log.d("ECGsensorData", intent.getFloatExtra("ECGsensorData", 0.0f).toString())
+            //Log.d("ECGsensorData", intent.getFloatExtra("ECGsensorData", 0.0f).toString())
             Log.d("PPGsensorData", intent.getFloatExtra("PPGsensorData", 0.0f).toString())
         }
     }
