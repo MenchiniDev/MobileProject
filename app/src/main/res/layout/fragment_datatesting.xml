@@ -35,18 +35,6 @@
 
         </FrameLayout>
 
-        <FrameLayout
-            android:layout_width="372dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="100dp">
-
-            <com.jjoe64.graphview.GraphView
-                android:id="@+id/idGraphView3"
-                android:layout_width="372dp"
-                android:layout_height="200dp"
-                android:layout_gravity="center" />
-
-        </FrameLayout>
     </LinearLayout>
 
 </ScrollView>

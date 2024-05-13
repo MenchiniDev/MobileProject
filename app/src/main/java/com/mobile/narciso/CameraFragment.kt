@@ -83,13 +83,6 @@ class CameraFragment : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
     lateinit var bitmapBuffer: Bitmap
     private lateinit var username: String
-    private var happinessAccumulator: Double = 0.0
-    private var counter: Int = 0
-    private var windowArray: ArrayList<Float> = ArrayList<Float>()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var locationRequesterStarted = false
-    private lateinit var locCallback: LocationCallback
-    private var firstCall = true
     val options = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
         .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
@@ -159,11 +152,14 @@ class CameraFragment : Fragment() {
         // Shut down background thread
         cameraExecutor.shutdown()
         //stopLocationRequester()
+        faceDetector.close()
     }
 
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+        cameraExecutor.shutdown()
+        faceDetector.close()
     }
     private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
         // Rotate the source bitmap of angle degrees
@@ -362,32 +358,6 @@ class CameraFragment : Fragment() {
         fragmentCameraBinding.faceOverlay.setImageBitmap(bitmap)
         activity?.runOnUiThread {
             fragmentCameraBinding.faceOverlay.setImageBitmap(bitmap)
-        }
-    }
-
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
-            //activity?.runOnUiThread { Toast.makeText(requireContext(), absolutePath, Toast.LENGTH_SHORT).show()}
-        }
-    }
-
-    private fun saveBitmapToFile(bitmap: Bitmap, file: File) {
-        val outputStream = FileOutputStream(file)
-        try {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            outputStream.close()
         }
     }
 

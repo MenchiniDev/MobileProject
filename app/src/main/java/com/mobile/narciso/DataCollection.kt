@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,9 +20,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.*
@@ -35,6 +31,10 @@ class DataCollection : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
     private val CAMERAPERMISSIONCODE = 1001
     private lateinit var bitmapBuffer: Bitmap
+
+    private val LIKEVALUE = 0
+    private val NEUTRALVALUE = 1
+    private val DONTLIKEVALUE = 2
 
     private val cameraFragment = CameraFragment()
 
@@ -104,14 +104,21 @@ class DataCollection : Fragment() {
 
         binding.Beauty.setOnClickListener {
             changeImage()
-            sendData(true,cameraFragment.getFaceLandmarks())
+            sendData(LIKEVALUE,cameraFragment.getFaceLandmarks())
+            imagesSeen++
+            checkCounter()
+        }
+
+        binding.Neutral.setOnClickListener {
+            changeImage()
+            sendData(NEUTRALVALUE,cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
         }
 
         binding.NoBeauty.setOnClickListener {
             changeImage()
-            sendData(false, cameraFragment.getFaceLandmarks())
+            sendData(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
         }
@@ -123,7 +130,7 @@ class DataCollection : Fragment() {
 
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
-            val PPGsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
+            val PPGsensorDataListString = PPGsensorDataList.map { it.toString() } as ArrayList<String>
 
             val bundle = Bundle()
 
@@ -138,57 +145,31 @@ class DataCollection : Fragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
-
-    private fun getGalleryPath(): String {
-        Toast.makeText(requireContext(),"${Environment.getExternalStorageDirectory()}/${Environment.DIRECTORY_DCIM}/Narciso" , Toast.LENGTH_SHORT).show()
-        return "${Environment.getExternalStorageDirectory()}/${Environment.DIRECTORY_DCIM}/Narciso"
-    }
-
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File = File(getGalleryPath())
-        return File.createTempFile(
-            "PHOTO_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
-        }
-    }
-
     private fun checkCounter()
     {
         if (imagesSeen == 10) {
             binding.Beauty.visibility = View.GONE
             binding.NoBeauty.visibility = View.GONE
+            binding.Neutral.visibility = View.GONE
             binding.goToDataTesting.visibility = View.VISIBLE
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        requireActivity().unregisterReceiver(sensorDataReceiver)
-        _binding = null
     }
 
     private val sensorDataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
-            Log.d("HRsensorData", intent.getFloatExtra("HRsensorData", 0.0f).toString())
-            //Log.d("ECGsensorData", intent.getFloatExtra("ECGsensorData", 0.0f).toString())
-            Log.d("PPGsensorData", intent.getFloatExtra("PPGsensorData", 0.0f).toString())
+            Log.d("HRsensorData", HRsensorDataList.toString())
+            Log.d("PPGsensorData", PPGsensorDataList.toString())
         }
     }
 
-    fun sendData(Beauty: Boolean, faceLandmarks: List<FaceLandmarks>?): Boolean {
+    fun sendData(Beauty: Int, faceLandmarks: List<FaceLandmarks>?): Boolean {
         //TODO: implementare il codice per inviare i dati al cloud
         //taking sensor data and storing in a List that will be sento to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
-        Toast.makeText(requireContext(), "SEND DATA: DATI RICEVUTI!", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(requireContext(), "SEND DATA: DATI RICEVUTI!", Toast.LENGTH_SHORT).show()
         faceLandmarks?.forEach { faceLandmarks ->
             Log.d("left eye","Left Eye: ${faceLandmarks.leftEye}")
             Log.d("right eye","Right Eye: ${faceLandmarks.rightEye}")
@@ -203,8 +184,12 @@ class DataCollection : Fragment() {
         }
         return true
     }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().unregisterReceiver(sensorDataReceiver)
+        _binding = null
+    }
 }
-
 class ImageAdapter(private val images: List<Int>) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

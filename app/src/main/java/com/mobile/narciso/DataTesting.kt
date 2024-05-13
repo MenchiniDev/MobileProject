@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
@@ -29,49 +30,30 @@ class DataTesting : Fragment() {
         val HRsensorDataListString = arguments?.getStringArrayList("HRsensorDataList")
         val PPGsensorDataListString = arguments?.getStringArrayList("PPGsensorDataList")
 
+        Log.d("SONO QUI","SONO QUI 3")
+
         // Conversione dell'ArrayList<String> in ArrayList<Float>
         val HRsensorDataList = HRsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
         val PPGsensorDataList = PPGsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
+
+        Toast.makeText(requireContext(), "SONO QUI", Toast.LENGTH_SHORT).show()
+        Log.d("SONO QUI","SONO QUI 1")
 
 
         //TODO display all plots of data collected during dataCollection session
         val lineGraphView1 = binding.idGraphView1
         val lineGraphView2 = binding.idGraphView2
 
+        Log.d("SONO QUI","SONO QUI 2")
         createGraph(lineGraphView1,HRsensorDataList)
-//<<<<<<< HEAD
-        Log.d("HRsensorDataList", HRsensorDataList.toString())
-        //createGraph(lineGraphView2,ECGsensorDataList)
-        //Log.d("ECGsensorDataList", ECGsensorDataList.toString())
-        //createGraph(lineGraphView3,PPGsensorDataList)
-        Log.d("PPGsensorDataList", PPGsensorDataList.toString())
-//=======
         createGraph(lineGraphView2,PPGsensorDataList)
-//>>>>>>> origin/main
+        Log.d("SONO QUI","SONO QUI 4")
 
         return binding.root
 
     }
 
     private fun createGraph(lineGraphView: GraphView, sensorDataList: ArrayList<Float>) {
-
-
-        // on below line we are adding data to our graph view.
-        /*val series: LineGraphSeries<DataPoint> = LineGraphSeries(
-            arrayOf(
-                // on below line we are adding
-                // each point on our x and y axis.
-                DataPoint(0.0, 1.0),
-                DataPoint(1.0, 3.0),
-                DataPoint(2.0, 4.0),
-                DataPoint(3.0, 9.0),
-                DataPoint(4.0, 6.0),
-                DataPoint(5.0, 3.0),
-                DataPoint(6.0, 6.0),
-                DataPoint(7.0, 1.0),
-                DataPoint(8.0, 2.0)
-            )
-        )*/
 
         // Creazione di un array di DataPoint vuoto
         val dataPoints = ArrayList<DataPoint>()
@@ -84,6 +66,8 @@ class DataTesting : Fragment() {
 
         // on below line adding animation
         lineGraphView.animate()
+
+        Log.d("SONO QUI","SONO QUI 5")
 
         // on below line we are setting scrollable
         // for point graph view
@@ -98,10 +82,13 @@ class DataTesting : Fragment() {
         // on below line we are setting scrollable y
         lineGraphView.viewport.setScrollableY(true)
 
+        Log.d("SONO QUI","SONO QUI 6")
+
         // on below line we are setting color for series.
         series.color = binding.root.resources.getColor(R.color.colorPrimary2)
 
         lineGraphView.addSeries(series)
+        Log.d("SONO QUI","SONO QUI 7")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -111,9 +98,12 @@ class DataTesting : Fragment() {
             Toast.makeText(requireContext(), "sto andando a data collection!", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_DataTesting_to_DataCollection)
         }*/
+
+        Log.d("SONO QUI","SONO QUI 8")
     }
 
     override fun onDestroyView() {
+        Log.d("SONO QUI","SONO QUI 9")
         super.onDestroyView()
         _binding = null
     }
