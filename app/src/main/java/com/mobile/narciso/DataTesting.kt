@@ -39,15 +39,15 @@ class DataTesting : Fragment() {
         val lineGraphView2 = binding.idGraphView2
 
         createGraph(lineGraphView1,HRsensorDataList)
-<<<<<<< HEAD
+//<<<<<<< HEAD
         Log.d("HRsensorDataList", HRsensorDataList.toString())
-        createGraph(lineGraphView2,ECGsensorDataList)
-        Log.d("ECGsensorDataList", ECGsensorDataList.toString())
-        createGraph(lineGraphView3,PPGsensorDataList)
+        //createGraph(lineGraphView2,ECGsensorDataList)
+        //Log.d("ECGsensorDataList", ECGsensorDataList.toString())
+        //createGraph(lineGraphView3,PPGsensorDataList)
         Log.d("PPGsensorDataList", PPGsensorDataList.toString())
-=======
+//=======
         createGraph(lineGraphView2,PPGsensorDataList)
->>>>>>> origin/main
+//>>>>>>> origin/main
 
         return binding.root
 
