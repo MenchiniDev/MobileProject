@@ -22,6 +22,9 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
     private lateinit var DATA_PATH: String
     private lateinit var MESSAGE: String
 
+    var HRsensorData: Float? = null
+    var PPGsensorData: Float? = null
+
     private lateinit var messageClient: MessageClient
 
     override fun onCreate() {
@@ -44,12 +47,14 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
             val message = String(messageEvent.data)
             Log.d(TAG, "Message received on wearable: $message")
             val floatList = message.split(",").map { it.toFloat() }
-            val HRsensorData = floatList[0]
-            val ECGsensorData = floatList[1]
-            val PPGsensorData = floatList[2]
+            HRsensorData = floatList[0]
+            PPGsensorData = floatList[1]
             Log.d(TAG, "Heart Rate: $HRsensorData")
-            Log.d(TAG, "ECG: $ECGsensorData")
             Log.d(TAG, "PPG: $PPGsensorData")
+            val intent = Intent("com.mobile.narciso.SENSOR_DATA")
+            intent.putExtra("HRsensorData", HRsensorData)
+            intent.putExtra("PPGsensorData", PPGsensorData)
+            sendBroadcast(intent)
         }
     }
 
