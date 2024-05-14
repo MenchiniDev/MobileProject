@@ -119,6 +119,7 @@ class MainActivity : ComponentActivity() {
 
         HRregisterListener()
         PPGregisterListener()
+        startService(sendIntent)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -130,21 +131,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        startService(sendIntent)
+    override fun onRestart() {
+        super.onRestart()
+        HRregisterListener()
+        PPGregisterListener()
     }
-
+    override fun onResume() {
+        super.onResume()
+        HRregisterListener()
+        PPGregisterListener()
+    }
     override fun onPause() {
         super.onPause()
         HRsensorManager.unregisterListener(HRsensorEventListener)
         PPGsensorManager.unregisterListener(PPGsensorEventListener)
     }
-
-    override fun onResume() {
-        super.onResume()
-        HRregisterListener()
-        PPGregisterListener()
+    override fun onStop() {
+        super.onStop()
+        HRsensorManager.unregisterListener(HRsensorEventListener)
+        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        HRsensorManager.unregisterListener(HRsensorEventListener)
+        PPGsensorManager.unregisterListener(PPGsensorEventListener)
     }
 }
 
