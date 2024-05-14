@@ -23,6 +23,7 @@ import com.mobile.narciso.databinding.FragmentDatacollectionBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class DataCollection : Fragment() {
@@ -44,12 +45,19 @@ class DataCollection : Fragment() {
     val images = mutableListOf<Int>()
     private var imagesSeen = 0
 
+    //data lists
     private var HRsensorDataList: ArrayList<Float> = ArrayList()
     private var PPGsensorDataList: ArrayList<Float> = ArrayList()
+
+    //array of array of facelandmarks: the first iterator moves throug different data
+    //the second selects the single face's parts of a single istance of data
+    private var FaceLandmarksList:  ArrayList<List<FaceLandmarks>> = ArrayList()
 
     //photo and saving
     private val REQUEST_IMAGE_CAPTURE = 1
     private lateinit var currentPhotoPath: String
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -104,27 +112,28 @@ class DataCollection : Fragment() {
 
         binding.Beauty.setOnClickListener {
             changeImage()
-            sendData(LIKEVALUE,cameraFragment.getFaceLandmarks())
+            takeDatafromCamWatch(LIKEVALUE,cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
         }
 
         binding.Neutral.setOnClickListener {
             changeImage()
-            sendData(NEUTRALVALUE,cameraFragment.getFaceLandmarks())
+            takeDatafromCamWatch(NEUTRALVALUE,cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
         }
 
         binding.NoBeauty.setOnClickListener {
             changeImage()
-            sendData(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
+            takeDatafromCamWatch(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
         }
 
         //invio i dati al fragment Datatesting (Result)
         binding.goToDataTesting.setOnClickListener {
+            //TODO: HERE WE PASS DATA LISTS TO CLOUD
 
             Toast.makeText(requireContext(), "sto andando a data testing!", Toast.LENGTH_SHORT).show()
 
@@ -160,12 +169,12 @@ class DataCollection : Fragment() {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
             Log.d("HRsensorData", HRsensorDataList.toString())
+            Toast.makeText(requireContext(),intent.getFloatExtra("HRsensorData", 0.0f).toString(), Toast.LENGTH_SHORT).show()
             Log.d("PPGsensorData", PPGsensorDataList.toString())
         }
     }
 
-    fun sendData(Beauty: Int, faceLandmarks: List<FaceLandmarks>?): Boolean {
-        //TODO: implementare il codice per inviare i dati al cloud
+    fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: List<FaceLandmarks>?): Boolean {
         //taking sensor data and storing in a List that will be sento to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
@@ -182,6 +191,12 @@ class DataCollection : Fragment() {
             Log.d("left cheek","Left Cheek: ${faceLandmarks.leftCheek}")
             Log.d("right cheek","Right Cheek: ${faceLandmarks.rightCheek}")
         }
+
+        //adding single landmarks group to the list
+        if (faceLandmarks != null) {
+            FaceLandmarksList.add(faceLandmarks)
+        }
+
         return true
     }
     override fun onDestroyView() {
