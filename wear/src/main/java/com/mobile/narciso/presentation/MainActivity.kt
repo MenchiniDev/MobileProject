@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
         sendIntent = Intent(this, MessageListener::class.java)
 
         HRregisterListener()
-        PPGregisterListener()
+//        PPGregisterListener()
         startService(sendIntent)
     }
 
@@ -134,27 +134,27 @@ class MainActivity : ComponentActivity() {
     override fun onRestart() {
         super.onRestart()
         HRregisterListener()
-        PPGregisterListener()
+//        PPGregisterListener()
     }
     override fun onResume() {
         super.onResume()
         HRregisterListener()
-        PPGregisterListener()
+//        PPGregisterListener()
     }
     override fun onPause() {
         super.onPause()
         HRsensorManager.unregisterListener(HRsensorEventListener)
-        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+//        PPGsensorManager.unregisterListener(PPGsensorEventListener)
     }
     override fun onStop() {
         super.onStop()
         HRsensorManager.unregisterListener(HRsensorEventListener)
-        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+//        PPGsensorManager.unregisterListener(PPGsensorEventListener)
     }
     override fun onDestroy() {
         super.onDestroy()
         HRsensorManager.unregisterListener(HRsensorEventListener)
-        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+//        PPGsensorManager.unregisterListener(PPGsensorEventListener)
     }
 }
 
@@ -179,7 +179,7 @@ fun Greeting(greetingName: String) {
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         color = MaterialTheme.colors.primary,
-        text = stringResource(R.string.hello_world, greetingName)
+        text = "Non volevo nascere. Qualcuno mi aiuti. $greetingName"
     )
 }
 
