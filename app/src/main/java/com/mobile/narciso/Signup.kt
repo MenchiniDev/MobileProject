@@ -28,6 +28,7 @@ class Signup : Fragment() {
         binding.signup.setOnClickListener {
 
             val email = binding.editTextTextEmailAddress.text.toString()
+            val user = binding.editTextTextUsername.text.toString()
             val password = binding.editTextTextPassword.text.toString()
             var passwordrepeted = binding.editTextTextPassword2.text.toString()
 
@@ -39,8 +40,8 @@ class Signup : Fragment() {
                 binding.signup.isEnabled = true
             }
 
-            if (email.isNotEmpty() && password.isNotEmpty() && passwordrepeted.isNotEmpty()) {
-                val isInserted = databaseHelper.addUser(email, password,)
+            if (email.isNotEmpty() && password.isNotEmpty() && passwordrepeted.isNotEmpty() && user.isNotEmpty()) {
+                val isInserted = databaseHelper.addUser(user, email , password)
                 if (isInserted) {
                     //insert happened, going to login
                     Toast.makeText(requireContext(), "User registered successfully!", Toast.LENGTH_SHORT).show()
