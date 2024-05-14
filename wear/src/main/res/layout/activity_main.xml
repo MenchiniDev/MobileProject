@@ -1,0 +1,17 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/logo"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_logo">
+
+    <ImageView
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginStart="-25dp"
+        android:layout_marginTop="-1dp"
+        android:alpha="0.3"
+        android:src="@drawable/icon"
+        android:visibility="visible"
+        tools:ignore="ContentDescription" />
+</RelativeLayout>
