@@ -19,30 +19,31 @@ class DatabaseHelper(context: Context?) :
         onCreate(db)
     }
 
-    // Metodo per l'aggiunta di un nuovo utente
-    fun addUser(email: String?, password: String): Boolean {
+    // registration
+    fun addUser(username: String, email: String?, password: String): Boolean {
         val db = this.writableDatabase
         val values = ContentValues()
+        values.put(COL_USERNAME, username)
         values.put(COL_EMAIL, email)
-        values.put(COL_PASSWORD, hashPassword(password)) // Salva la password hashata
+        values.put(COL_PASSWORD, hashPassword(password))
         val result = db.insert(TABLE_NAME, null, values)
         return result != -1L // Ritorna true se l'inserimento è riuscito, altrimenti false
     }
 
-    // Metodo per il controllo delle credenziali di accesso
-    fun checkUser(email: String?, password: String): Boolean {
+    // credentials control
+    fun checkUser(username: String, email: String, password: String): Boolean {
         val db = this.readableDatabase
-        val hashedPassword = hashPassword(password) // Hasha la password da controllare
+        val hashedPassword = hashPassword(password) // password hashed
         val cursor = db.rawQuery(
             "SELECT * FROM " + TABLE_NAME + " WHERE " +
-                    COL_EMAIL + "=? AND " + COL_PASSWORD + "=?", arrayOf(email, hashedPassword)
+                    COL_USERNAME + "=? AND " + COL_EMAIL + "=? AND " + COL_PASSWORD + "=?", arrayOf(username, email, hashedPassword)
         )
         val count = cursor.count
         cursor.close()
-        return count > 0 // Se il cursore ha almeno un risultato, ritorna true (le credenziali sono corrette)
+        return count > 0 // it has at least 1, so it exists
     }
 
-    // Metodo per hashare la password
+    // password hashing
     private fun hashPassword(password: String): String? {
         try {
             val digest = MessageDigest.getInstance("SHA-256")
@@ -60,7 +61,7 @@ class DatabaseHelper(context: Context?) :
         }
     }
 
-    // Metodo per verificare se un indirizzo email esiste nel database
+    // checking for password reset
     fun checkEmailExists(email: String?): Boolean {
         val db = this.readableDatabase
         val cursor = db.rawQuery(
@@ -68,7 +69,7 @@ class DatabaseHelper(context: Context?) :
         )
         val count = cursor.count
         cursor.close()
-        return count > 0 // Se il cursore ha almeno un risultato, ritorna true (l'email esiste)
+        return count > 0 //same as before
     }
 
 
@@ -95,13 +96,15 @@ class DatabaseHelper(context: Context?) :
     companion object {
         private val TAG = "DatabaseHelper"
         private val DATABASE_NAME = "user.db"
-        private val DATABASE_VERSION = 1
+        private val DATABASE_VERSION = 2 // Increment this
         private val TABLE_NAME = "users"
         private val COL_ID = "ID"
         private val COL_EMAIL = "EMAIL"
         private val COL_PASSWORD = "PASSWORD"
+        private val COL_USERNAME = "USERNAME"
         private val CREATE_TABLE = ("CREATE TABLE " + TABLE_NAME + " (" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_USERNAME + " TEXT, " +
                 COL_EMAIL + " TEXT, " +
                 COL_PASSWORD + " TEXT);")
     }
