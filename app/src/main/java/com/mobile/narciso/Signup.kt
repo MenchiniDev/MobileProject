@@ -24,7 +24,7 @@ class Signup : Fragment() {
         val view = binding.root
 
         val databaseHelper = DatabaseHelper(requireContext())
-        val firbaseHelp = FirestoreHandler()
+        val firebaseHelpAccount = FirestoreAccountDAO()
 
         binding.signup.setOnClickListener {
 
@@ -42,7 +42,8 @@ class Signup : Fragment() {
             }
 
             if (email.isNotEmpty() && password.isNotEmpty() && passwordrepeted.isNotEmpty() && user.isNotEmpty()) {
-                val isInserted = databaseHelper.addUser(user, email , password)
+                // val isInserted = databaseHelper.addUser(user, email , password)
+                val isInserted = firebaseHelpAccount.addUser(user, email, password)
                 if (isInserted) {
                     //insert happened, going to login
                     Toast.makeText(requireContext(), "User registered successfully!", Toast.LENGTH_SHORT).show()
