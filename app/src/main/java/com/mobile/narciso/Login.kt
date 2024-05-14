@@ -34,14 +34,15 @@ class Login : Fragment() {
         }
 
         binding.login.setOnClickListener {
+            val username = binding.editTextTextUsername.text.toString()
             val email = binding.editTextTextEmailAddress.text.toString()
             val password = binding.editTextTextPassword.text.toString()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                val isInserted = databaseHelper.checkUser(email, password)
+            if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                val isInserted = databaseHelper.checkUser(username, email, password) // Modifica questa linea
                 if (isInserted) {
                     // Salvataggio del nome dell'utente nella variabile di sessione
-                    sessionManager.username = email
+                    sessionManager.username = username
 
                     Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_loginFragment_to_FirstFragment)
@@ -54,9 +55,9 @@ class Login : Fragment() {
                     .show()
             }
         }
+
         binding.forgotPassword.setOnClickListener {
             findNavController().navigate(R.id.action_login_to_password)
-
         }
         return view
     }
