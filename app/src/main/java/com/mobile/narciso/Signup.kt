@@ -24,6 +24,7 @@ class Signup : Fragment() {
         val view = binding.root
 
         val databaseHelper = DatabaseHelper(requireContext())
+        val firbaseHelp = FirestoreHandler()
 
         binding.signup.setOnClickListener {
 
