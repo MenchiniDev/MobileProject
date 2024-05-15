@@ -15,12 +15,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import com.mobile.narciso.databinding.ActivityMainBinding
+import mylibrary.mindrove.SensorData
+import mylibrary.mindrove.ServerManager
+import java.io.Serializable
 
+class EEGsensordata(val channel1: Double, val channel2: Double, val channel3: Double, val channel4: Double, val channel5: Double, val channel6: Double): Serializable
 class MainActivity : AppCompatActivity() {
+    private val networkStatus = MutableLiveData("Checking network status...")
+    private var isServerManagerStarted = false
+    private var i = 0
+
+
     private val viewModel: SharedViewModel by viewModels()
 
     private lateinit var handler: Handler
@@ -80,6 +90,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(runnable)
+
         // Stop the server when the activity is destroyed
         Log.d("STATUS MINDROVE", "MindroveActivity DESTROYED")
     }
@@ -107,15 +118,6 @@ class MainActivity : AppCompatActivity() {
         wifiSettingsLauncher.launch(intent)
     }
 
-    //passing wifi info to the fragment
-    /*fun createFirstFragment(isWifiConnected: Boolean): FirstFragment {
-        val fragment = FirstFragment()
-        val bundle = Bundle()
-        bundle.putBoolean("isWifiConnected", isWifiConnected)
-        fragment.arguments = bundle
-        return fragment
-    }*/
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
@@ -131,5 +133,23 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    companion object {
+        private val sensorDataText = MutableLiveData("No data yet")
+        var EEGsensordataList = ArrayList<EEGsensordata>()
+        val serverManager = ServerManager { sensorData: SensorData ->
+
+            // Update the sensor data text
+            sensorDataText.postValue(sensorData.channel1.toString())
+            sensorDataText.postValue(sensorData.channel2.toString())
+            sensorDataText.postValue(sensorData.channel3.toString())
+            sensorDataText.postValue(sensorData.channel4.toString())
+            sensorDataText.postValue(sensorData.channel5.toString())
+            sensorDataText.postValue(sensorData.channel6.toString())
+
+            EEGsensordataList.add(EEGsensordata(sensorData.channel1, sensorData.channel2, sensorData.channel3, sensorData.channel4, sensorData.channel5, sensorData.channel6))
+            Thread.sleep(700)
+        }
     }
 }
