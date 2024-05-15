@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentSignupBinding
+import kotlinx.coroutines.runBlocking
 
 class Signup : Fragment() {
 
@@ -23,7 +24,7 @@ class Signup : Fragment() {
         _binding = FragmentSignupBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        val databaseHelper = DatabaseHelper(requireContext())
+        // val databaseHelper = DatabaseHelper(requireContext())
         val firebaseHelpAccount = FirestoreAccountDAO()
 
         binding.signup.setOnClickListener {
@@ -37,19 +38,23 @@ class Signup : Fragment() {
 
             if(!passwordmatch)
             {
-                Toast.makeText(requireContext(),"le password non corrispondono", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),"Le password non corrispondono", Toast.LENGTH_SHORT).show()
                 binding.signup.isEnabled = true
             }
 
             if (email.isNotEmpty() && password.isNotEmpty() && passwordrepeted.isNotEmpty() && user.isNotEmpty()) {
                 // val isInserted = databaseHelper.addUser(user, email , password)
-                val isInserted = firebaseHelpAccount.addUser(user, email, password)
-                if (isInserted) {
+                val isInserted = runBlocking { firebaseHelpAccount.addUser(user, email, password) }
+                if (isInserted == 1) {
                     //insert happened, going to login
                     Toast.makeText(requireContext(), "User registered successfully!", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_signup_to_login)
-                } else {
+                } else if(isInserted == -1) {
+                    // insert failed due to network problems
                     Toast.makeText(requireContext(), "Registration failed!", Toast.LENGTH_SHORT).show()
+                } else if(isInserted == 0){
+                    // insert failed beacuse user already registered
+                    Toast.makeText(requireContext(), "User already exists!", Toast.LENGTH_SHORT).show()
                 }
             } else {
                 Toast.makeText(requireContext(), "Please fill all fields!", Toast.LENGTH_SHORT).show()

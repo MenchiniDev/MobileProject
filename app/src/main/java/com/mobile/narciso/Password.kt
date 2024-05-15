@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentPasswordBinding
+import kotlinx.coroutines.runBlocking
 
 class Password : Fragment() {
     private var _binding: FragmentPasswordBinding? = null
@@ -34,11 +35,16 @@ class Password : Fragment() {
 
     private fun sendResetPasswordEmail(email: String) {
         //creating an istance of DataBaseHelper to query database
+
         val databaseHelper = DatabaseHelper(requireContext())
+        val firebaseHelpAccount = FirestoreAccountDAO()
+
         if (email.isNotEmpty()) {
-            if (databaseHelper.checkEmailExists(email)) {
+            if (runBlocking { firebaseHelpAccount.checkEmailExists(email) }) {   // with SQLite use databaseHelper.checkEmailExists(email)
                 //the user exists, send the email with the new password
                 val newpass = databaseHelper.resetPassword(email)
+                // val newpass = runBlocking { firebaseHelpAccount.resetPassword(email) }
+
                 popUpPass(email,newpass)
             } else {
                 Toast.makeText(
