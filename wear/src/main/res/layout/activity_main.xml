@@ -71,5 +71,14 @@
             android:layout_centerHorizontal="true"
             android:text="@string/ppg"
             android:textColor="@color/background_logo"/>
+
+        <TextView
+            android:id="@+id/EDA"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/eda"
+            android:textColor="@color/background_logo"/>
+
     </LinearLayout>
 </RelativeLayout>

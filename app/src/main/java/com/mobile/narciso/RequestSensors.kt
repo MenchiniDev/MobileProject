@@ -24,6 +24,7 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
 
     var HRsensorData: Float? = null
     var PPGsensorData: Float? = null
+    var EDAsensorData: Float? = null
 
     private lateinit var messageClient: MessageClient
 
@@ -49,11 +50,14 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
             val floatList = message.split(",").map { it.toFloat() }
             HRsensorData = floatList[0]
             PPGsensorData = floatList[1]
+            EDAsensorData = floatList[2]
             Log.d(TAG, "Heart Rate: $HRsensorData")
             Log.d(TAG, "PPG: $PPGsensorData")
+            Log.d(TAG, "EDA: $EDAsensorData")
             val intent = Intent("com.mobile.narciso.SENSOR_DATA")
             intent.putExtra("HRsensorData", HRsensorData)
             intent.putExtra("PPGsensorData", PPGsensorData)
+            intent.putExtra("EDAsensorData", EDAsensorData)
             sendBroadcast(intent)
         }
     }

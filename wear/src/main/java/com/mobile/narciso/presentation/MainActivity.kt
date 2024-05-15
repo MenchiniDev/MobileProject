@@ -29,6 +29,8 @@ import androidx.wear.widget.CurvedTextView
 import com.mobile.narciso.R
 import java.util.Date
 import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.sin
 
 class MainActivity : ComponentActivity() {
     private lateinit var HRsensorManager: SensorManager
@@ -40,8 +42,17 @@ class MainActivity : ComponentActivity() {
     private lateinit var PPGsensor: Sensor
     private lateinit var PPGsensorEventListener: SensorEventListener
     var PPGType = 65572
-    private var lastFilteredValue: Double = 0.0
     private lateinit var PPGText: TextView
+    private var lastFilteredValue: Double = 0.0
+
+    private lateinit var EDAsensorManager: SensorManager
+    private lateinit var EDAsensor: Sensor
+    private lateinit var EDAsensorEventListener: SensorEventListener
+    var EDAType = 65554
+    private lateinit var EDAText: TextView
+    val fs = 1000.0
+    val fc = 2.0
+    val filterLength = 101
 
     private lateinit var sendIntent: Intent
 
@@ -55,6 +66,12 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var timeTextView: CurvedTextView
     private val handler = Handler(Looper.getMainLooper())
+
+    val coefficients = DoubleArray(filterLength) { i ->
+        if (i == filterLength / 2) 2 * fc / fs
+        else sin(2 * PI * fc / fs * (i - filterLength / 2)) / (PI * (i - filterLength / 2))
+    }
+    val buffer = DoubleArray(coefficients.size)
 
     private val runnableCode = object : Runnable {
         override fun run() {
@@ -82,6 +99,23 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    fun PPGfilter(input: Double): Double {
+        var alpha = 0.1
+        alpha = alpha.coerceIn(0.0, 1.0)
+        lastFilteredValue = alpha * input + (1 - alpha) * lastFilteredValue
+        return lastFilteredValue
+    }
+
+    fun EDAfilter(input: Double): Double {
+        System.arraycopy(buffer, 0, buffer, 1, buffer.size - 1)
+        buffer[0] = input
+        var output = 0.0
+        for (i in coefficients.indices) {
+            output += coefficients[i] * buffer[i]
+        }
+        return output
+    }
+
     private fun HRregisterListener() {
         HRsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         HRsensor = HRsensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)!!
@@ -89,7 +123,8 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("Heart Rate", "Heart Rate: ${values[0]}")
-                HRText.text = getString(R.string.heart_rate, values[0])
+                val str = values[0].toString()
+                HRText.text = getString(R.string.heart_rate, str)
                 sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
                 sendIntent.putExtra("SENSOR_DATA", values[0])
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -109,11 +144,12 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("PPG", "PPG: ${values[2]}")
-                val filteredValue = filter(values[2].toDouble())
+                val filteredValue = PPGfilter(values[2].toDouble())
                 Log.d("PPG", "Filtered PPG: $filteredValue")
-                PPGText.text = getString(R.string.ppg, filteredValue)
+                val str = filteredValue.toInt().toString()
+                PPGText.text = getString(R.string.ppg, str)
                 sendIntent.putExtra("SENSOR_NAME", "PPG")
-                sendIntent.putExtra("SENSOR_DATA", values[2])
+                sendIntent.putExtra("SENSOR_DATA", filteredValue.toFloat())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(sendIntent)
                 } else {
@@ -124,12 +160,31 @@ class MainActivity : ComponentActivity() {
         }
         PPGsensorManager.registerListener(PPGsensorEventListener, PPGsensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
-    fun filter(input: Double): Double {
-        var alpha = 0.1
-        alpha = alpha.coerceIn(0.0, 1.0)
-        lastFilteredValue = alpha * input + (1 - alpha) * lastFilteredValue
-        return lastFilteredValue
+
+    private fun EDAregisterListener() {
+        EDAsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        EDAsensor = EDAsensorManager.getDefaultSensor(EDAType)!!
+        EDAsensorEventListener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                val values = event.values
+                Log.d("EDA", "EDA: ${values[2]}")
+                val filteredValue = EDAfilter(values[2].toDouble())
+                Log.d("EDA", "Filtered EDA: $filteredValue")
+                val str = filteredValue.toInt().toString()
+                EDAText.text = getString(R.string.eda, str)
+                sendIntent.putExtra("SENSOR_NAME", "EDA")
+                sendIntent.putExtra("SENSOR_DATA", filteredValue.toFloat())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(sendIntent)
+                } else {
+                    startService(sendIntent)
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        EDAsensorManager.registerListener(EDAsensorEventListener, EDAsensor, 1000)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
@@ -153,6 +208,7 @@ class MainActivity : ComponentActivity() {
 
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
         isReceiverRegistered = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -175,6 +231,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         if (!isReceiverRegistered) {
             registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
             isReceiverRegistered = true
@@ -185,6 +242,7 @@ class MainActivity : ComponentActivity() {
         super.onRestart()
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         if (!isReceiverRegistered) {
             registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
             isReceiverRegistered = true
@@ -194,6 +252,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         if (!isReceiverRegistered) {
             registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
             isReceiverRegistered = true
@@ -203,6 +262,7 @@ class MainActivity : ComponentActivity() {
         super.onPause()
         HRsensorManager.unregisterListener(HRsensorEventListener)
         PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        EDAsensorManager.unregisterListener(EDAsensorEventListener)
         if (isReceiverRegistered) {
             unregisterReceiver(receiver)
             isReceiverRegistered = false
@@ -212,6 +272,7 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         HRsensorManager.unregisterListener(HRsensorEventListener)
         PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        EDAsensorManager.unregisterListener(EDAsensorEventListener)
         if (isReceiverRegistered) {
             unregisterReceiver(receiver)
             isReceiverRegistered = false
@@ -221,6 +282,7 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         HRsensorManager.unregisterListener(HRsensorEventListener)
         PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        EDAsensorManager.unregisterListener(EDAsensorEventListener)
         if (isReceiverRegistered) {
             unregisterReceiver(receiver)
             isReceiverRegistered = false

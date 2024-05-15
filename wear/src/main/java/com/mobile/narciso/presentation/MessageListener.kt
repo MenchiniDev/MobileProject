@@ -19,6 +19,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
 
     private var lastHRsensorData: Float = 0.0f
     private var lastPPGsensorData: Float = 0.0f
+    private var lastEDAsensorData: Float = 0.0f
 
     private lateinit var messageClient: MessageClient
 
@@ -62,7 +63,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             val messageReceived = String(messageEvent.data)
             Log.d(TAG, "Message received on wearable: $messageReceived")
             val nodeID = messageEvent.sourceNodeId
-            val floatList = listOf(lastHRsensorData, lastPPGsensorData)
+            val floatList = listOf(lastHRsensorData, lastPPGsensorData, lastEDAsensorData)
             val messageToSend = floatList.joinToString(",")
             val sendMessageTask = messageClient.sendMessage(nodeID, DATA_PATH, messageToSend.toByteArray())
             sendMessageTask.addOnSuccessListener {
@@ -87,10 +88,9 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             when (sensorName) {
                 "Heart Rate" -> lastHRsensorData = sensorData
                 "PPG" -> lastPPGsensorData = sensorData
+                "EDA" -> lastEDAsensorData = sensorData
             }
         }
         return START_STICKY
     }
-
-
 }
