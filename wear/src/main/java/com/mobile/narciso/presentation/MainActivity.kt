@@ -16,6 +16,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -91,7 +92,11 @@ class MainActivity : ComponentActivity() {
                 HRText.text = getString(R.string.heart_rate, values[0])
                 sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
                 sendIntent.putExtra("SENSOR_DATA", values[0])
-                startService(sendIntent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(sendIntent)
+                } else {
+                    startService(sendIntent)
+                }
             }
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
@@ -109,7 +114,11 @@ class MainActivity : ComponentActivity() {
                 PPGText.text = getString(R.string.ppg, filteredValue)
                 sendIntent.putExtra("SENSOR_NAME", "PPG")
                 sendIntent.putExtra("SENSOR_DATA", values[2])
-                startService(sendIntent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(sendIntent)
+                } else {
+                    startService(sendIntent)
+                }
             }
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
@@ -144,7 +153,11 @@ class MainActivity : ComponentActivity() {
         PPGregisterListener()
         registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
         isReceiverRegistered = true
-        startService(sendIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(sendIntent)
+        } else {
+            startService(sendIntent)
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

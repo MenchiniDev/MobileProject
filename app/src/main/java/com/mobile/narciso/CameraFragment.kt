@@ -26,6 +26,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -58,7 +59,7 @@ class CameraFragment : Fragment() {
     //Binding to layout objects
     private var binding: FragmentCameraBinding? = null
     private val fragmentCameraBinding
-        get() = binding!!
+        get() = binding
 
     //Thread that handles camera activity
     private lateinit var cameraExecutor: ExecutorService
@@ -104,13 +105,13 @@ class CameraFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): ConstraintLayout? {
         // Wanted behaviour is that keyboard popup will overlap the fragment
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         //bind layout to Kotlin objects
         binding = FragmentCameraBinding.inflate(inflater)
-        return fragmentCameraBinding.root
+        return fragmentCameraBinding?.root
     }
 
     //applico l'inflate delle funzioni sui bottoni
@@ -165,7 +166,7 @@ class CameraFragment : Fragment() {
                 .setTargetRotation(rotation)
                 .build()
                 .also {
-                    it.setSurfaceProvider(fragmentCameraBinding.viewFinder.surfaceProvider)
+                    it.setSurfaceProvider(fragmentCameraBinding?.viewFinder?.surfaceProvider)
                 }
 
             // Workflow to apply for each frame detected
@@ -317,7 +318,7 @@ class CameraFragment : Fragment() {
             }
         }
         activity?.runOnUiThread {
-            fragmentCameraBinding.faceOverlay.setImageBitmap(bitmap)
+            fragmentCameraBinding?.faceOverlay?.setImageBitmap(bitmap)
         } ?: run {
             // Se l'activity è null, naviga al fragment DataTesting
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting)
