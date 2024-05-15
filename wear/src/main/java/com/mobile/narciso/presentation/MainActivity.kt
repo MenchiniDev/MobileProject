@@ -50,12 +50,15 @@ class MainActivity : ComponentActivity() {
 
     private var isReceiverRegistered = false
 
+    private lateinit var imagesCount: TextView
+
     private lateinit var timeTextView: CurvedTextView
     private val handler = Handler(Looper.getMainLooper())
+
     private val runnableCode = object : Runnable {
         override fun run() {
             val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-            timeTextView.text = currentTime
+            timeTextView.text = getString(R.string.current_time, currentTime)
             handler.postDelayed(this, 60000)
         }
     }
@@ -64,13 +67,12 @@ class MainActivity : ComponentActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "updateVariable") {
                 newCounter = intent.getStringExtra("variable")?.toInt() ?: 0
-                val imagesCount = findViewById<TextView>(R.id.ImagesCount)
-                imagesCount.text = "Images seen: ${newCounter}/10"
+                imagesCount.text = getString(R.string.images_seen, newCounter)
             }
         }
     }
 
-    val requestPermissionLauncher =
+    private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
@@ -86,7 +88,7 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("Heart Rate", "Heart Rate: ${values[0]}")
-                HRText.text = "HR: ${values[0]}"
+                HRText.text = getString(R.string.heart_rate, values[0])
                 sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
                 sendIntent.putExtra("SENSOR_DATA", values[0])
                 startService(sendIntent)
@@ -104,7 +106,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("PPG", "PPG: ${values[2]}")
                 val filteredValue = filter(values[2].toDouble())
                 Log.d("PPG", "Filtered PPG: $filteredValue")
-                PPGText.text = "PPG: ${filteredValue}"
+                PPGText.text = getString(R.string.ppg, filteredValue)
                 sendIntent.putExtra("SENSOR_NAME", "PPG")
                 sendIntent.putExtra("SENSOR_DATA", values[2])
                 startService(sendIntent)
@@ -126,12 +128,13 @@ class MainActivity : ComponentActivity() {
 
         setTheme(android.R.style.Theme_DeviceDefault)
         setContentView(R.layout.activity_main)
+        imagesCount = findViewById(R.id.ImagesCount)
         timeTextView = findViewById(R.id.Time)
         HRText = findViewById(R.id.HeartRate)
         PPGText = findViewById(R.id.PPG)
         handler.post(runnableCode)
 
-        if(!(checkSelfPermission(android.Manifest.permission.BODY_SENSORS) == PackageManager.PERMISSION_GRANTED)) {
+        if(checkSelfPermission(android.Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissionLauncher.launch(android.Manifest.permission.BODY_SENSORS)
         }
 

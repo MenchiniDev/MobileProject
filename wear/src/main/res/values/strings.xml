@@ -6,4 +6,9 @@
     -->
     <string name="hello_world">From the Square world,\nHello, %1$s!</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="images_seen">Images seen: %d/10</string>
+    <string name="permission_granted">Permission Granted</string>
+    <string name="current_time">%s</string>
+    <string name="heart_rate">HR: %d</string>
+    <string name="ppg">PPG: %d</string>
 </resources>

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:text="12:00"
+        android:text="@string/current_time"
         android:textSize="12sp"
         android:textColor="#FFFFFF"/>
 
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:text="Permission Granted"
+        android:text="@string/permission_granted"
         android:textColor="#7992f5"/>
 
     <TextView
@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
-        android:text="Images seen: 0/10"
+        android:text="@string/images_seen"
         android:textColor="#7992f5"/>
 
 
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-2dp"
-            android:text="HR: "
+            android:text="@string/heart_rate"
             android:textColor="@color/background_logo"/>
 
         <TextView
@@ -69,7 +69,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="PPG: "
+            android:text="@string/ppg"
             android:textColor="@color/background_logo"/>
     </LinearLayout>
 </RelativeLayout>
