@@ -53,20 +53,28 @@
 
                 <Button
                     android:id="@+id/Beauty"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
                     android:layout_marginRight="10dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Like"
                     style="@style/ButtonStyle" />
 
                 <Button
-                    android:id="@+id/NoBeauty"
-                    style="@style/ButtonStyle"
-                    android:layout_width="100dp"
+                    android:id="@+id/Neutral"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
                     android:layout_weight="1"
+                    android:text="@string/Neutral"
+                    style="@style/ButtonStyle"/>
+
+                <Button
+                    android:id="@+id/NoBeauty"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    style="@style/ButtonStyle"
+                    android:layout_height="wrap_content"
                     android:text="Don't Like" />
 
                 <Button

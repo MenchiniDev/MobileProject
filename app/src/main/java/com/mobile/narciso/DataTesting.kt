@@ -1,6 +1,7 @@
 package com.mobile.narciso
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +15,6 @@ class DataTesting : Fragment() {
 
     private var _binding: FragmentDatatestingBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -37,32 +36,14 @@ class DataTesting : Fragment() {
         val lineGraphView1 = binding.idGraphView1
         val lineGraphView2 = binding.idGraphView2
 
-        createGraph(lineGraphView1,HRsensorDataList)
-        createGraph(lineGraphView2,PPGsensorDataList)
+        createGraph(lineGraphView1,HRsensorDataList, "Hear Rate")
+        createGraph(lineGraphView2,PPGsensorDataList, "PPG value")
 
         return binding.root
 
     }
 
-    private fun createGraph(lineGraphView: GraphView, sensorDataList: ArrayList<Float>) {
-
-
-        // on below line we are adding data to our graph view.
-        /*val series: LineGraphSeries<DataPoint> = LineGraphSeries(
-            arrayOf(
-                // on below line we are adding
-                // each point on our x and y axis.
-                DataPoint(0.0, 1.0),
-                DataPoint(1.0, 3.0),
-                DataPoint(2.0, 4.0),
-                DataPoint(3.0, 9.0),
-                DataPoint(4.0, 6.0),
-                DataPoint(5.0, 3.0),
-                DataPoint(6.0, 6.0),
-                DataPoint(7.0, 1.0),
-                DataPoint(8.0, 2.0)
-            )
-        )*/
+    private fun createGraph(lineGraphView: GraphView, sensorDataList: ArrayList<Float>, s: String) {
 
         // Creazione di un array di DataPoint vuoto
         val dataPoints = ArrayList<DataPoint>()
@@ -75,6 +56,8 @@ class DataTesting : Fragment() {
 
         // on below line adding animation
         lineGraphView.animate()
+
+        Log.d("SONO QUI","SONO QUI 5")
 
         // on below line we are setting scrollable
         // for point graph view
@@ -92,16 +75,16 @@ class DataTesting : Fragment() {
         // on below line we are setting color for series.
         series.color = binding.root.resources.getColor(R.color.colorPrimary2)
 
+        lineGraphView.title = s
+
+        //lineGraphView.scaleX = 0.9F
+        //lineGraphView.
+
         lineGraphView.addSeries(series)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        /*binding.gotoDataCollection.setOnClickListener {
-            Toast.makeText(requireContext(), "sto andando a data collection!", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(R.id.action_DataTesting_to_DataCollection)
-        }*/
     }
 
     override fun onDestroyView() {
