@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
     private val PERMISSION_REQUEST_CODE = 123
 
-    private var newCounter: Int = 0
+    private lateinit var newCounter: String
 
     private var isReceiverRegistered = false
 
@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "updateVariable") {
-                newCounter = intent.getStringExtra("variable")?.toInt() ?: 0
+                newCounter = intent.getStringExtra("variable").toString()
                 imagesCount.text = getString(R.string.images_seen, newCounter)
             }
         }
@@ -141,6 +141,8 @@ class MainActivity : ComponentActivity() {
         timeTextView = findViewById(R.id.Time)
         HRText = findViewById(R.id.HeartRate)
         PPGText = findViewById(R.id.PPG)
+        newCounter = "0"
+        imagesCount.text = getString(R.string.images_seen, newCounter)
         handler.post(runnableCode)
 
         if(checkSelfPermission(android.Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
