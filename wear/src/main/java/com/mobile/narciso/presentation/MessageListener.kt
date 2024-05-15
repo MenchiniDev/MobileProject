@@ -20,6 +20,10 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
 
     private lateinit var messageClient: MessageClient
 
+    private var counter: Int = 0
+
+    private lateinit var updateCounter: Intent
+
     override fun onCreate() {
         super.onCreate()
         TAG = "MessageListener"
@@ -36,6 +40,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
         if (messageEvent.path == MESSAGE_PATH) {
+            counter++
             val messageReceived = String(messageEvent.data)
             Log.d(TAG, "Message received on wearable: $messageReceived")
             val nodeID = messageEvent.sourceNodeId
@@ -50,6 +55,11 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
         } else {
             Log.e(TAG, "Message path not recognized")
         }
+        if(counter == 10)
+            counter = 0
+        updateCounter = Intent("updateVariable")
+        updateCounter.putExtra("variable", counter)
+        sendBroadcast(updateCounter)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -63,4 +73,6 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
         }
         return START_STICKY
     }
+
+
 }
