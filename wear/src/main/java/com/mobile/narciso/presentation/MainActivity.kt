@@ -217,7 +217,7 @@ class MainActivity : ComponentActivity() {
             startService(sendIntent)
         }
     }
-
+    @Deprecated("This method is deprecated")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == PERMISSION_REQUEST_CODE) {

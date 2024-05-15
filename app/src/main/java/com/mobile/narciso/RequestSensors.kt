@@ -1,11 +1,6 @@
 package com.mobile.narciso
 
-import android.app.Service
 import android.content.Intent
-import android.os.Bundle
-import android.os.IBinder
-import androidx.core.content.ContentProviderCompat.requireContext
-import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import android.util.Log
@@ -13,7 +8,6 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.WearableListenerService
-import java.nio.charset.StandardCharsets
 
 class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceivedListener {
 
@@ -22,9 +16,9 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
     private lateinit var DATA_PATH: String
     private lateinit var MESSAGE: String
 
-    var HRsensorData: Float? = null
-    var PPGsensorData: Float? = null
-    var EDAsensorData: Float? = null
+    private var HRsensorData: Float? = null
+    private var PPGsensorData: Float? = null
+    private var EDAsensorData: Float? = null
 
     private lateinit var messageClient: MessageClient
 
