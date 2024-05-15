@@ -6,8 +6,10 @@
 
 package com.mobile.narciso.presentation
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -15,6 +17,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,16 +45,20 @@ class MainActivity : ComponentActivity() {
     private lateinit var HRsensorManager: SensorManager
     private lateinit var HRsensor: Sensor
     private lateinit var HRsensorEventListener: SensorEventListener
+    private lateinit var HRText: TextView
 
     private lateinit var PPGsensorManager: SensorManager
     private lateinit var PPGsensor: Sensor
     private lateinit var PPGsensorEventListener: SensorEventListener
     var PPGType = 65572
     private var lastFilteredValue: Double = 0.0
+    private lateinit var PPGText: TextView
 
     private lateinit var sendIntent: Intent
 
     private val PERMISSION_REQUEST_CODE = 123
+
+    private var newCounter: Int = 0
 
     val requestPermissionLauncher =
         registerForActivityResult(
@@ -69,6 +76,7 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("Heart Rate", "Heart Rate: ${values[0]}")
+                HRText.text = "HR: ${values[0]}"
                 sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
                 sendIntent.putExtra("SENSOR_DATA", values[0])
                 startService(sendIntent)
@@ -86,6 +94,7 @@ class MainActivity : ComponentActivity() {
                 Log.d("PPG", "PPG: ${values[2]}")
                 val filteredValue = filter(values[2].toDouble())
                 Log.d("PPG", "Filtered PPG: $filteredValue")
+                PPGText.text = "PPG: ${filteredValue}"
                 sendIntent.putExtra("SENSOR_NAME", "PPG")
                 sendIntent.putExtra("SENSOR_DATA", values[2])
                 startService(sendIntent)
@@ -106,10 +115,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setTheme(android.R.style.Theme_DeviceDefault)
-
-        setContent {
-            WearApp("Android")
-        }
+        setContentView(R.layout.activity_main)
+        HRText = findViewById(R.id.HeartRate)
+        PPGText = findViewById(R.id.PPG)
 
         if(!(checkSelfPermission(android.Manifest.permission.BODY_SENSORS) == PackageManager.PERMISSION_GRANTED)) {
             requestPermissionLauncher.launch(android.Manifest.permission.BODY_SENSORS)
@@ -119,6 +127,7 @@ class MainActivity : ComponentActivity() {
 
         HRregisterListener()
 //        PPGregisterListener()
+        registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
         startService(sendIntent)
     }
 
@@ -135,56 +144,41 @@ class MainActivity : ComponentActivity() {
         super.onRestart()
         HRregisterListener()
 //        PPGregisterListener()
+        registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
     }
     override fun onResume() {
         super.onResume()
         HRregisterListener()
 //        PPGregisterListener()
+        registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
     }
     override fun onPause() {
         super.onPause()
         HRsensorManager.unregisterListener(HRsensorEventListener)
 //        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        unregisterReceiver(receiver)
     }
     override fun onStop() {
         super.onStop()
         HRsensorManager.unregisterListener(HRsensorEventListener)
 //        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        unregisterReceiver(receiver)
     }
     override fun onDestroy() {
         super.onDestroy()
         HRsensorManager.unregisterListener(HRsensorEventListener)
 //        PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        unregisterReceiver(receiver)
     }
-}
 
-@Composable
-fun WearApp(greetingName: String) {
-    NarcisoTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background),
-            contentAlignment = Alignment.Center
-        ) {
-            TimeText()
-            Greeting(greetingName = greetingName)
-        }
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "updateVariable") {
+                newCounter = intent.getStringExtra("variable")?.toInt() ?: 0
+                val imagesCount = findViewById<TextView>(R.id.ImagesCount)
+                imagesCount.text = "Images seen: ${newCounter}/10"
+            }
     }
-}
 
-@Composable
-fun Greeting(greetingName: String) {
-    Text(
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        color = MaterialTheme.colors.primary,
-        text = "Non volevo nascere. Qualcuno mi aiuti. $greetingName"
-    )
 }
-
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
-@Composable
-fun DefaultPreview() {
-    WearApp("Preview Android")
 }

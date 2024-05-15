@@ -30,13 +30,13 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
-        android:text="Images seen: /10"
+        android:text="Images seen: 0/10"
         android:textColor="#7992f5"/>
 
 
     <LinearLayout
         android:id="@+id/Sensors"
-        android:layout_width="90dp"
+        android:layout_width="80dp"
         android:layout_height="50dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="120dp"
