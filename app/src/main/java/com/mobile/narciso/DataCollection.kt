@@ -1,5 +1,6 @@
 package com.mobile.narciso
 
+//mindrove
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,16 +18,32 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
+import mylibrary.mindrove.SensorData
+import mylibrary.mindrove.ServerManager
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.*
-import kotlin.collections.ArrayList
-
 
 class DataCollection : Fragment() {
+    private val sensorDataText = MutableLiveData("No data yet")
+    private val networkStatus = MutableLiveData("Checking network status...")
+    private var isServerManagerStarted = false
+
+    private val serverManager = ServerManager { sensorData: SensorData ->
+        // Update the sensor data text
+        sensorDataText.postValue(sensorData.channel1.toString())
+        sensorDataText.postValue(sensorData.channel2.toString())
+        sensorDataText.postValue(sensorData.channel3.toString())
+        sensorDataText.postValue(sensorData.channel4.toString())
+        sensorDataText.postValue(sensorData.channel5.toString())
+        sensorDataText.postValue(sensorData.channel6.toString())
+    }
+
+    private val viewModel: SharedViewModel by activityViewModels()
 
     private var _binding: FragmentDatacollectionBinding? = null
     private lateinit var cameraExecutor: ExecutorService
@@ -57,12 +74,16 @@ class DataCollection : Fragment() {
     private val REQUEST_IMAGE_CAPTURE = 1
     private lateinit var currentPhotoPath: String
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        serverManager.start()
+
+        viewModel.isServerManagerStarted.value = isServerManagerStarted
+        viewModel.sensorDataText.value = sensorDataText.value
+
+
         // create a list of random image names to display
         val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
 
@@ -202,6 +223,7 @@ class DataCollection : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         requireActivity().unregisterReceiver(sensorDataReceiver)
+        serverManager.stop()
         _binding = null
     }
 }

@@ -41,6 +41,21 @@
 
         </FrameLayout>
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="236dp"
+            android:layout_marginTop="100dp"
+            android:background="@color/colorPrimary2">
+
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/idGraphView3"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:background="@color/screen_background_color4"/>
+
+        </FrameLayout>
+
     </LinearLayout>
 
 </ScrollView>

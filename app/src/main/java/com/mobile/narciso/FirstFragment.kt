@@ -6,16 +6,19 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentFirstBinding
 
 class FirstFragment : Fragment() {
+    private val viewModel: SharedViewModel by activityViewModels()
 
     private var _binding: FragmentFirstBinding? = null
     private val binding get() = _binding!!
@@ -27,6 +30,8 @@ class FirstFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
+
+        Log.d("FirstFragment","MAINACTIVITY CREATA")
 
         binding.textviewFirst.text = getString(R.string.presentation, SessionManager(requireContext()).username)
 
@@ -51,8 +56,21 @@ class FirstFragment : Fragment() {
             binding.textviewCamOK.setTextColor(Color.GREEN)
         }
 
-        // Set helmet textview to red by default
-        binding.textviewHelmetOK.setTextColor(Color.RED)
+        // Check wifi connection
+        viewModel.isWifiConnected.observe(viewLifecycleOwner) { isWifiConnected ->
+            if (isWifiConnected) {
+                binding.textviewHelmetOK.setTextColor(Color.GREEN)
+                binding.textviewHelmetOK.text = "Helmet connected"
+                binding.gotoDataCollection.isEnabled = true
+                binding.radioButton.visibility = View.GONE
+            } else {
+                binding.textviewHelmetOK.setTextColor(Color.RED)
+                binding.textviewHelmetOK.text = "Helmet not connected"
+                binding.gotoDataCollection.isEnabled = false
+                binding.radioButton.visibility = View.VISIBLE
+            }
+        }
+
 
         // Set radio button listener
         binding.radioButton.setOnCheckedChangeListener { _, isChecked ->
@@ -70,7 +88,6 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.gotoDataCollection.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_DataCollection)
         }
