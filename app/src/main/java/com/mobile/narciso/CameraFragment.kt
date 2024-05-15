@@ -7,21 +7,12 @@ package com.mobile.narciso
 
 import android.Manifest
 import android.content.ContentValues.TAG
-import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
-import android.hardware.camera2.TotalCaptureResult
-import android.icu.text.SimpleDateFormat
-import android.media.Image
-import android.media.ImageReader
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -33,26 +24,19 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.location.*
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.FaceContour
-import com.google.mlkit.vision.face.FaceLandmark
-import com.mobile.narciso.databinding.FragmentCameraBinding
-import java.io.File
-import java.io.FileOutputStream
-import java.nio.ByteBuffer
-import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.google.mlkit.vision.face.FaceLandmark
+import com.mobile.narciso.databinding.FragmentCameraBinding
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 data class FaceLandmarks(
     val leftEye: FaceLandmark?,
@@ -74,17 +58,15 @@ class Faces {
 class CameraFragment : Fragment() {
     //Binding to layout objects
     private var binding: FragmentCameraBinding? = null
-
-    private lateinit var currentPhotoPath: String
     private val fragmentCameraBinding
-        get() = binding!!
+        get() = binding
 
     //Thread that handles camera activity
     private lateinit var cameraExecutor: ExecutorService
     lateinit var bitmapBuffer: Bitmap
     private lateinit var username: String
     val options = FaceDetectorOptions.Builder()
-        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
         .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
         .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
         .setContourMode(FaceDetectorOptions.CONTOUR_MODE_NONE)
@@ -92,7 +74,7 @@ class CameraFragment : Fragment() {
         .enableTracking()
         .build()
     private val faceDetector = FaceDetection.getClient(options)
-    public var imageRotation: Int = 0
+    var imageRotation: Int = 0
     val faceFinded = Faces()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +84,6 @@ class CameraFragment : Fragment() {
             ActivityResultContracts.RequestMultiplePermissions()
         ) { isGranted ->
             if (isGranted[Manifest.permission.CAMERA]!!) {
-                //launchLocationRequester()
             } else {
                 activity?.runOnUiThread {
                     Toast.makeText(
@@ -124,13 +105,13 @@ class CameraFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): ConstraintLayout? {
         // Wanted behaviour is that keyboard popup will overlap the fragment
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         //bind layout to Kotlin objects
         binding = FragmentCameraBinding.inflate(inflater)
-        return fragmentCameraBinding.root
+        return fragmentCameraBinding?.root
     }
 
     //applico l'inflate delle funzioni sui bottoni
@@ -185,7 +166,7 @@ class CameraFragment : Fragment() {
                 .setTargetRotation(rotation)
                 .build()
                 .also {
-                    it.setSurfaceProvider(fragmentCameraBinding.viewFinder.surfaceProvider)
+                    it.setSurfaceProvider(fragmentCameraBinding?.viewFinder?.surfaceProvider)
                 }
 
             // Workflow to apply for each frame detected
@@ -300,64 +281,47 @@ class CameraFragment : Fragment() {
 
     fun drawLandmarks(bitmap: Bitmap, faceLandmarks: List<FaceLandmarks>) {
         val canvas = Canvas(bitmap)
-        val REDdotPaint = Paint().apply {
-            color = Color.RED
-            style = Paint.Style.FILL
-        }
-        val BLUEdotPaint = Paint().apply {
+        val dotPaint = Paint().apply {
             color = Color.BLUE
             style = Paint.Style.FILL
         }
-        val GREENtextPaint = Paint().apply {
+        val linePaint = Paint().apply {
             color = Color.GREEN
-            textSize = 40f
+            style = Paint.Style.STROKE
+            strokeWidth = 2f
         }
 
         faceLandmarks.forEach { faceLandmark ->
-            faceLandmark.leftEye?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, REDdotPaint)
-                //canvas.drawText("Left Eye", it.position.x, it.position.y, textPaint)
+            val points = listOfNotNull(
+                faceLandmark.leftEye?.position,
+                faceLandmark.rightEye?.position,
+                faceLandmark.noseBase?.position,
+                faceLandmark.leftEar?.position,
+                faceLandmark.rightEar?.position,
+                faceLandmark.mouthLeft?.position,
+                faceLandmark.mouthRight?.position,
+                faceLandmark.mouthBottom?.position,
+                faceLandmark.leftCheek?.position,
+                faceLandmark.rightCheek?.position
+            )
+
+            // Draw dots
+            points.forEach { point ->
+                canvas.drawCircle(point.x, point.y, 7f, dotPaint)
             }
-            faceLandmark.rightEye?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, REDdotPaint)
-                //canvas.drawText("Right Eye", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.noseBase?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Nose Base", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.leftEar?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Left Ear", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.rightEar?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Right Ear", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.mouthLeft?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Mouth Left", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.mouthRight?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Mouth Right", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.mouthBottom?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Mouth Bottom", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.leftCheek?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Left Cheek", it.position.x, it.position.y, textPaint)
-            }
-            faceLandmark.rightCheek?.let {
-                canvas.drawCircle(it.position.x, it.position.y, 10f, BLUEdotPaint)
-                //canvas.drawText("Right Cheek", it.position.x, it.position.y, textPaint)
+
+            // Draw lines
+            for (i in 0 until points.size - 1) {
+                for (j in i + 1 until points.size) {
+                    canvas.drawLine(points[i].x, points[i].y, points[j].x, points[j].y, linePaint)
+                }
             }
         }
-        fragmentCameraBinding.faceOverlay.setImageBitmap(bitmap)
         activity?.runOnUiThread {
-            fragmentCameraBinding.faceOverlay.setImageBitmap(bitmap)
+            fragmentCameraBinding?.faceOverlay?.setImageBitmap(bitmap)
+        } ?: run {
+            // Se l'activity è null, naviga al fragment DataTesting
+            findNavController().navigate(R.id.action_DataCollection_to_DataTesting)
         }
     }
 

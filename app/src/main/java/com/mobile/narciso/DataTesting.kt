@@ -26,15 +26,51 @@ class DataTesting : Fragment() {
 
         val HRsensorDataListString = arguments?.getStringArrayList("HRsensorDataList")
         val PPGsensorDataListString = arguments?.getStringArrayList("PPGsensorDataList")
+        val EEGsensorDataListString = arguments?.getStringArrayList("EEGsensorDataList")
+
+        Log.d("EEGsensorDataList", EEGsensorDataListString.toString())
 
         // Conversione dell'ArrayList<String> in ArrayList<Float>
         val HRsensorDataList = HRsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
         val PPGsensorDataList = PPGsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
+        val EEGsensorDataList = ArrayList<Float>()
+
+        val lineGraphView1 = binding.idGraphView1
+        val lineGraphView2 = binding.idGraphView2
+
+        val lineGraphView3 = binding.idGraphView3
+        val lineGraphView4 = binding.idGraphView4
+        val lineGraphView5 = binding.idGraphView5
+        val lineGraphView6 = binding.idGraphView6
+        val lineGraphView7 = binding.idGraphView7
+
+        //lets plot all different values of channel 1
+        for (i in 0 until MainActivity.EEGsensordataList.size) {
+            EEGsensorDataList.add(MainActivity.EEGsensordataList[i].channel1.toFloat())
+        }
+        createGraph(lineGraphView3,EEGsensorDataList, "CHANNEL 1")
+
+        //lets plot all different values of channel 2
+        for (i in 0 until MainActivity.EEGsensordataList.size) {
+            EEGsensorDataList.add(MainActivity.EEGsensordataList[i].channel2.toFloat())
+        }
+        createGraph(lineGraphView4,EEGsensorDataList, "CHANNEL 2")
+
+        //lets plot all different values of channel 3
+        for (i in 0 until MainActivity.EEGsensordataList.size) {
+            EEGsensorDataList.add(MainActivity.EEGsensordataList[i].channel3.toFloat())
+        }
+        createGraph(lineGraphView5,EEGsensorDataList, "CHANNEL 3")
+
+        //lets plot all different values of channel 4
+        for (i in 0 until MainActivity.EEGsensordataList.size) {
+            EEGsensorDataList.add(MainActivity.EEGsensordataList[i].channel4.toFloat())
+        }
+        createGraph(lineGraphView6,EEGsensorDataList, "CHANNEL 4")
 
 
         //TODO display all plots of data collected during dataCollection session
-        val lineGraphView1 = binding.idGraphView1
-        val lineGraphView2 = binding.idGraphView2
+
 
         createGraph(lineGraphView1,HRsensorDataList, "Hear Rate")
         createGraph(lineGraphView2,PPGsensorDataList, "PPG value")
@@ -57,8 +93,6 @@ class DataTesting : Fragment() {
         // on below line adding animation
         lineGraphView.animate()
 
-        Log.d("SONO QUI","SONO QUI 5")
-
         // on below line we are setting scrollable
         // for point graph view
         lineGraphView.viewport.isScrollable = true
@@ -76,9 +110,6 @@ class DataTesting : Fragment() {
         series.color = binding.root.resources.getColor(R.color.colorPrimary2)
 
         lineGraphView.title = s
-
-        //lineGraphView.scaleX = 0.9F
-        //lineGraphView.
 
         lineGraphView.addSeries(series)
     }

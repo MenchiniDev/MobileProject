@@ -1,5 +1,6 @@
 package com.mobile.narciso
 
+//mindrove
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,16 +18,16 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.narciso.databinding.FragmentDatacollectionBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.*
-import kotlin.collections.ArrayList
-
 
 class DataCollection : Fragment() {
+
+    private val viewModel: SharedViewModel by activityViewModels()
 
     private var _binding: FragmentDatacollectionBinding? = null
     private lateinit var cameraExecutor: ExecutorService
@@ -53,16 +54,13 @@ class DataCollection : Fragment() {
     //the second selects the single face's parts of a single istance of data
     private var FaceLandmarksList:  ArrayList<List<FaceLandmarks>> = ArrayList()
 
-    //photo and saving
-    private val REQUEST_IMAGE_CAPTURE = 1
-    private lateinit var currentPhotoPath: String
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        MainActivity.serverManager.start()
+
         // create a list of random image names to display
         val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
 
@@ -135,7 +133,7 @@ class DataCollection : Fragment() {
         binding.goToDataTesting.setOnClickListener {
             //TODO: HERE WE PASS DATA LISTS TO CLOUD
 
-            Toast.makeText(requireContext(), "sto andando a data testing!", Toast.LENGTH_SHORT).show()
+            MainActivity.serverManager.stop()
 
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
@@ -145,6 +143,7 @@ class DataCollection : Fragment() {
 
             bundle.putStringArrayList("HRsensorDataList", HRsensorDataListString)
             bundle.putStringArrayList("PPGsensorDataList", PPGsensorDataListString)
+
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting, bundle)
         }
 
@@ -208,7 +207,7 @@ class DataCollection : Fragment() {
 class ImageAdapter(private val images: List<Int>) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-       val imageView: ImageView = itemView.findViewById(R.id.image)
+        val imageView: ImageView = itemView.findViewById(R.id.image)
 
     }
 
