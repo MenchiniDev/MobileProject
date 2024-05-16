@@ -151,14 +151,14 @@ class DataCollection : Fragment() {
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
             val PPGsensorDataListString = PPGsensorDataList.map { it.toString() } as ArrayList<String>
-            //val EDAsensorDataListString = EDAsensorDataList.map { it.toString() } as ArrayList<String>
+            val EDAsensorDataListString = EDAsensorDataList.map { it.toString() } as ArrayList<String>
             //MainActivity.EEGsensordataList da mandare al cloud
 
             val bundle = Bundle()
 
             bundle.putStringArrayList("HRsensorDataList", HRsensorDataListString)
             bundle.putStringArrayList("PPGsensorDataList", PPGsensorDataListString)
-            //bundle.putStringArrayList("PPGsensorDataList", EDAsensorDataListString)
+            bundle.putStringArrayList("PPGsensorDataList", EDAsensorDataListString)
 
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting, bundle)
         }
@@ -183,7 +183,7 @@ class DataCollection : Fragment() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
-            //EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
+            EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
         }
     }
 
