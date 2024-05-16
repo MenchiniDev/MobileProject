@@ -29,21 +29,21 @@ class FirestoreDataDAO {
 
 
     fun addData(username: String, data: List<SensorsData>): Boolean{
-        val testCount = runBlocking { getSampleCount(username) }
+        var testCount = runBlocking { getSampleCount(username) }
         if (testCount == -1){
             return false
         }else{
             for (test in data){
-
+                val docName = username + "_test" + testCount
+                db.collection(DATA_COLLECTION).document(docName)
+                    .set(test)
+                    .addOnSuccessListener {
+                        Log.d(TAG, " Test data number $testCount successfully added")
+                    }
+                    .addOnFailureListener { e -> Log.w(TAG, "Error writing test $testCount in data document", e) }
+                testCount++
             }
-            val docName = username + "_test" + testCount
-            db.collection(DATA_COLLECTION).document(docName)
-                .set(data)
-                .addOnSuccessListener {
-                    Log.d(TAG, " Test data successfully added")
-                    updateSampleCount(username)
-                }
-                .addOnFailureListener { e -> Log.w(TAG, "Error writing test data document", e) }
+            updateSampleCount(username, testCount)
             return true
         }
     }
@@ -52,7 +52,7 @@ class FirestoreDataDAO {
         val newTestCount = testsDone
         db.collection(USR_COLLECTION).document(username)
             .update("testsDone", newTestCount)
-            .addOnSuccessListener { Log.d(TAG, " Test count updated") }
+            .addOnSuccessListener { Log.d(TAG, " Test count updated to $newTestCount") }
             .addOnFailureListener {e-> Log.w(TAG, "Error upgrading test count", e)}
     }
 
