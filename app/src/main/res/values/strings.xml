@@ -9,6 +9,7 @@
     <string name="previous">Previous</string>
     <string name="Neutral">Neutral</string>
     <string name="name">Name</string>
+    <string name="result">data collected</string>
 
     <string name="presentation">
         Welcome to future, %s

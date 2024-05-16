@@ -136,12 +136,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        lateinit var currentImageIndex: String
+        var currentImageIndex: String = "0"
         var currentVote: Int = 0
         private val sensorDataText = MutableLiveData("No data yet")
         var EEGsensordataList = ArrayList<EEGsensordata>()
         val serverManager = ServerManager { sensorData: SensorData ->
-
+            Log.d("MindroveActivity", sensorData.channel1.toString())
             // Update the sensor data text
             sensorDataText.postValue(sensorData.channel1.toString())
             sensorDataText.postValue(sensorData.channel2.toString())
