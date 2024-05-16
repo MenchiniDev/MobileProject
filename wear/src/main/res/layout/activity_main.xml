@@ -46,8 +46,8 @@
 
     <LinearLayout
         android:id="@+id/Sensors"
-        android:layout_width="80dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="70dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="120dp"
         android:background="@drawable/rounded_corners"
@@ -59,7 +59,6 @@
             android:id="@+id/HeartRate"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="-2dp"
             android:text="@string/heart_rate"
             android:textColor="@color/background_logo"/>
@@ -68,7 +67,6 @@
             android:id="@+id/PPG"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:text="@string/ppg"
             android:textColor="@color/background_logo"/>
 
@@ -76,7 +74,6 @@
             android:id="@+id/EDA"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:text="@string/eda"
             android:textColor="@color/background_logo"/>
 

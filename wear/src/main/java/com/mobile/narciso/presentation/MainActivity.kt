@@ -196,6 +196,7 @@ class MainActivity : ComponentActivity() {
         timeTextView = findViewById(R.id.Time)
         HRText = findViewById(R.id.HeartRate)
         PPGText = findViewById(R.id.PPG)
+        EDAText = findViewById(R.id.EDA)
         newCounter = "0"
         imagesCount.text = getString(R.string.images_seen, newCounter)
         handler.post(runnableCode)
