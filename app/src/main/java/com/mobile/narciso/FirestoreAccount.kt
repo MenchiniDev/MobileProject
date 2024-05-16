@@ -13,7 +13,7 @@ data class User(
     val username: String? = null,
     val email: String? = null,
     val hashedpassword: String? = null,
-    val testsDone: Int = 0,
+    val testsDone: Int = 0
 )
 
 class FirestoreAccountDAO {
