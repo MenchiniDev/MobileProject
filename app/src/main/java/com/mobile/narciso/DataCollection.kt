@@ -14,7 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -49,6 +48,7 @@ class DataCollection : Fragment() {
     //data lists
     private var HRsensorDataList: ArrayList<Float> = ArrayList()
     private var PPGsensorDataList: ArrayList<Float> = ArrayList()
+    private var EDAsensorDataList: ArrayList<Float> = ArrayList()
 
     //array of array of facelandmarks: the first iterator moves throug different data
     //the second selects the single face's parts of a single istance of data
@@ -92,6 +92,9 @@ class DataCollection : Fragment() {
     private fun changeImage() {
         currentImageIndex = (currentImageIndex + 1) % images.size
         binding.viewPager.currentItem = currentImageIndex
+
+        //saving current id on the data from the helmet
+        MainActivity.currentImageIndex = currentImageIndex.toString()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -110,6 +113,9 @@ class DataCollection : Fragment() {
 
         binding.Beauty.setOnClickListener {
             changeImage()
+
+            //saving the current vote in the list of helmet's data
+            MainActivity.currentVote = LIKEVALUE
             takeDatafromCamWatch(LIKEVALUE,cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
@@ -117,6 +123,9 @@ class DataCollection : Fragment() {
 
         binding.Neutral.setOnClickListener {
             changeImage()
+
+            //saving the current vote in the list of helmet's data
+            MainActivity.currentVote = NEUTRALVALUE
             takeDatafromCamWatch(NEUTRALVALUE,cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
@@ -124,6 +133,9 @@ class DataCollection : Fragment() {
 
         binding.NoBeauty.setOnClickListener {
             changeImage()
+
+            //saving the current vote in the list of helmet's data
+            MainActivity.currentVote = DONTLIKEVALUE
             takeDatafromCamWatch(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
             imagesSeen++
             checkCounter()
@@ -131,6 +143,7 @@ class DataCollection : Fragment() {
 
         //invio i dati al fragment Datatesting (Result)
         binding.goToDataTesting.setOnClickListener {
+
             //TODO: HERE WE PASS DATA LISTS TO CLOUD
 
             MainActivity.serverManager.stop()
@@ -138,11 +151,14 @@ class DataCollection : Fragment() {
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
             val PPGsensorDataListString = PPGsensorDataList.map { it.toString() } as ArrayList<String>
+            val EDAsensorDataListString = EDAsensorDataList.map { it.toString() } as ArrayList<String>
+            //MainActivity.EEGsensordataList da mandare al cloud
 
             val bundle = Bundle()
 
             bundle.putStringArrayList("HRsensorDataList", HRsensorDataListString)
             bundle.putStringArrayList("PPGsensorDataList", PPGsensorDataListString)
+            bundle.putStringArrayList("PPGsensorDataList", EDAsensorDataListString)
 
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting, bundle)
         }
@@ -167,9 +183,7 @@ class DataCollection : Fragment() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
-            Log.d("HRsensorData", HRsensorDataList.toString())
-            Toast.makeText(requireContext(),intent.getFloatExtra("HRsensorData", 0.0f).toString(), Toast.LENGTH_SHORT).show()
-            Log.d("PPGsensorData", PPGsensorDataList.toString())
+            EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
         }
     }
 

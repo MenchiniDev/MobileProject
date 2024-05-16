@@ -53,6 +53,7 @@
 
                 <Button
                     android:id="@+id/Beauty"
+                    android:layout_marginTop="3dp"
                     android:layout_marginRight="10dp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -62,11 +63,11 @@
 
                 <Button
                     android:id="@+id/Neutral"
+                    style="@style/ButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/Neutral"
-                    style="@style/ButtonStyle"/>
+                    android:text="@string/Neutral" />
 
                 <Button
                     android:id="@+id/NoBeauty"
