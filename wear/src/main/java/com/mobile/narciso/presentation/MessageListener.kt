@@ -48,6 +48,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             .setContentTitle("Service Running")
             .setContentText("Message Listener is running...")
             .setSmallIcon(R.mipmap.ic_launcher)
+            .setOngoing(true)
             .build()
         startForeground(1, notification)
     }

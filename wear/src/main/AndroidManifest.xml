@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.BODY_SENSORS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -19,7 +21,8 @@
         <service
             android:name=".presentation.MessageListener"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:foregroundServiceType="remoteMessaging"/>
 
         <uses-library
             android:name="com.google.android.wearable"
