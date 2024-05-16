@@ -75,11 +75,11 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
         } else {
             Log.e(TAG, "Message path not recognized")
         }
-        if(counter == 11)
-            counter = 0
         updateCounter = Intent("updateVariable")
         val str = counter.toString()
         updateCounter.putExtra("variable", str)
+        if(counter == 10)
+            counter = 0
         sendBroadcast(updateCounter)
     }
 
