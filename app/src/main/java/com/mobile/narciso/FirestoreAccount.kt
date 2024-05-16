@@ -57,8 +57,10 @@ class FirestoreAccountDAO {
             val userData = userDoc.toObject<User>()
             if (userData != null){
                 if (userData.email == mail && userData.hashedpassword == hashPassw(password)){
+                    Log.d(TAG, "Access allowed")
                     true
                 }else{
+                    Log.w(TAG, "Access not allowed")
                     false
                 }
             }else{
@@ -66,7 +68,7 @@ class FirestoreAccountDAO {
             }
 
         }catch (e: Exception){
-            Log.w("Error getting user data from cloud", e)
+            Log.w(TAG,"Error getting user data from cloud", e)
             false
         }
     }

@@ -54,12 +54,10 @@ class DataCollection : Fragment() {
     //the second selects the single face's parts of a single istance of data
     private var FaceLandmarksList:  ArrayList<List<FaceLandmarks>> = ArrayList()
 
-    val sessionUser = SessionManager(requireContext()).username
-
     private var imgUsed: ArrayList<String> = ArrayList()
 
-    private var sensorsData: ArrayList<SensorsData?> = ArrayList()
-    private var singleTestData: SensorsData? = null
+    private var sensorsData: ArrayList<SensorsData> = ArrayList()
+    private var singleTestData: SensorsData = SensorsData()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,13 +66,13 @@ class DataCollection : Fragment() {
         MainActivity.serverManager.start()
 
         // create a list of random image names to display
-        val imageNames = (1..479).map { String.format("a%03d", it) }.shuffled()
+        val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
 
         // get the resource id for each image name
         var count = 0
         for (imageName in imageNames) {
             val imageId = resources.getIdentifier(imageName, "drawable", "com.mobile.narciso")
-            if(count < 10){
+            if(count < 11){
                 imgUsed.add(imageName)
                 count++
             }
@@ -158,7 +156,7 @@ class DataCollection : Fragment() {
         binding.goToDataTesting.setOnClickListener {
 
 
-            // MainActivity.serverManager.stop()
+            MainActivity.serverManager.stop()
 
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
@@ -181,20 +179,24 @@ class DataCollection : Fragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
-    private fun checkCounter()
-    {
+    private fun checkCounter() {
+        val sessionUser = SessionManager(requireContext()).username
+
         if (imagesSeen == 10) {
             val firebaseDataHelp = FirestoreDataDAO()
-            MainActivity.serverManager.stop()
 
             binding.Beauty.visibility = View.GONE
             binding.NoBeauty.visibility = View.GONE
             binding.Neutral.visibility = View.GONE
             binding.goToDataTesting.visibility = View.VISIBLE
 
-            singleTestData = singleTestData?.copy( testUser = sessionUser)
+            singleTestData = singleTestData.copy( testUser = sessionUser)
+            sensorsData.add(singleTestData)
+
             firebaseDataHelp.sendData(sessionUser!!, sensorsData, MainActivity.EEGsensordataList)
         }else{
+
+            singleTestData = singleTestData.copy( testUser = sessionUser)
             sensorsData.add(singleTestData)
         }
     }
@@ -202,11 +204,17 @@ class DataCollection : Fragment() {
     private val sensorDataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
-            singleTestData = singleTestData?.copy( HearthRate = intent.getFloatExtra("HRsensorData", 0.0f))
+            singleTestData = singleTestData.copy( HearthRate = intent.getFloatExtra("HRsensorData", 0.0f))
+            Log.d("Check data", "HR: ${singleTestData?.HearthRate}")
+
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
-            singleTestData = singleTestData?.copy( PPG = intent.getFloatExtra("PPGsensorData", 0.0f))
+            singleTestData = singleTestData.copy( PPG = intent.getFloatExtra("PPGsensorData", 0.0f))
+            Log.d("Check data", "PPG: ${singleTestData?.PPG}")
+
             EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
-            singleTestData = singleTestData?.copy( EDA = intent.getFloatExtra("EDAsensorData", 0.0f))
+            singleTestData = singleTestData.copy( EDA = intent.getFloatExtra("EDAsensorData", 0.0f))
+            Log.d("Check data", "EDA: ${singleTestData?.EDA}")
+
 
         }
     }
@@ -232,10 +240,12 @@ class DataCollection : Fragment() {
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
             FaceLandmarksList.add(faceLandmarks)
-            singleTestData = singleTestData?.copy( faceData = faceLandmarks)
+            singleTestData = singleTestData.copy( faceData = faceLandmarks)
         }
-        singleTestData = singleTestData?.copy( imageID = imgUsed[imagesSeen])
-        singleTestData = singleTestData?.copy( likability = Beauty)
+        
+        singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen])
+        singleTestData = singleTestData.copy( likability = Beauty)
+
 
         return true
     }
