@@ -52,7 +52,7 @@ class Login : Fragment() {
                     Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_loginFragment_to_FirstFragment)
                 } else {
-                    Toast.makeText(requireContext(), "Registration failed!", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), "Login failed!", Toast.LENGTH_SHORT)
                         .show()
                 }
             } else {

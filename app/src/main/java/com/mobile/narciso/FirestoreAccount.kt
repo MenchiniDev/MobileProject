@@ -1,6 +1,7 @@
 package com.mobile.narciso
 
 import android.util.Log
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.toObject
@@ -51,64 +52,70 @@ class FirestoreAccountDAO {
     }
 
     suspend fun checkAccount(username: String, mail: String, password: String): Boolean{
-        try{
+        return try{
             val userDoc = db.collection(USR_COLLECTION).document(username).get().await()
             val userData = userDoc.toObject<User>()
             if (userData != null){
                 if (userData.email == mail && userData.hashedpassword == hashPassw(password)){
-                    return true
+                    true
                 }else{
-                    return false
+                    false
                 }
             }else{
-                return false
+                false
             }
 
         }catch (e: Exception){
             Log.w("Error getting user data from cloud", e)
-            return false
+            false
         }
     }
 
     suspend fun checkEmailExists(mail: String): Boolean{
-        try{
-            val userDocs = db.collection(USR_COLLECTION).whereEqualTo("mail", mail).get().await()
-
-            if(userDocs.isEmpty){
-                return false
-            }else{
-                return true
-            }
-        }catch (e: Exception){
-            Log.w(TAG, "Error getting user document", e)
-            return false
-        }
-    }
-
-    /*suspend fun resetPassword(mail: String): String{
-
-    }*/
-
-    private suspend fun newAccount(user: String, mail: String): Boolean{
-        // looking for user with username
-        try{
-            db.collection(USR_COLLECTION).document(user)
-                .get().await()
-            return false    // document with user registering exists
-
-        }catch (e: Exception){
-            Log.w(TAG, "User document not found:", e)
-        }
-        // looking for user with mail
-        try{
-            db.collection(USR_COLLECTION)
-                .whereEqualTo("mail", mail)
-                .get().await()
-            return false // found document with target mail
+        return try{
+            val userDocs = db.collection(USR_COLLECTION).whereEqualTo("email", mail).get().await()
+            !userDocs.isEmpty
 
         }catch (e: Exception){
             Log.w(TAG, "No document with target mail found", e)
-            return true
+            false
+        }
+    }
+
+    suspend fun resetPassword(mail: String): String{
+        val newPassw = generateRandomPassword(8)
+        val newPasswHash = hashPassw(newPassw)
+        val userDoc = db.collection(USR_COLLECTION).whereEqualTo("email", mail)
+            .get().await()
+        val userInfo = userDoc.first().toObject<User>()
+        if(userInfo != null){
+            val targetUser = userInfo.username
+            db.collection(USR_COLLECTION).document(targetUser!!)
+                .update("hashedpassword", newPasswHash)
+                .addOnSuccessListener { Log.d(TAG, "New password saved") }
+                .addOnFailureListener { e -> Log.w(TAG, "Password change not occured on cloud", e) }
+            return newPassw
+
+        }else{  // user doesn't exist
+            return "User not found"
+        }
+
+    }
+
+    private suspend fun newAccount(user: String, mail: String): Boolean{
+        // looking for user with username
+        return try{
+            val userDoc: DocumentSnapshot = db.collection(USR_COLLECTION).document(user)
+                .get().await()
+            if(userDoc.exists()) { // if exists user already signed up (no newAccount), otherwise new user
+                false
+            }else{
+                !checkEmailExists(mail)         // looking for user with mail
+            }
+
+        }catch (e: Exception){
+            Log.w(TAG, "User document not found:", e)
+            false
         }
     }
 
@@ -117,6 +124,13 @@ class FirestoreAccountDAO {
         val messageDigest = MessageDigest.getInstance("SHA-256")
         val digest =  messageDigest.digest(bytes)
         return digest.fold("", {str, it -> str + "%02x".format(it)})
+    }
+
+    private fun generateRandomPassword(length: Int): String {
+        val allowedChars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return (1..length)
+            .map { allowedChars.random() }
+            .joinToString("")
     }
 
 }

@@ -36,14 +36,14 @@ class Password : Fragment() {
     private fun sendResetPasswordEmail(email: String) {
         //creating an istance of DataBaseHelper to query database
 
-        val databaseHelper = DatabaseHelper(requireContext())
+        // val databaseHelper = DatabaseHelper(requireContext())
         val firebaseHelpAccount = FirestoreAccountDAO()
 
         if (email.isNotEmpty()) {
             if (runBlocking { firebaseHelpAccount.checkEmailExists(email) }) {   // with SQLite use databaseHelper.checkEmailExists(email)
                 //the user exists, send the email with the new password
-                val newpass = databaseHelper.resetPassword(email)
-                // val newpass = runBlocking { firebaseHelpAccount.resetPassword(email) }
+                //val newpass = databaseHelper.resetPassword(email)
+                val newpass = runBlocking { firebaseHelpAccount.resetPassword(email) }
 
                 popUpPass(email,newpass)
             } else {
