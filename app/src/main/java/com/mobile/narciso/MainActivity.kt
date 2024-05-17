@@ -24,7 +24,7 @@ import mylibrary.mindrove.SensorData
 import mylibrary.mindrove.ServerManager
 import java.io.Serializable
 
-class EEGsensordata(val channel1: Double, val channel2: Double, val channel3: Double, val channel4: Double, val channel5: Double, val channel6: Double, val imageID: String, val userVote: Int): Serializable
+class EEGsensordata(val channel1: Double, val channel2: Double, val channel3: Double, val channel4: Double, val channel5: Double, val channel6: Double , val imageID: String): Serializable //, val userVote: Int): Serializable
 class MainActivity : AppCompatActivity() {
     private val networkStatus = MutableLiveData("Checking network status...")
     private var isServerManagerStarted = false
@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
             sensorDataText.postValue(sensorData.channel6.toString())
 
             EEGsensordataList.add(EEGsensordata(sensorData.channel1, sensorData.channel2, sensorData.channel3, sensorData.channel4, sensorData.channel5, sensorData.channel6,
-                currentImageIndex, currentVote)) //default values for imageID and userVote
+                 currentImageIndex)) //, currentVote)) //default values for imageID and userVote
             Thread.sleep(700)
         }
     }

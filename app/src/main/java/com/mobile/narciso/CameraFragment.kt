@@ -214,6 +214,7 @@ class CameraFragment : Fragment() {
             }
 
         }, ContextCompat.getMainExecutor(requireContext()))
+
     }
     fun detectFaces(bitmapBuffer: Bitmap, imageRotation: Int) {
 
