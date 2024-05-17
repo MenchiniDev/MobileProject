@@ -1,6 +1,5 @@
 package com.mobile.narciso
 
-//mindrove
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -33,9 +32,9 @@ class DataCollection : Fragment() {
     private val CAMERAPERMISSIONCODE = 1001
     private lateinit var bitmapBuffer: Bitmap
 
-    private val LIKEVALUE = 0
-    private val NEUTRALVALUE = 1
-    private val DONTLIKEVALUE = 2
+    private val LIKEVALUE = 1
+    private val NEUTRALVALUE = 0
+    private val DONTLIKEVALUE = -1
 
     private val cameraFragment = CameraFragment()
 
@@ -62,7 +61,7 @@ class DataCollection : Fragment() {
         MainActivity.serverManager.start()
 
         // create a list of random image names to display
-        val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
+        val imageNames = (1..479).map { String.format("a%03d", it) }.shuffled()
 
         // get the resource id for each image name
         for (imageName in imageNames) {
