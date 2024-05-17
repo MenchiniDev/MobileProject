@@ -172,7 +172,7 @@ class DataCollection : Fragment() {
 
             bundle.putStringArrayList("HRsensorDataList", HRsensorDataListString)
             bundle.putStringArrayList("PPGsensorDataList", PPGsensorDataListString)
-            bundle.putStringArrayList("PPGsensorDataList", EDAsensorDataListString)
+            bundle.putStringArrayList("EDAsensorDataList", EDAsensorDataListString)
 
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting, bundle)
         }
