@@ -1,12 +1,12 @@
 package com.mobile.narciso
 
 import android.content.Intent
-import com.google.android.gms.wearable.MessageClient
-import com.google.android.gms.wearable.Wearable
 import android.util.Log
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Node
+import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 
 class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceivedListener {
