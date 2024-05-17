@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "849199620612",
+    "project_id": "narciso-4e261",
+    "storage_bucket": "narciso-4e261.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:849199620612:android:3b7b6516c67d58f70acb51",
+        "android_client_info": {
+          "package_name": "com.mobile.narciso"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMi8UQjtvzS2wFLeiw5Rkkx08-rEbRbBU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
