@@ -40,8 +40,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var PPGsensor: Sensor
     private lateinit var PPGsensorEventListener: SensorEventListener
     var PPGType = 65572
-    private var lastFilteredValue: Double = 0.0
     private lateinit var PPGText: TextView
+    private var lastFilteredValue: Double = 0.0
+
+    private lateinit var EDAsensorManager: SensorManager
+    private lateinit var EDAsensor: Sensor
+    private lateinit var EDAsensorEventListener: SensorEventListener
+    var EDAType = 65554
+    private lateinit var EDAText: TextView
 
     private lateinit var sendIntent: Intent
 
@@ -82,6 +88,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    fun filter(input: Double): Double {
+        var alpha = 0.1
+        alpha = alpha.coerceIn(0.0, 1.0)
+        lastFilteredValue = alpha * input + (1 - alpha) * lastFilteredValue
+        return lastFilteredValue
+    }
+
     private fun HRregisterListener() {
         HRsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         HRsensor = HRsensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)!!
@@ -89,7 +102,8 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("Heart Rate", "Heart Rate: ${values[0]}")
-                HRText.text = getString(R.string.heart_rate, values[0])
+                val str = values[0].toString()
+                HRText.text = getString(R.string.heart_rate, str)
                 sendIntent.putExtra("SENSOR_NAME", "Heart Rate")
                 sendIntent.putExtra("SENSOR_DATA", values[0])
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -111,9 +125,10 @@ class MainActivity : ComponentActivity() {
                 Log.d("PPG", "PPG: ${values[2]}")
                 val filteredValue = filter(values[2].toDouble())
                 Log.d("PPG", "Filtered PPG: $filteredValue")
-                PPGText.text = getString(R.string.ppg, filteredValue)
+                val str = filteredValue.toInt().toString()
+                PPGText.text = getString(R.string.ppg, str)
                 sendIntent.putExtra("SENSOR_NAME", "PPG")
-                sendIntent.putExtra("SENSOR_DATA", values[2])
+                sendIntent.putExtra("SENSOR_DATA", filteredValue.toFloat())
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(sendIntent)
                 } else {
@@ -124,12 +139,31 @@ class MainActivity : ComponentActivity() {
         }
         PPGsensorManager.registerListener(PPGsensorEventListener, PPGsensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
-    fun filter(input: Double): Double {
-        var alpha = 0.1
-        alpha = alpha.coerceIn(0.0, 1.0)
-        lastFilteredValue = alpha * input + (1 - alpha) * lastFilteredValue
-        return lastFilteredValue
+
+    private fun EDAregisterListener() {
+        EDAsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        EDAsensor = EDAsensorManager.getDefaultSensor(EDAType)!!
+        EDAsensorEventListener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                val values = event.values
+                Log.d("EDA", "EDA: ${values[2]}")
+                val filteredValue = filter(values[2].toDouble())
+                Log.d("EDA", "Filtered EDA: $filteredValue")
+                val str = filteredValue.toInt().toString()
+                EDAText.text = getString(R.string.eda, str)
+                sendIntent.putExtra("SENSOR_NAME", "EDA")
+                sendIntent.putExtra("SENSOR_DATA", filteredValue.toFloat())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(sendIntent)
+                } else {
+                    startService(sendIntent)
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        EDAsensorManager.registerListener(EDAsensorEventListener, EDAsensor, 1000)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
@@ -141,6 +175,7 @@ class MainActivity : ComponentActivity() {
         timeTextView = findViewById(R.id.Time)
         HRText = findViewById(R.id.HeartRate)
         PPGText = findViewById(R.id.PPG)
+        EDAText = findViewById(R.id.EDA)
         newCounter = "0"
         imagesCount.text = getString(R.string.images_seen, newCounter)
         handler.post(runnableCode)
@@ -153,6 +188,7 @@ class MainActivity : ComponentActivity() {
 
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
         isReceiverRegistered = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -161,7 +197,7 @@ class MainActivity : ComponentActivity() {
             startService(sendIntent)
         }
     }
-
+    @Deprecated("This method is deprecated")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == PERMISSION_REQUEST_CODE) {
@@ -175,6 +211,7 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         if (!isReceiverRegistered) {
             registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
             isReceiverRegistered = true
@@ -185,6 +222,7 @@ class MainActivity : ComponentActivity() {
         super.onRestart()
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         if (!isReceiverRegistered) {
             registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
             isReceiverRegistered = true
@@ -194,6 +232,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         HRregisterListener()
         PPGregisterListener()
+        EDAregisterListener()
         if (!isReceiverRegistered) {
             registerReceiver(receiver, IntentFilter("updateVariable"), RECEIVER_NOT_EXPORTED)
             isReceiverRegistered = true
@@ -203,6 +242,7 @@ class MainActivity : ComponentActivity() {
         super.onPause()
         HRsensorManager.unregisterListener(HRsensorEventListener)
         PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        EDAsensorManager.unregisterListener(EDAsensorEventListener)
         if (isReceiverRegistered) {
             unregisterReceiver(receiver)
             isReceiverRegistered = false
@@ -212,6 +252,7 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         HRsensorManager.unregisterListener(HRsensorEventListener)
         PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        EDAsensorManager.unregisterListener(EDAsensorEventListener)
         if (isReceiverRegistered) {
             unregisterReceiver(receiver)
             isReceiverRegistered = false
@@ -221,6 +262,7 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         HRsensorManager.unregisterListener(HRsensorEventListener)
         PPGsensorManager.unregisterListener(PPGsensorEventListener)
+        EDAsensorManager.unregisterListener(EDAsensorEventListener)
         if (isReceiverRegistered) {
             unregisterReceiver(receiver)
             isReceiverRegistered = false
