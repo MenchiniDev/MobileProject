@@ -27,9 +27,7 @@ class DataTesting : Fragment() {
         val HRsensorDataListString = arguments?.getStringArrayList("HRsensorDataList")
         val PPGsensorDataListString = arguments?.getStringArrayList("PPGsensorDataList")
         val EDAsensorDataListString = arguments?.getStringArrayList("EDAsensorDataList")
-        val EEGsensorDataListString = arguments?.getStringArrayList("EEGsensorDataList")
-
-        Log.d("EEGsensorDataList", EEGsensorDataListString.toString())
+        //val EEGsensorDataListString = arguments?.getStringArrayList("EEGsensorDataList")
 
         // Conversione dell'ArrayList<String> in ArrayList<Float>
         val HRsensorDataList = HRsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
@@ -50,6 +48,11 @@ class DataTesting : Fragment() {
         val lineGraphView5 = binding.idGraphView5
         val lineGraphView6 = binding.idGraphView6
         val lineGraphView7 = binding.idGraphView7
+        val lineGraphView8 = binding.idGraphView8
+        val lineGraphView9 = binding.idGraphView9
+
+
+        Log.d("EEGsensorDataList", MainActivity.EEGsensordataList.toString())
 
         //lets plot all different values of channel 1
         for (i in 0 until MainActivity.EEGsensordataList.size) {
@@ -74,6 +77,18 @@ class DataTesting : Fragment() {
             EEGsensorDataList.add(MainActivity.EEGsensordataList[i].channel4.toFloat())
         }
         createGraph(lineGraphView7,EEGsensorDataList, "CHANNEL 4")
+
+        //lets plot all different values of channel 5
+        for (i in 0 until MainActivity.EEGsensordataList.size) {
+            EEGsensorDataList.add(MainActivity.EEGsensordataList[i].channel5.toFloat())
+        }
+        createGraph(lineGraphView8,EEGsensorDataList, "CHANNEL 5")
+
+        //lets plot all different values of channel 6
+        for (i in 0 until MainActivity.EEGsensordataList.size) {
+            EEGsensorDataList.add(MainActivity.EEGsensordataList[i].channel6.toFloat())
+        }
+        createGraph(lineGraphView9,EEGsensorDataList, "CHANNEL 6")
 
 
         //TODO display all plots of data collected during dataCollection session

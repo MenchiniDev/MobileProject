@@ -1,6 +1,5 @@
 package com.mobile.narciso
 
-//mindrove
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -66,7 +65,7 @@ class DataCollection : Fragment() {
         MainActivity.serverManager.start()
 
         // create a list of random image names to display
-        val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
+        val imageNames = (1..479).map { String.format("a%03d", it) }.shuffled()
 
         // get the resource id for each image name
         var count = 0
