@@ -150,7 +150,6 @@ class CameraFragment : Fragment() {
     }
 
     private fun startCamera() {
-        /*
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
         cameraProviderFuture.addListener({
@@ -215,7 +214,7 @@ class CameraFragment : Fragment() {
             }
 
         }, ContextCompat.getMainExecutor(requireContext()))
-        */
+
     }
     fun detectFaces(bitmapBuffer: Bitmap, imageRotation: Int) {
 
