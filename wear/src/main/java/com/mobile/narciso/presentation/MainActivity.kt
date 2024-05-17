@@ -29,8 +29,6 @@ import androidx.wear.widget.CurvedTextView
 import com.mobile.narciso.R
 import java.util.Date
 import java.util.Locale
-import kotlin.math.PI
-import kotlin.math.sin
 
 class MainActivity : ComponentActivity() {
     private lateinit var HRsensorManager: SensorManager
@@ -50,9 +48,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var EDAsensorEventListener: SensorEventListener
     var EDAType = 65554
     private lateinit var EDAText: TextView
-    val fs = 1000.0
-    val fc = 2.0
-    val filterLength = 101
 
     private lateinit var sendIntent: Intent
 
@@ -66,12 +61,6 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var timeTextView: CurvedTextView
     private val handler = Handler(Looper.getMainLooper())
-
-    val coefficients = DoubleArray(filterLength) { i ->
-        if (i == filterLength / 2) 2 * fc / fs
-        else sin(2 * PI * fc / fs * (i - filterLength / 2)) / (PI * (i - filterLength / 2))
-    }
-    val buffer = DoubleArray(coefficients.size)
 
     private val runnableCode = object : Runnable {
         override fun run() {
@@ -99,21 +88,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-    fun PPGfilter(input: Double): Double {
+    fun filter(input: Double): Double {
         var alpha = 0.1
         alpha = alpha.coerceIn(0.0, 1.0)
         lastFilteredValue = alpha * input + (1 - alpha) * lastFilteredValue
         return lastFilteredValue
-    }
-
-    fun EDAfilter(input: Double): Double {
-        System.arraycopy(buffer, 0, buffer, 1, buffer.size - 1)
-        buffer[0] = input
-        var output = 0.0
-        for (i in coefficients.indices) {
-            output += coefficients[i] * buffer[i]
-        }
-        return output
     }
 
     private fun HRregisterListener() {
@@ -144,7 +123,7 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("PPG", "PPG: ${values[2]}")
-                val filteredValue = PPGfilter(values[2].toDouble())
+                val filteredValue = filter(values[2].toDouble())
                 Log.d("PPG", "Filtered PPG: $filteredValue")
                 val str = filteredValue.toInt().toString()
                 PPGText.text = getString(R.string.ppg, str)
@@ -168,7 +147,7 @@ class MainActivity : ComponentActivity() {
             override fun onSensorChanged(event: SensorEvent) {
                 val values = event.values
                 Log.d("EDA", "EDA: ${values[2]}")
-                val filteredValue = EDAfilter(values[2].toDouble())
+                val filteredValue = filter(values[2].toDouble())
                 Log.d("EDA", "Filtered EDA: $filteredValue")
                 val str = filteredValue.toInt().toString()
                 EDAText.text = getString(R.string.eda, str)

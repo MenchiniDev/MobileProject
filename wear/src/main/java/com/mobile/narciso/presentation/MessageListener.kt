@@ -56,6 +56,8 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
     override fun onDestroy() {
         super.onDestroy()
         messageClient.removeListener(this)
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
