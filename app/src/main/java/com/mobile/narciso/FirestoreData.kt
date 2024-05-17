@@ -86,9 +86,7 @@ class FirestoreDataDAO {
                     EEGselectedArray[counter].add(EEGwrite)
                     Log.d("EEG check", "Setting $EEGwrite for test $counter")
                 }else{      // supposed EEG sensor data in test order, when the img code doesn't correspond means we don't have any other EEG data for that image
-                            // We break the internal for cycle optimizing the search
                     Log.d("EEG check", "No image $imgCode corresponding for test $counter, EEG image is: ${EEGread.imageID}")
-                    break
                 }
             }
             counter++

@@ -158,6 +158,10 @@ class DataCollection : Fragment() {
 
             MainActivity.serverManager.stop()
 
+            val firebaseDataHelp = FirestoreDataDAO()
+            val sessionUser = SessionManager(requireContext()).username
+            firebaseDataHelp.sendData(sessionUser!!, sensorsData, MainActivity.EEGsensordataList)
+
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
             val PPGsensorDataListString = PPGsensorDataList.map { it.toString() } as ArrayList<String>
@@ -183,7 +187,6 @@ class DataCollection : Fragment() {
         val sessionUser = SessionManager(requireContext()).username
 
         if (imagesSeen == 10) {
-            val firebaseDataHelp = FirestoreDataDAO()
 
             binding.Beauty.visibility = View.GONE
             binding.NoBeauty.visibility = View.GONE
@@ -193,7 +196,6 @@ class DataCollection : Fragment() {
             singleTestData = singleTestData.copy( testUser = sessionUser)
             sensorsData.add(singleTestData)
 
-            firebaseDataHelp.sendData(sessionUser!!, sensorsData, MainActivity.EEGsensordataList)
         }else{
 
             singleTestData = singleTestData.copy( testUser = sessionUser)
@@ -242,7 +244,6 @@ class DataCollection : Fragment() {
             FaceLandmarksList.add(faceLandmarks)
             singleTestData = singleTestData.copy( faceData = faceLandmarks)
         }
-        
         singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen])
         singleTestData = singleTestData.copy( likability = Beauty)
 
