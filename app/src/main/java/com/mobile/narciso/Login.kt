@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentLoginBinding
+import kotlinx.coroutines.runBlocking
 
 class Login : Fragment() {
 
@@ -23,6 +24,8 @@ class Login : Fragment() {
     ): View {
         // Creazione di un'istanza di DatabaseHelper
         val databaseHelper = DatabaseHelper(requireContext())
+        val firebaseHelpAccount = FirestoreAccountDAO()
+
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         val view = binding.root
 
@@ -39,15 +42,17 @@ class Login : Fragment() {
             val password = binding.editTextTextPassword.text.toString()
 
             if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                val isInserted = databaseHelper.checkUser(username, email, password) // Modifica questa linea
-                if (isInserted) {
+                // val isInserted = databaseHelper.checkUser(username, email, password) // Modifica questa linea
+                val allowLogin = runBlocking { firebaseHelpAccount.checkAccount(username, email, password) }
+
+                if (allowLogin) {
                     // Salvataggio del nome dell'utente nella variabile di sessione
                     sessionManager.username = username
 
                     Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
                     findNavController().navigate(R.id.action_loginFragment_to_FirstFragment)
                 } else {
-                    Toast.makeText(requireContext(), "Registration failed!", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), "Login failed!", Toast.LENGTH_SHORT)
                         .show()
                 }
             } else {

@@ -33,9 +33,9 @@ class DataCollection : Fragment() {
     private val CAMERAPERMISSIONCODE = 1001
     private lateinit var bitmapBuffer: Bitmap
 
-    private val LIKEVALUE = 0
-    private val NEUTRALVALUE = 1
-    private val DONTLIKEVALUE = 2
+    private val LIKEVALUE = 1
+    private val NEUTRALVALUE = 0
+    private val DONTLIKEVALUE = -1
 
     private val cameraFragment = CameraFragment()
 
@@ -54,6 +54,10 @@ class DataCollection : Fragment() {
     //the second selects the single face's parts of a single istance of data
     private var FaceLandmarksList:  ArrayList<List<FaceLandmarks>> = ArrayList()
 
+    private var imgUsed: ArrayList<String> = ArrayList()
+
+    private var sensorsData: ArrayList<SensorsData> = ArrayList()
+    private var singleTestData: SensorsData = SensorsData()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,10 +69,17 @@ class DataCollection : Fragment() {
         val imageNames = (1..440).map { String.format("a%03d", it) }.shuffled()
 
         // get the resource id for each image name
+        var count = 0
         for (imageName in imageNames) {
             val imageId = resources.getIdentifier(imageName, "drawable", "com.mobile.narciso")
+            if(count < 11){
+                imgUsed.add(imageName)
+                count++
+            }
             images.add(imageId)
         }
+        MainActivity.currentImageIndex = imgUsed[imagesSeen]
+
 
         // add the camera fragment to the fragment container
         val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
@@ -94,7 +105,7 @@ class DataCollection : Fragment() {
         binding.viewPager.currentItem = currentImageIndex
 
         //saving current id on the data from the helmet
-        MainActivity.currentImageIndex = currentImageIndex.toString()
+        MainActivity.currentImageIndex = imgUsed[imagesSeen]
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -112,41 +123,44 @@ class DataCollection : Fragment() {
 
 
         binding.Beauty.setOnClickListener {
+            imagesSeen++
             changeImage()
 
             //saving the current vote in the list of helmet's data
             MainActivity.currentVote = LIKEVALUE
             takeDatafromCamWatch(LIKEVALUE,cameraFragment.getFaceLandmarks())
-            imagesSeen++
             checkCounter()
         }
 
         binding.Neutral.setOnClickListener {
+            imagesSeen++
             changeImage()
 
             //saving the current vote in the list of helmet's data
             MainActivity.currentVote = NEUTRALVALUE
             takeDatafromCamWatch(NEUTRALVALUE,cameraFragment.getFaceLandmarks())
-            imagesSeen++
             checkCounter()
         }
 
         binding.NoBeauty.setOnClickListener {
+            imagesSeen++
             changeImage()
 
             //saving the current vote in the list of helmet's data
             MainActivity.currentVote = DONTLIKEVALUE
             takeDatafromCamWatch(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
-            imagesSeen++
             checkCounter()
         }
 
         //invio i dati al fragment Datatesting (Result)
         binding.goToDataTesting.setOnClickListener {
 
-            //TODO: HERE WE PASS DATA LISTS TO CLOUD
 
             MainActivity.serverManager.stop()
+
+            val firebaseDataHelp = FirestoreDataDAO()
+            val sessionUser = SessionManager(requireContext()).username
+            firebaseDataHelp.sendData(sessionUser!!, sensorsData, MainActivity.EEGsensordataList)
 
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
@@ -169,21 +183,41 @@ class DataCollection : Fragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
-    private fun checkCounter()
-    {
+    private fun checkCounter() {
+        val sessionUser = SessionManager(requireContext()).username
+
         if (imagesSeen == 10) {
+
             binding.Beauty.visibility = View.GONE
             binding.NoBeauty.visibility = View.GONE
             binding.Neutral.visibility = View.GONE
             binding.goToDataTesting.visibility = View.VISIBLE
+
+            singleTestData = singleTestData.copy( testUser = sessionUser)
+            sensorsData.add(singleTestData)
+
+        }else{
+
+            singleTestData = singleTestData.copy( testUser = sessionUser)
+            sensorsData.add(singleTestData)
         }
     }
 
     private val sensorDataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
+            singleTestData = singleTestData.copy( HearthRate = intent.getFloatExtra("HRsensorData", 0.0f))
+            Log.d("Check data", "HR: ${singleTestData?.HearthRate}")
+
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
+            singleTestData = singleTestData.copy( PPG = intent.getFloatExtra("PPGsensorData", 0.0f))
+            Log.d("Check data", "PPG: ${singleTestData?.PPG}")
+
             EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
+            singleTestData = singleTestData.copy( EDA = intent.getFloatExtra("EDAsensorData", 0.0f))
+            Log.d("Check data", "EDA: ${singleTestData?.EDA}")
+
+
         }
     }
 
@@ -208,7 +242,11 @@ class DataCollection : Fragment() {
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
             FaceLandmarksList.add(faceLandmarks)
+            singleTestData = singleTestData.copy( faceData = faceLandmarks)
         }
+        singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen])
+        singleTestData = singleTestData.copy( likability = Beauty)
+
 
         return true
     }
