@@ -2,14 +2,17 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#19ABB5</color>
-    <color name="colorPrimary2">#F58979</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorSecondary">#7992f5</color>
+    <color name="colorPrimary">#FFD670</color>
+    <color name="colorPrimary2">#03254E</color>
+    <color name="colorPrimaryDark">#FF70A6</color>
+    <color name="colorSecondary">#545677</color>
+    <!--<color name="colorSecondary">#FF9770</color>-->
     <color name="colorAccent">#FF4081</color>
     <color name="button_text_color">#FFFFFF</color>
     <color name="screen_background_color1">#022E3D</color>
-    <color name="screen_background_color2">#0A4C5C</color>
+    <color name="screen_background_color2">#DC8ABD</color>
     <color name="screen_background_color3">#0D5F6A</color>
-    <color name="screen_background_color4">#1D3D67</color>
+    <!-- <color name="screen_background_color4">#70D6FF</color> -->
+    <color name="screen_background_color4">#011C27</color>
+    <!--<color name="screen_background_color4">#1D3D67</color>-->
 </resources>
