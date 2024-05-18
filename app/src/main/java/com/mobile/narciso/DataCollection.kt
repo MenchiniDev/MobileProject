@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -78,6 +79,7 @@ class DataCollection : Fragment() {
             images.add(imageId)
         }
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
+        Log.d("imgUsed", imgUsed.toString())
 
 
         // add the camera fragment to the fragment container
@@ -100,11 +102,14 @@ class DataCollection : Fragment() {
     }
 
     private fun changeImage() {
+        Toast.makeText(requireContext(), "OOOO", Toast.LENGTH_SHORT).show()
         currentImageIndex = (currentImageIndex + 1) % images.size
-        binding.viewPager.currentItem = currentImageIndex
 
         //saving current id on the data from the helmet
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
+        Log.d("changeImage",MainActivity.currentImageIndex)
+
+        binding.viewPager.currentItem = currentImageIndex
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -241,7 +246,7 @@ class DataCollection : Fragment() {
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
             FaceLandmarksList.add(faceLandmarks)
-            singleTestData = singleTestData.copy( faceData = faceLandmarks)
+            singleTestData = singleTestData.copy( faceData = faceLandmarks.first())
         }
         singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen])
         singleTestData = singleTestData.copy( likability = Beauty)

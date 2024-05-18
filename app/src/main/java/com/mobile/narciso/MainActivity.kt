@@ -152,6 +152,7 @@ class MainActivity : AppCompatActivity() {
 
             EEGsensordataList.add(EEGsensordata(sensorData.channel1, sensorData.channel2, sensorData.channel3, sensorData.channel4, sensorData.channel5, sensorData.channel6,
                  currentImageIndex)) //, currentVote)) //default values for imageID and userVote
+            Log.d("IMMAGINE INDEX", currentImageIndex)
             Thread.sleep(700)
         }
     }
