@@ -62,7 +62,6 @@ class DataCollection : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        MainActivity.serverManager.start()
 
         // create a list of random image names to display
         val imageNames = (1..479).map { String.format("a%03d", it) }.shuffled()
@@ -78,6 +77,8 @@ class DataCollection : Fragment() {
             images.add(imageId)
         }
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
+        MainActivity.serverManager.start()
+
 
 
         // add the camera fragment to the fragment container
@@ -240,8 +241,9 @@ class DataCollection : Fragment() {
 
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
+            Log.d("Face data chech", "Got in IF case")
             FaceLandmarksList.add(faceLandmarks)
-            singleTestData = singleTestData.copy( faceData = faceLandmarks)
+            singleTestData = singleTestData.copy( faceData = faceLandmarks.first())
         }
         singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen])
         singleTestData = singleTestData.copy( likability = Beauty)
