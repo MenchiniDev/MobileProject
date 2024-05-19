@@ -39,16 +39,16 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 data class FaceLandmarks(
-    val leftEye: FaceLandmark?,
-    val rightEye: FaceLandmark?,
-    val noseBase: FaceLandmark?,
-    val leftEar: FaceLandmark?,
-    val rightEar: FaceLandmark?,
-    val mouthLeft: FaceLandmark?,
-    val mouthRight: FaceLandmark?,
-    val mouthBottom: FaceLandmark?,
-    val leftCheek: FaceLandmark?,
-    val rightCheek: FaceLandmark?
+    var leftEye: FaceLandmark? = null,
+    var rightEye: FaceLandmark? = null,
+    var noseBase: FaceLandmark? = null,
+    var leftEar: FaceLandmark? = null,
+    var rightEar: FaceLandmark? = null,
+    var mouthLeft: FaceLandmark? = null,
+    var mouthRight: FaceLandmark? = null,
+    var mouthBottom: FaceLandmark? = null,
+    var leftCheek: FaceLandmark? = null,
+    var rightCheek: FaceLandmark? = null,
 )
 
 class Faces {
@@ -76,6 +76,7 @@ class CameraFragment : Fragment() {
     private val faceDetector = FaceDetection.getClient(options)
     var imageRotation: Int = 0
     val faceFinded = Faces()
+    val landmarkTSaved = FaceLandmarks()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -255,6 +256,8 @@ class CameraFragment : Fragment() {
                     //Create cropped image to get only the face
                     val faceCropImage = Bitmap.createBitmap(rotatedBitmap, startingPointLeft, startingPointTop,
                         width, height)
+
+                    Log.d("CAMERAFRAGMENT", "Face detected")
                     faceFinded.faceLandmarks = faces.map { detectedFace ->
                         FaceLandmarks(
                             leftEye = detectedFace.getLandmark(FaceLandmark.LEFT_EYE),
@@ -269,6 +272,20 @@ class CameraFragment : Fragment() {
                             rightCheek = detectedFace.getLandmark(FaceLandmark.RIGHT_CHEEK)
                         )
                     }
+                    landmarkTSaved.leftEye = faceFinded.faceLandmarks?.get(0)?.leftEye
+                    landmarkTSaved.rightEye = faceFinded.faceLandmarks?.get(0)?.rightEye
+                    landmarkTSaved.noseBase = faceFinded.faceLandmarks?.get(0)?.noseBase
+                    landmarkTSaved.leftEar = faceFinded.faceLandmarks?.get(0)?.leftEar
+                    landmarkTSaved.rightEar = faceFinded.faceLandmarks?.get(0)?.rightEar
+                    landmarkTSaved.mouthLeft = faceFinded.faceLandmarks?.get(0)?.mouthLeft
+                    landmarkTSaved.mouthRight = faceFinded.faceLandmarks?.get(0)?.mouthRight
+                    landmarkTSaved.mouthBottom = faceFinded.faceLandmarks?.get(0)?.mouthBottom
+                    landmarkTSaved.leftCheek = faceFinded.faceLandmarks?.get(0)?.leftCheek
+                    landmarkTSaved.rightCheek = faceFinded.faceLandmarks?.get(0)?.rightCheek
+
+
+                   Log.d("CAMERAFRAGMENT FaceLandmarks",  landmarkTSaved.leftEye.toString())
+
                     drawLandmarks(faceCropImage, faceFinded.faceLandmarks!!)
                 }
             }
@@ -276,8 +293,8 @@ class CameraFragment : Fragment() {
                 Log.e("Exception:", e.toString())
             }
     }
-    fun getFaceLandmarks(): List<FaceLandmarks>? {
-        return faceFinded.faceLandmarks
+    fun getFaceLandmarks(): FaceLandmarks {
+        return landmarkTSaved
     }
 
     fun drawLandmarks(bitmap: Bitmap, faceLandmarks: List<FaceLandmarks>) {

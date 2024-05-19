@@ -31,8 +31,8 @@
     <string name="textview_helmetOK">Did you connect the helmet?</string>
     <string name="example_email">example@email.com</string>
     <string name="password">password</string>
-    <string name="login">Log in</string>
-    <string name="signup">Sign up</string>
+    <string name="login">LOG IN</string>
+    <string name="signup">SIGN UP</string>
     <string name="fpass">Forgot password?</string>
     <string name="newPass">Send new password</string>
 

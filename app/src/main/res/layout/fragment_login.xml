@@ -29,8 +29,8 @@
             android:ems="10"
             android:gravity="center"
             android:hint="@string/example_email"
-            android:textColorHint="@color/colorSecondary"
-            android:textColor="@color/colorSecondary"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -44,8 +44,8 @@
             android:ems="10"
             android:gravity="center"
             android:inputType="text"
-            android:textColorHint="@color/colorSecondary"
-            android:textColor="@color/colorSecondary"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
             android:hint="@string/name" />
 
         <EditText
@@ -60,7 +60,7 @@
             android:ems="10"
             android:gravity="center"
             android:hint="@string/password"
-            android:textColorHint="@color/colorSecondary"
+            android:textColorHint="@color/white"
             android:inputType="textPassword"
             android:minHeight="48dp" />
 
@@ -76,7 +76,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5"
-            style="@style/ButtonStyle"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/screen_background_color4"
             />
 
         <Button
@@ -90,7 +91,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5"
-            style="@style/ButtonStyle"/>
+            android:background="@color/colorAccent"
+            android:textColor="@color/screen_background_color4"/>
 
         <TextView
             android:id="@+id/forgotPassword"
@@ -100,7 +102,7 @@
             android:layout_marginBottom="30dp"
             android:gravity="center"
             android:text="@string/fpass"
-            android:textColor="@color/colorSecondary"
+            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

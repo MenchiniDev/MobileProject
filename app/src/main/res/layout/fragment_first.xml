@@ -84,8 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="35dp"
-                android:text="@string/DataCollection"
-                style="@style/ButtonStyle"/>
+                android:text="@string/DataCollection" />
 
         </LinearLayout>
 

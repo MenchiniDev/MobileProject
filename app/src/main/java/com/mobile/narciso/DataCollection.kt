@@ -52,7 +52,7 @@ class DataCollection : Fragment() {
 
     //array of array of facelandmarks: the first iterator moves throug different data
     //the second selects the single face's parts of a single istance of data
-    private var FaceLandmarksList:  ArrayList<List<FaceLandmarks>> = ArrayList()
+    private var FaceLandmarksList:  ArrayList<FaceLandmarks> = ArrayList()
 
     private var imgUsed: ArrayList<String> = ArrayList()
 
@@ -242,30 +242,17 @@ class DataCollection : Fragment() {
         }
     }
 
-    fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: List<FaceLandmarks>?): Boolean {
+    fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: FaceLandmarks): Boolean {
         //taking sensor data and storing in a List that will be sento to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
-        //Toast.makeText(requireContext(), "SEND DATA: DATI RICEVUTI!", Toast.LENGTH_SHORT).show()
-        faceLandmarks?.forEach { faceLandmarks ->
-            Log.d("left eye","Left Eye: ${faceLandmarks.leftEye}")
-            Log.d("right eye","Right Eye: ${faceLandmarks.rightEye}")
-            Log.d("nose base","Nose Base: ${faceLandmarks.noseBase}")
-            Log.d("left ear","Left Ear: ${faceLandmarks.leftEar}")
-            Log.d("right ear","Right Ear: ${faceLandmarks.rightEar}")
-            Log.d("mouth left","Mouth Left: ${faceLandmarks.mouthLeft}")
-            Log.d("mouth right","Mouth Right: ${faceLandmarks.mouthRight}")
-            Log.d("mouth bottom","Mouth Bottom: ${faceLandmarks.mouthBottom}")
-            Log.d("left cheek","Left Cheek: ${faceLandmarks.leftCheek}")
-            Log.d("right cheek","Right Cheek: ${faceLandmarks.rightCheek}")
-        }
-
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
             Log.d("Face data check", "Got in IF case")
             FaceLandmarksList.add(faceLandmarks)
             singleTestData = singleTestData.copy( faceData = faceLandmarks)
             Log.d("Face data collected", "${singleTestData.faceData}")
+            Log.d("leftear", faceLandmarks.leftEar.toString())
         }else{
             Log.d("Face data check", "Face is null")
         }

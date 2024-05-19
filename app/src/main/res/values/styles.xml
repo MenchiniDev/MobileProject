@@ -10,8 +10,10 @@
     </style>
 
     <style name="ButtonStyle" parent="Widget.AppCompat.Button">
-        <item name="android:background">@drawable/button_backgound</item>
+        <!--<item name="android:background">@drawable/button_backgound</item>-->
         <item name="android:textColor">@color/colorPrimary2</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:radius">10dp</item>
     </style>
     <!-- Your custom button style -->
         <!-- Add more attributes if you need -->
