@@ -51,8 +51,10 @@ class FirstFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
             binding.textviewCamOK.setTextColor(Color.RED)
-        }else
-        {
+        }
+
+        //setting color GREEN if the user has already granted the permission
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             binding.textviewCamOK.setTextColor(Color.GREEN)
         }
 

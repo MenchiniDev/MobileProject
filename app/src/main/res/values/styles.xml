@@ -11,7 +11,7 @@
 
     <style name="ButtonStyle" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/button_backgound</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/colorPrimary2</item>
     </style>
     <!-- Your custom button style -->
         <!-- Add more attributes if you need -->

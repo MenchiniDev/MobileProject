@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -187,6 +188,7 @@ class DataCollection : Fragment() {
         val sessionUser = SessionManager(requireContext()).username
 
         if (imagesSeen == 10) {
+            Toast.makeText(requireContext(), "Change wifi connection to send data on cloud!", Toast.LENGTH_SHORT).show()
 
             binding.Beauty.visibility = View.GONE
             binding.NoBeauty.visibility = View.GONE
