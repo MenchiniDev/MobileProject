@@ -15,17 +15,17 @@ data class SensorsData(
     val HearthRate: Float? = null,
     val PPG: Float? = null,
     val EDA: Float? = null,
-    val faceData: FaceLandmarks? = null,
+    val faceData: List<FaceLandmarks?>? = null,
     val likability: Int? = null
 )
 
 data class EEGonly(
-    val channel1: Double,
-    val channel2: Double,
-    val channel3: Double,
-    val channel4: Double,
-    val channel5: Double,
-    val channel6: Double
+    val channel1: Double = 0.0,
+    val channel2: Double = 0.0,
+    val channel3: Double = 0.0,
+    val channel4: Double = 0.0,
+    val channel5: Double = 0.0,
+    val channel6: Double = 0.0
 )
 
 class FirestoreDataDAO {
@@ -40,12 +40,12 @@ class FirestoreDataDAO {
 
 
 
-    fun sendData(username: String, data: ArrayList<SensorsData>, EEGdata: ArrayList<EEGsensordata>): Boolean{
+    fun sendData(username: String, data: ArrayList<SensorsData>, eegData: ArrayList<EEGsensordata>): Boolean{
         var testCount = runBlocking { getSampleCount(username) }
         if (testCount == -1){
             return false
         }else{
-            val EEGdataPacked = EEGdataSelector(data, EEGdata)
+            val eegDataPacked = EEGdataSelector(data, eegData)
             var docCount = 0
             for (test in data){
                 val docName = username + "_test" + testCount
@@ -53,8 +53,8 @@ class FirestoreDataDAO {
                     .set(test)
                     .addOnSuccessListener { Log.d(TAG, " Test data number $testCount successfully added") }
                     .addOnFailureListener { e -> Log.w(TAG, "Error writing test $testCount in data document", e) }
-                if(EEGdataPacked.isNotEmpty()){
-                    EEDdataSend(username, docName, EEGdataPacked[docCount])   // Adding EEG data corresponding to test sent to cloud
+                if(eegDataPacked.isNotEmpty()){
+                    EEDdataSend(username, docName, eegDataPacked[docCount])   // Adding EEG data corresponding to test sent to cloud
                     docCount++
                 }else{
                     Log.w("TAG", "EEG data not collected")
@@ -68,30 +68,39 @@ class FirestoreDataDAO {
     }
 
     private fun EEGdataSelector(testData: ArrayList<SensorsData>, EEGdata: ArrayList<EEGsensordata>): ArrayList<ArrayList<EEGonly>>{ // Creating and array the same size of data test number in which we assign the EEG values obtained for each test
-        val EEGselectedArray: ArrayList<ArrayList<EEGonly>> = ArrayList(testData.size)
+        val eegSelectedArray: ArrayList<ArrayList<EEGonly>> = ArrayList()
         var counter = 0
         for(test in testData){
             val imgCode = test.imageID
+
+            eegSelectedArray.add(ArrayList())
+
             Log.d("EEG check", "Checking for img $imgCode in EEG data ($EEGdata)")
-            for (EEGread in EEGdata){
-                if(EEGread.imageID == imgCode){
-                    val EEGwrite = EEGonly(
-                        EEGread.channel1,
-                        EEGread.channel2,
-                        EEGread.channel3,
-                        EEGread.channel4,
-                        EEGread.channel5,
-                        EEGread.channel6
+            Log.d("EEG SIZES", "Array built: ${eegSelectedArray.size}")
+            Log.d("EEG SIZES", "Test data size: ${testData.size}")
+            Log.d("EEG SIZES", "All samples: ${EEGdata.size}")
+
+
+            for (eegRead in EEGdata){
+                if(eegRead.imageID == imgCode){
+                    val eegWrite = EEGonly(
+                        eegRead.channel1,
+                        eegRead.channel2,
+                        eegRead.channel3,
+                        eegRead.channel4,
+                        eegRead.channel5,
+                        eegRead.channel6
                     )
-                    EEGselectedArray[counter].add(EEGwrite)
-                    Log.d("EEG check", "Setting $EEGwrite for test $counter")
+                    eegSelectedArray[counter].add(eegWrite)
+                    Log.d("EEG check", "Setting $eegWrite for test $counter")
                 }else{      // supposed EEG sensor data in test order, when the img code doesn't correspond means we don't have any other EEG data for that image
-                    Log.d("EEG check", "No image $imgCode corresponding for test $counter, EEG image is: ${EEGread.imageID}")
+                    Log.d("EEG check", "No image $imgCode corresponding for test $counter, EEG image is: ${eegRead.imageID}")
                 }
             }
+            Log.d("EEG SIZES", "Array built index $counter: ${eegSelectedArray[counter].size}")
             counter++
         }
-        return EEGselectedArray
+        return eegSelectedArray
     }
 
     private fun EEDdataSend(user: String?, testDocName: String, EEGdata: ArrayList<EEGonly>){
@@ -102,6 +111,7 @@ class FirestoreDataDAO {
                 .set(EEGsample, SetOptions.merge())
                 .addOnSuccessListener { Log.d(TAG, " EGG sample num $EEGsampleCount for $testDocName added correctly") }
                 .addOnFailureListener { e -> Log.w(TAG, "Error writing EGG sample num $EEGsampleCount in document $testDocName", e) }
+            EEGsampleCount++
         }
     }
 
