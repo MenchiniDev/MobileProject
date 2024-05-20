@@ -130,7 +130,7 @@ class DataTesting : Fragment() {
         lineGraphView.viewport.setScrollableY(true)
 
         // on below line we are setting color for series.
-        series.color = binding.root.resources.getColor(R.color.colorPrimary2)
+        series.color = binding.root.resources.getColor(R.color.colorPrimary)
 
         lineGraphView.title = s
 
