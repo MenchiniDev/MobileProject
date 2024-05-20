@@ -76,7 +76,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5"
-            android:background="@color/colorPrimary"
             android:textColor="@color/screen_background_color4"
             />
 
@@ -91,8 +90,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5"
-            android:background="@color/colorAccent"
-            android:textColor="@color/screen_background_color4"/>
+            android:textColor="@color/screen_background_color4"
+            />
 
         <TextView
             android:id="@+id/forgotPassword"
