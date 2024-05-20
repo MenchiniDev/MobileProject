@@ -84,7 +84,12 @@ class DataCollection : Fragment() {
         Log.d("Data coll image", "${imgUsed[imagesSeen]}")
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
         Log.d("Main activity image", "${MainActivity.currentImageIndex}")
-        MainActivity.serverManager.start()
+
+        try{
+            MainActivity.serverManager.start()
+        }catch (e: Exception){
+            Log.w("EEG Thread", "serverManager thread already active: $e")
+        }
 
 
 

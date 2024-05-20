@@ -49,10 +49,9 @@
             android:hint="@string/name" />
 
         <EditText
-            android:textColor="@color/colorSecondary"
             android:id="@+id/editTextTextPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="67dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
@@ -61,6 +60,7 @@
             android:gravity="center"
             android:hint="@string/password"
             android:textColorHint="@color/white"
+            android:textColor="@color/white"
             android:inputType="textPassword"
             android:minHeight="48dp" />
 

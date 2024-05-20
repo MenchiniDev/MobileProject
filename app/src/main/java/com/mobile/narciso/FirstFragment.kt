@@ -39,8 +39,13 @@ class FirstFragment : Fragment() {
         // Check Bluetooth connection
         val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter?.isEnabled == false) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            try{
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            }catch (e: Exception){
+                Log.w("BT", "Bluetooth is not ON: $e")
+            }
+
             binding.textviewWatchOK.setTextColor(Color.RED)
         }else
         {
