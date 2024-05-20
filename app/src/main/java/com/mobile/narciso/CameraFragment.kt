@@ -12,6 +12,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -50,6 +51,18 @@ data class FaceLandmarks(
     var leftCheek: FaceLandmark? = null,
     var rightCheek: FaceLandmark? = null,
 )
+data class FaceLandmarkClean(
+    var leftEye: PointF? = PointF(0f, 0f),
+    var rightEye: PointF? = PointF(0f, 0f),
+    var noseBase: PointF? = PointF(0f, 0f),
+    var leftEar: PointF? = PointF(0f, 0f),
+    var rightEar: PointF? = PointF(0f, 0f),
+    var mouthLeft: PointF? = PointF(0f, 0f),
+    var mouthRight: PointF? = PointF(0f, 0f),
+    var mouthBottom: PointF? = PointF(0f, 0f),
+    var leftCheek: PointF? = PointF(0f, 0f),
+    var rightCheek: PointF? = PointF(0f, 0f),
+)
 
 class Faces {
     var faceLandmarks: List<FaceLandmarks>? = null
@@ -76,7 +89,7 @@ class CameraFragment : Fragment() {
     private val faceDetector = FaceDetection.getClient(options)
     var imageRotation: Int = 0
     val faceFinded = Faces()
-    val landmarkTSaved = FaceLandmarks()
+    val landmarkTSaved = FaceLandmarkClean()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -272,16 +285,16 @@ class CameraFragment : Fragment() {
                             rightCheek = detectedFace.getLandmark(FaceLandmark.RIGHT_CHEEK)
                         )
                     }
-                    landmarkTSaved.leftEye = faceFinded.faceLandmarks?.get(0)?.leftEye
-                    landmarkTSaved.rightEye = faceFinded.faceLandmarks?.get(0)?.rightEye
-                    landmarkTSaved.noseBase = faceFinded.faceLandmarks?.get(0)?.noseBase
-                    landmarkTSaved.leftEar = faceFinded.faceLandmarks?.get(0)?.leftEar
-                    landmarkTSaved.rightEar = faceFinded.faceLandmarks?.get(0)?.rightEar
-                    landmarkTSaved.mouthLeft = faceFinded.faceLandmarks?.get(0)?.mouthLeft
-                    landmarkTSaved.mouthRight = faceFinded.faceLandmarks?.get(0)?.mouthRight
-                    landmarkTSaved.mouthBottom = faceFinded.faceLandmarks?.get(0)?.mouthBottom
-                    landmarkTSaved.leftCheek = faceFinded.faceLandmarks?.get(0)?.leftCheek
-                    landmarkTSaved.rightCheek = faceFinded.faceLandmarks?.get(0)?.rightCheek
+                    landmarkTSaved.leftEye = faceFinded.faceLandmarks?.get(0)?.leftEye?.position
+                    landmarkTSaved.rightEye = faceFinded.faceLandmarks?.get(0)?.rightEye?.position
+                    landmarkTSaved.noseBase = faceFinded.faceLandmarks?.get(0)?.noseBase?.position
+                    landmarkTSaved.leftEar = faceFinded.faceLandmarks?.get(0)?.leftEar?.position
+                    landmarkTSaved.rightEar = faceFinded.faceLandmarks?.get(0)?.rightEar?.position
+                    landmarkTSaved.mouthLeft = faceFinded.faceLandmarks?.get(0)?.mouthLeft?.position
+                    landmarkTSaved.mouthRight = faceFinded.faceLandmarks?.get(0)?.mouthRight?.position
+                    landmarkTSaved.mouthBottom = faceFinded.faceLandmarks?.get(0)?.mouthBottom?.position
+                    landmarkTSaved.leftCheek = faceFinded.faceLandmarks?.get(0)?.leftCheek?.position
+                    landmarkTSaved.rightCheek = faceFinded.faceLandmarks?.get(0)?.rightCheek?.position
 
 
                    Log.d("CAMERAFRAGMENT FaceLandmarks",  landmarkTSaved.leftEye.toString())
@@ -293,7 +306,7 @@ class CameraFragment : Fragment() {
                 Log.e("Exception:", e.toString())
             }
     }
-    fun getFaceLandmarks(): FaceLandmarks {
+    fun getFaceLandmarks(): FaceLandmarkClean {
         return landmarkTSaved
     }
 

@@ -6,6 +6,7 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
+import com.google.mlkit.vision.face.FaceLandmark
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
@@ -15,7 +16,7 @@ data class SensorsData(
     val HearthRate: Float? = null,
     val PPG: Float? = null,
     val EDA: Float? = null,
-    val faceData: FaceLandmarks? = null,
+    val faceData: FaceLandmarkClean? = null,
     val likability: Int? = null
 )
 

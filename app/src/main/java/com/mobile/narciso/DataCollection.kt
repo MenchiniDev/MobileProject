@@ -54,6 +54,9 @@ class DataCollection : Fragment() {
     //the second selects the single face's parts of a single istance of data
     private var FaceLandmarksList:  ArrayList<FaceLandmarks> = ArrayList()
 
+    private val firebaseDataHelp = FirestoreDataDAO()
+
+
     private var imgUsed: ArrayList<String> = ArrayList()
 
     private var sensorsData: ArrayList<SensorsData> = ArrayList()
@@ -86,7 +89,7 @@ class DataCollection : Fragment() {
 
 
         // add the camera fragment to the fragment container
-        val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
+        // val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
         childFragmentManager.beginTransaction().apply {
             replace(R.id.child_fragment_container, cameraFragment)
             commit()
@@ -156,20 +159,20 @@ class DataCollection : Fragment() {
             //saving the current vote in the list of helmet's data
             MainActivity.currentVote = DONTLIKEVALUE
             takeDatafromCamWatch(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
+            Log.d("DATA COLLECTION", "${cameraFragment.getFaceLandmarks().rightEye.toString()}")
             checkCounter()
         }
 
         //invio i dati al fragment Datatesting (Result)
         binding.goToDataTesting.setOnClickListener {
 
-            val firebaseDataHelp = FirestoreDataDAO()
             val sessionUser = SessionManager(requireContext()).username
             Log.d("SIZES", "sensor data size: ${sensorsData.size}")
             Log.d("SIZES", "hr data size: ${HRsensorDataList.size}")
             Log.d("SIZES", "ppg data size: ${PPGsensorDataList.size}")
             Log.d("SIZES", "eda data size: ${EDAsensorDataList.size}")
 
-            if (HRsensorDataList.isNotEmpty()){
+            if (HRsensorDataList.isNotEmpty() && PPGsensorDataList.isNotEmpty() && EDAsensorDataList.isNotEmpty()){
                 var count = 0
                 while(count < sensorsData.size){
                     sensorsData[count] = sensorsData[count].copy(HearthRate = HRsensorDataList[count])
@@ -242,21 +245,31 @@ class DataCollection : Fragment() {
         }
     }
 
-    fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: FaceLandmarks): Boolean {
+    fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: FaceLandmarkClean): Boolean {
         //taking sensor data and storing in a List that will be sento to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
+        Log.d("Face data", "rightEye: ${faceLandmarks.rightEye}")
+        Log.d("Face data", "leftEye: ${faceLandmarks.leftEye}")
+        Log.d("Face data", "rightEar: ${faceLandmarks.rightEar}")
+        Log.d("Face data", "leftEar: ${faceLandmarks.leftEar}")
+        Log.d("Face data", "noseBase: ${faceLandmarks.noseBase}")
+        Log.d("Face data", "leftCheek: ${faceLandmarks.leftCheek}")
+        Log.d("Face data", "rightCheek: ${faceLandmarks.rightCheek}")
+        Log.d("Face data", "mouthLeft: ${faceLandmarks.mouthLeft}")
+        Log.d("Face data", "mouthRight: ${faceLandmarks.mouthRight}")
+        Log.d("Face data", "mouthBottom: ${faceLandmarks.mouthBottom}")
+
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
             Log.d("Face data check", "Got in IF case")
-            FaceLandmarksList.add(faceLandmarks)
             singleTestData = singleTestData.copy( faceData = faceLandmarks)
             Log.d("Face data collected", "${singleTestData.faceData}")
             Log.d("leftear", faceLandmarks.leftEar.toString())
         }else{
             Log.d("Face data check", "Face is null")
         }
-        singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen-1])  // image seen already updated
+        singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen-1])  // imagesSeen already updated
         singleTestData = singleTestData.copy( likability = Beauty)
 
 
