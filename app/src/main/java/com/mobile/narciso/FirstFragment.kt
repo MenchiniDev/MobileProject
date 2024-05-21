@@ -78,6 +78,10 @@ class FirstFragment : Fragment() {
             }
         }
 
+        if(MainActivity.newTestToken){
+            MainActivity.EEGsensordataList.clear()
+        }
+
 
         // Set radio button listener
         binding.radioButton.setOnCheckedChangeListener { _, isChecked ->

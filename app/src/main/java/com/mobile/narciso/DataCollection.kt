@@ -119,6 +119,7 @@ class DataCollection : Fragment() {
 
         //saving current id on the data from the helmet
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
+        Log.d("Data coll new image", "${imgUsed[imagesSeen]}")
         Log.d("Main activity new image", "${MainActivity.currentImageIndex}")
 
     }
@@ -180,16 +181,26 @@ class DataCollection : Fragment() {
             if (HRsensorDataList.isNotEmpty() && PPGsensorDataList.isNotEmpty() && EDAsensorDataList.isNotEmpty()){
                 var count = 0
                 while(count < sensorsData.size){
-                    sensorsData[count] = sensorsData[count].copy(HearthRate = HRsensorDataList[count])
-                    sensorsData[count] = sensorsData[count].copy(PPG = PPGsensorDataList[count])
-                    sensorsData[count] = sensorsData[count].copy(EDA = EDAsensorDataList[count])
+                    try{
+                        sensorsData[count] = sensorsData[count].copy(HearthRate = HRsensorDataList[count])
+                        sensorsData[count] = sensorsData[count].copy(PPG = PPGsensorDataList[count])
+                        sensorsData[count] = sensorsData[count].copy(EDA = EDAsensorDataList[count])
+                    }catch (e: Exception){
+                        Log.w("Watch sensors", "NOT all data got from watch, $e")
+                    }
                     count++
                 }
             }
 
-            MainActivity.serverManager.stop()
+            try{
+                MainActivity.serverManager.stop()
+            }catch (e: Exception){
+                Log.d("EEG thread", "EEG thread is not active $e")
+            }
             firebaseDataHelp.sendData(sessionUser!!, sensorsData, MainActivity.EEGsensordataList)
-
+            if(!MainActivity.newTestToken){
+                MainActivity.newTestToken= true
+            }
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
             val PPGsensorDataListString = PPGsensorDataList.map { it.toString() } as ArrayList<String>
@@ -236,15 +247,15 @@ class DataCollection : Fragment() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
             // singleTestData = singleTestData.copy( HearthRate = intent.getFloatExtra("HRsensorData", 0.0f))
-            // Log.d("Check data", "HR: ${singleTestData.HearthRate}")
+            Log.d("Check data", "HR: ${HRsensorDataList}")
 
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
             // singleTestData = singleTestData.copy( PPG = intent.getFloatExtra("PPGsensorData", 0.0f))
-            // Log.d("Check data", "PPG: ${singleTestData.PPG}")
+            Log.d("Check data", "PPG: ${PPGsensorDataList}")
 
             EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
             // singleTestData = singleTestData.copy( EDA = intent.getFloatExtra("EDAsensorData", 0.0f))
-            // Log.d("Check data", "EDA: ${singleTestData.EDA}")
+            Log.d("Check data", "EDA: ${EDAsensorDataList}")
 
 
         }

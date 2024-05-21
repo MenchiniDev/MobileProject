@@ -139,6 +139,8 @@ class MainActivity : AppCompatActivity() {
         var currentImageIndex: String = "0"
         var currentVote: Int = 0
         private val sensorDataText = MutableLiveData("No data yet")
+        var newTestToken: Boolean = false   // token used to empty the EEGsensordataList after the test done,
+                                            // if not cleaned the next test would have also data form previous one
         var EEGsensordataList = ArrayList<EEGsensordata>()
         val serverManager = ServerManager { sensorData: SensorData ->
             Log.d("MindroveActivity", sensorData.channel1.toString())
