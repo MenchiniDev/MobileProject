@@ -16,10 +16,7 @@ data class SensorsData(
     val HearthRate: Float? = null,
     val PPG: Float? = null,
     val EDA: Float? = null,
-<<<<<<< HEAD
     val faceData: FaceLandmarkClean? = null,
-=======
->>>>>>> origin/main
     val likability: Int? = null
 )
 
