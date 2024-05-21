@@ -9,7 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="16dp">
 
         <LinearLayout
@@ -19,35 +19,35 @@
 
             <TextView
                 android:id="@+id/textview_first"
-                android:textColor="@color/colorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_marginBottom="30dp"
                 android:gravity="center"
                 android:text="@string/presentation"
+                android:textColor="@color/colorSecondary"
                 android:textSize="28sp" />
 
             <TextView
                 android:id="@+id/textview_watchOK"
-                android:textColor="@color/colorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/textview_watchOK"
-                app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginBottom="40dp"
-                android:textSize="25sp"
                 android:fontFamily="sans-serif-light"
+                android:text="@string/textview_watchOK"
+                android:textColor="@color/colorSecondary"
+                android:textSize="25sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textview_camOK"
-                android:textColor="@color/colorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/textview_camOK"
                 android:layout_marginBottom="40dp"
-                android:textSize="25sp"
                 android:fontFamily="sans-serif-light"
+                android:text="@string/textview_camOK"
+                android:textColor="@color/colorSecondary"
+                android:textSize="25sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -57,7 +57,6 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:textColor="@color/colorSecondary"
                     android:id="@+id/textview_helmetOK"
                     android:layout_width="280dp"
                     android:layout_height="40dp"
@@ -65,17 +64,18 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-light"
                     android:text="@string/textview_helmetOK"
+                    android:textColor="@color/colorSecondary"
                     android:textSize="25sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
 
                 <CheckBox
-                    android:buttonTint="@color/colorPrimary"
                     android:id="@+id/radioButton"
                     android:layout_width="4dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:buttonTint="@color/colorPrimary" />
 
             </LinearLayout>
 
@@ -83,9 +83,10 @@
                 android:id="@+id/gotoDataCollection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="35dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
                 android:text="@string/DataCollection"
-                style="@style/ButtonStyle"/>
+                android:textColor="@color/screen_background_color4" />
 
         </LinearLayout>
 

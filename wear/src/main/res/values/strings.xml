@@ -10,5 +10,6 @@
     <string name="permission_granted">Permission Granted</string>
     <string name="current_time">%s</string>
     <string name="heart_rate">HR: %s</string>
-    <string name="ppg">PPG: %f</string>
+    <string name="ppg">PPG: %s</string>
+    <string name="eda">EDA: %s</string>
 </resources>

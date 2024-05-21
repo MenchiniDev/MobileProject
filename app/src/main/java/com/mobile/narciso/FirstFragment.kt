@@ -39,8 +39,13 @@ class FirstFragment : Fragment() {
         // Check Bluetooth connection
         val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter?.isEnabled == false) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            try{
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            }catch (e: Exception){
+                Log.w("BT", "Bluetooth is not ON: $e")
+            }
+
             binding.textviewWatchOK.setTextColor(Color.RED)
         }else
         {
@@ -51,8 +56,10 @@ class FirstFragment : Fragment() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
             binding.textviewCamOK.setTextColor(Color.RED)
-        }else
-        {
+        }
+
+        //setting color GREEN if the user has already granted the permission
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             binding.textviewCamOK.setTextColor(Color.GREEN)
         }
 
@@ -69,6 +76,10 @@ class FirstFragment : Fragment() {
                 binding.gotoDataCollection.isEnabled = false
                 binding.radioButton.visibility = View.VISIBLE
             }
+        }
+
+        if(MainActivity.newTestToken){
+            MainActivity.EEGsensordataList.clear()
         }
 
 

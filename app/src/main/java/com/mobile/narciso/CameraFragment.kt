@@ -12,6 +12,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.PointF
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -39,16 +40,28 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 data class FaceLandmarks(
-    val leftEye: FaceLandmark?,
-    val rightEye: FaceLandmark?,
-    val noseBase: FaceLandmark?,
-    val leftEar: FaceLandmark?,
-    val rightEar: FaceLandmark?,
-    val mouthLeft: FaceLandmark?,
-    val mouthRight: FaceLandmark?,
-    val mouthBottom: FaceLandmark?,
-    val leftCheek: FaceLandmark?,
-    val rightCheek: FaceLandmark?
+    var leftEye: FaceLandmark? = null,
+    var rightEye: FaceLandmark? = null,
+    var noseBase: FaceLandmark? = null,
+    var leftEar: FaceLandmark? = null,
+    var rightEar: FaceLandmark? = null,
+    var mouthLeft: FaceLandmark? = null,
+    var mouthRight: FaceLandmark? = null,
+    var mouthBottom: FaceLandmark? = null,
+    var leftCheek: FaceLandmark? = null,
+    var rightCheek: FaceLandmark? = null,
+)
+data class FaceLandmarkClean(
+    var leftEye: PointF? = PointF(0f, 0f),
+    var rightEye: PointF? = PointF(0f, 0f),
+    var noseBase: PointF? = PointF(0f, 0f),
+    var leftEar: PointF? = PointF(0f, 0f),
+    var rightEar: PointF? = PointF(0f, 0f),
+    var mouthLeft: PointF? = PointF(0f, 0f),
+    var mouthRight: PointF? = PointF(0f, 0f),
+    var mouthBottom: PointF? = PointF(0f, 0f),
+    var leftCheek: PointF? = PointF(0f, 0f),
+    var rightCheek: PointF? = PointF(0f, 0f),
 )
 
 class Faces {
@@ -76,6 +89,7 @@ class CameraFragment : Fragment() {
     private val faceDetector = FaceDetection.getClient(options)
     var imageRotation: Int = 0
     val faceFinded = Faces()
+    val landmarkTSaved = FaceLandmarkClean()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -255,6 +269,8 @@ class CameraFragment : Fragment() {
                     //Create cropped image to get only the face
                     val faceCropImage = Bitmap.createBitmap(rotatedBitmap, startingPointLeft, startingPointTop,
                         width, height)
+
+                    Log.d("CAMERAFRAGMENT", "Face detected")
                     faceFinded.faceLandmarks = faces.map { detectedFace ->
                         FaceLandmarks(
                             leftEye = detectedFace.getLandmark(FaceLandmark.LEFT_EYE),
@@ -269,6 +285,20 @@ class CameraFragment : Fragment() {
                             rightCheek = detectedFace.getLandmark(FaceLandmark.RIGHT_CHEEK)
                         )
                     }
+                    landmarkTSaved.leftEye = faceFinded.faceLandmarks?.get(0)?.leftEye?.position
+                    landmarkTSaved.rightEye = faceFinded.faceLandmarks?.get(0)?.rightEye?.position
+                    landmarkTSaved.noseBase = faceFinded.faceLandmarks?.get(0)?.noseBase?.position
+                    landmarkTSaved.leftEar = faceFinded.faceLandmarks?.get(0)?.leftEar?.position
+                    landmarkTSaved.rightEar = faceFinded.faceLandmarks?.get(0)?.rightEar?.position
+                    landmarkTSaved.mouthLeft = faceFinded.faceLandmarks?.get(0)?.mouthLeft?.position
+                    landmarkTSaved.mouthRight = faceFinded.faceLandmarks?.get(0)?.mouthRight?.position
+                    landmarkTSaved.mouthBottom = faceFinded.faceLandmarks?.get(0)?.mouthBottom?.position
+                    landmarkTSaved.leftCheek = faceFinded.faceLandmarks?.get(0)?.leftCheek?.position
+                    landmarkTSaved.rightCheek = faceFinded.faceLandmarks?.get(0)?.rightCheek?.position
+
+
+                   Log.d("CAMERAFRAGMENT FaceLandmarks",  landmarkTSaved.leftEye.toString())
+
                     drawLandmarks(faceCropImage, faceFinded.faceLandmarks!!)
                 }
             }
@@ -276,8 +306,8 @@ class CameraFragment : Fragment() {
                 Log.e("Exception:", e.toString())
             }
     }
-    fun getFaceLandmarks(): List<FaceLandmarks>? {
-        return faceFinded.faceLandmarks
+    fun getFaceLandmarks(): FaceLandmarkClean {
+        return landmarkTSaved
     }
 
     fun drawLandmarks(bitmap: Bitmap, faceLandmarks: List<FaceLandmarks>) {
