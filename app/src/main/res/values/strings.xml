@@ -8,31 +8,31 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="Neutral">Neutral</string>
-    <string name="name">Name</string>
-    <string name="result">data collected</string>
+    <string name="name">username</string>
+    <string name="result">Data collected</string>
 
     <string name="presentation">
         Welcome to future, %s
     </string>
 
-    <string name="DataCollection">go to Data Collection</string>
+    <string name="DataCollection">Go to Data Collection</string>
     <string name="DataTesting">Results</string>
 
     <string name="datacollection_text">
         qui è dove verranno collezionati i dati relativi ai tuoi segnali fisiologici,
         a seguito verrà creato un modello basato su questi dati!
     </string>
-    <string name="DataTestingButton">go to data collection</string>
-    <string name="DataCollectionButton">go to data testing</string>
-    <string name="DataTesting_text">benvenuto nel data testing, qui inizierà a breve il test dei tuoi dati con il modello pre addestrato!</string>
+    <string name="DataTestingButton">Go to data collection</string>
+    <string name="DataCollectionButton">Go to data testing</string>
+    <string name="DataTesting_text">Benvenuto nel data testing, qui inizierà a breve il test dei tuoi dati con il modello pre addestrato!</string>
 
     <string name="textview_watchOK">Did you connect the watch?</string>
     <string name="textview_camOK">Did you activate the cam?</string>
     <string name="textview_helmetOK">Did you connect the helmet?</string>
     <string name="example_email">example@email.com</string>
     <string name="password">password</string>
-    <string name="login">Log in</string>
-    <string name="signup">Sign up</string>
+    <string name="login">LOG IN</string>
+    <string name="signup">SIGN UP</string>
     <string name="fpass">Forgot password?</string>
     <string name="newPass">Send new password</string>
 

@@ -94,7 +94,7 @@ class DataTesting : Fragment() {
         //TODO display all plots of data collected during dataCollection session
 
 
-        createGraph(lineGraphView1,HRsensorDataList, "Hear Rate")
+        createGraph(lineGraphView1,HRsensorDataList, "Hearth Rate")
         createGraph(lineGraphView2,PPGsensorDataList, "PPG value")
         createGraph(lineGraphView3,EDAsensorDataList, "EDA value")
 
@@ -130,9 +130,12 @@ class DataTesting : Fragment() {
         lineGraphView.viewport.setScrollableY(true)
 
         // on below line we are setting color for series.
-        series.color = binding.root.resources.getColor(R.color.colorPrimary2)
+        series.color = binding.root.resources.getColor(R.color.colorPrimary)
+        val gridLabelRenderer = lineGraphView.gridLabelRenderer
+        gridLabelRenderer.gridColor = binding.root.resources.getColor(R.color.screen_background_color2)
 
         lineGraphView.title = s
+        lineGraphView.titleColor = binding.root.resources.getColor(R.color.screen_background_color2)
 
         lineGraphView.addSeries(series)
     }

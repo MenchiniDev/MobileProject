@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -51,7 +52,10 @@ class DataCollection : Fragment() {
 
     //array of array of facelandmarks: the first iterator moves throug different data
     //the second selects the single face's parts of a single istance of data
-    private var FaceLandmarksList:  ArrayList<List<FaceLandmarks>> = ArrayList()
+    private var FaceLandmarksList:  ArrayList<FaceLandmarks> = ArrayList()
+
+    private val firebaseDataHelp = FirestoreDataDAO()
+
 
     private var imgUsed: ArrayList<String> = ArrayList()
 
@@ -62,7 +66,6 @@ class DataCollection : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        MainActivity.serverManager.start()
 
         // create a list of random image names to display
         val imageNames = (1..479).map { String.format("a%03d", it) }.shuffled()
@@ -74,14 +77,24 @@ class DataCollection : Fragment() {
             if(count < 11){
                 imgUsed.add(imageName)
                 count++
+                Log.d("Image list", "${imageName}")
             }
             images.add(imageId)
         }
+        Log.d("Data coll image", "${imgUsed[imagesSeen]}")
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
+        Log.d("Main activity image", "${MainActivity.currentImageIndex}")
+
+        try{
+            MainActivity.serverManager.start()
+        }catch (e: Exception){
+            Log.w("EEG Thread", "serverManager thread already active: $e")
+        }
+
 
 
         // add the camera fragment to the fragment container
-        val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
+        // val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
         childFragmentManager.beginTransaction().apply {
             replace(R.id.child_fragment_container, cameraFragment)
             commit()
@@ -102,9 +115,13 @@ class DataCollection : Fragment() {
     private fun changeImage() {
         currentImageIndex = (currentImageIndex + 1) % images.size
         binding.viewPager.currentItem = currentImageIndex
+        Log.d("New image", "$currentImageIndex")
 
         //saving current id on the data from the helmet
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
+        Log.d("Data coll new image", "${imgUsed[imagesSeen]}")
+        Log.d("Main activity new image", "${MainActivity.currentImageIndex}")
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -148,19 +165,42 @@ class DataCollection : Fragment() {
             //saving the current vote in the list of helmet's data
             MainActivity.currentVote = DONTLIKEVALUE
             takeDatafromCamWatch(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
+            Log.d("DATA COLLECTION", "${cameraFragment.getFaceLandmarks().rightEye.toString()}")
             checkCounter()
         }
 
         //invio i dati al fragment Datatesting (Result)
         binding.goToDataTesting.setOnClickListener {
 
-
-            MainActivity.serverManager.stop()
-
-            val firebaseDataHelp = FirestoreDataDAO()
             val sessionUser = SessionManager(requireContext()).username
-            firebaseDataHelp.sendData(sessionUser!!, sensorsData, MainActivity.EEGsensordataList)
+            Log.d("SIZES", "sensor data size: ${sensorsData.size}")
+            Log.d("SIZES", "hr data size: ${HRsensorDataList.size}")
+            Log.d("SIZES", "ppg data size: ${PPGsensorDataList.size}")
+            Log.d("SIZES", "eda data size: ${EDAsensorDataList.size}")
 
+            if (HRsensorDataList.isNotEmpty() && PPGsensorDataList.isNotEmpty() && EDAsensorDataList.isNotEmpty()){
+                var count = 0
+                while(count < sensorsData.size){
+                    try{
+                        sensorsData[count] = sensorsData[count].copy(HearthRate = HRsensorDataList[count])
+                        sensorsData[count] = sensorsData[count].copy(PPG = PPGsensorDataList[count])
+                        sensorsData[count] = sensorsData[count].copy(EDA = EDAsensorDataList[count])
+                    }catch (e: Exception){
+                        Log.w("Watch sensors", "NOT all data got from watch, $e")
+                    }
+                    count++
+                }
+            }
+
+            try{
+                MainActivity.serverManager.stop()
+            }catch (e: Exception){
+                Log.d("EEG thread", "EEG thread is not active $e")
+            }
+            firebaseDataHelp.sendData(sessionUser!!, sensorsData, MainActivity.EEGsensordataList)
+            if(!MainActivity.newTestToken){
+                MainActivity.newTestToken= true
+            }
             //string conversion is mandatory, Bundle doesn't accept float data
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
             val PPGsensorDataListString = PPGsensorDataList.map { it.toString() } as ArrayList<String>
@@ -186,6 +226,7 @@ class DataCollection : Fragment() {
         val sessionUser = SessionManager(requireContext()).username
 
         if (imagesSeen == 10) {
+            Toast.makeText(requireContext(), "Change wifi connection to send data on cloud!", Toast.LENGTH_SHORT).show()
 
             binding.Beauty.visibility = View.GONE
             binding.NoBeauty.visibility = View.GONE
@@ -205,45 +246,46 @@ class DataCollection : Fragment() {
     private val sensorDataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
-            singleTestData = singleTestData.copy( HearthRate = intent.getFloatExtra("HRsensorData", 0.0f))
-            Log.d("Check data", "HR: ${singleTestData?.HearthRate}")
+            // singleTestData = singleTestData.copy( HearthRate = intent.getFloatExtra("HRsensorData", 0.0f))
+            Log.d("Check data", "HR: ${HRsensorDataList}")
 
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
-            singleTestData = singleTestData.copy( PPG = intent.getFloatExtra("PPGsensorData", 0.0f))
-            Log.d("Check data", "PPG: ${singleTestData?.PPG}")
+            // singleTestData = singleTestData.copy( PPG = intent.getFloatExtra("PPGsensorData", 0.0f))
+            Log.d("Check data", "PPG: ${PPGsensorDataList}")
 
             EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
-            singleTestData = singleTestData.copy( EDA = intent.getFloatExtra("EDAsensorData", 0.0f))
-            Log.d("Check data", "EDA: ${singleTestData?.EDA}")
+            // singleTestData = singleTestData.copy( EDA = intent.getFloatExtra("EDAsensorData", 0.0f))
+            Log.d("Check data", "EDA: ${EDAsensorDataList}")
 
 
         }
     }
 
-    fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: List<FaceLandmarks>?): Boolean {
+    fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: FaceLandmarkClean): Boolean {
         //taking sensor data and storing in a List that will be sento to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
-        //Toast.makeText(requireContext(), "SEND DATA: DATI RICEVUTI!", Toast.LENGTH_SHORT).show()
-        faceLandmarks?.forEach { faceLandmarks ->
-            Log.d("left eye","Left Eye: ${faceLandmarks.leftEye}")
-            Log.d("right eye","Right Eye: ${faceLandmarks.rightEye}")
-            Log.d("nose base","Nose Base: ${faceLandmarks.noseBase}")
-            Log.d("left ear","Left Ear: ${faceLandmarks.leftEar}")
-            Log.d("right ear","Right Ear: ${faceLandmarks.rightEar}")
-            Log.d("mouth left","Mouth Left: ${faceLandmarks.mouthLeft}")
-            Log.d("mouth right","Mouth Right: ${faceLandmarks.mouthRight}")
-            Log.d("mouth bottom","Mouth Bottom: ${faceLandmarks.mouthBottom}")
-            Log.d("left cheek","Left Cheek: ${faceLandmarks.leftCheek}")
-            Log.d("right cheek","Right Cheek: ${faceLandmarks.rightCheek}")
-        }
+        Log.d("Face data", "rightEye: ${faceLandmarks.rightEye}")
+        Log.d("Face data", "leftEye: ${faceLandmarks.leftEye}")
+        Log.d("Face data", "rightEar: ${faceLandmarks.rightEar}")
+        Log.d("Face data", "leftEar: ${faceLandmarks.leftEar}")
+        Log.d("Face data", "noseBase: ${faceLandmarks.noseBase}")
+        Log.d("Face data", "leftCheek: ${faceLandmarks.leftCheek}")
+        Log.d("Face data", "rightCheek: ${faceLandmarks.rightCheek}")
+        Log.d("Face data", "mouthLeft: ${faceLandmarks.mouthLeft}")
+        Log.d("Face data", "mouthRight: ${faceLandmarks.mouthRight}")
+        Log.d("Face data", "mouthBottom: ${faceLandmarks.mouthBottom}")
 
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
-            FaceLandmarksList.add(faceLandmarks)
+            Log.d("Face data check", "Got in IF case")
             singleTestData = singleTestData.copy( faceData = faceLandmarks)
+            Log.d("Face data collected", "${singleTestData.faceData}")
+            Log.d("leftear", faceLandmarks.leftEar.toString())
+        }else{
+            Log.d("Face data check", "Face is null")
         }
-        singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen])
+        singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen-1])  // imagesSeen already updated
         singleTestData = singleTestData.copy( likability = Beauty)
 
 
@@ -251,6 +293,7 @@ class DataCollection : Fragment() {
     }
     override fun onDestroyView() {
         super.onDestroyView()
+
         requireActivity().unregisterReceiver(sensorDataReceiver)
         _binding = null
     }

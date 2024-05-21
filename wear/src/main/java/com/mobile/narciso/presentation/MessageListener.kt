@@ -19,6 +19,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
 
     private var lastHRsensorData: Float = 0.0f
     private var lastPPGsensorData: Float = 0.0f
+    private var lastEDAsensorData: Float = 0.0f
 
     private lateinit var messageClient: MessageClient
 
@@ -47,6 +48,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             .setContentTitle("Service Running")
             .setContentText("Message Listener is running...")
             .setSmallIcon(R.mipmap.ic_launcher)
+            .setOngoing(true)
             .build()
         startForeground(1, notification)
     }
@@ -54,6 +56,8 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
     override fun onDestroy() {
         super.onDestroy()
         messageClient.removeListener(this)
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
@@ -62,7 +66,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             val messageReceived = String(messageEvent.data)
             Log.d(TAG, "Message received on wearable: $messageReceived")
             val nodeID = messageEvent.sourceNodeId
-            val floatList = listOf(lastHRsensorData, lastPPGsensorData)
+            val floatList = listOf(lastHRsensorData, lastPPGsensorData, lastEDAsensorData)
             val messageToSend = floatList.joinToString(",")
             val sendMessageTask = messageClient.sendMessage(nodeID, DATA_PATH, messageToSend.toByteArray())
             sendMessageTask.addOnSuccessListener {
@@ -73,10 +77,11 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
         } else {
             Log.e(TAG, "Message path not recognized")
         }
+        updateCounter = Intent("updateVariable")
+        val str = counter.toString()
+        updateCounter.putExtra("variable", str)
         if(counter == 10)
             counter = 0
-        updateCounter = Intent("updateVariable")
-        updateCounter.putExtra("variable", counter)
         sendBroadcast(updateCounter)
     }
 
@@ -87,10 +92,9 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
             when (sensorName) {
                 "Heart Rate" -> lastHRsensorData = sensorData
                 "PPG" -> lastPPGsensorData = sensorData
+                "EDA" -> lastEDAsensorData = sensorData
             }
         }
         return START_STICKY
     }
-
-
 }

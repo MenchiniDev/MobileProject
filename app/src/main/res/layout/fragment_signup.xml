@@ -28,8 +28,8 @@
             android:ems="10"
             android:gravity="center"
             android:hint="example@email.com"
-            android:textColor="@color/colorSecondary"
-            android:textColorHint="@color/colorSecondary"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -43,16 +43,16 @@
             android:ems="10"
             android:gravity="center"
             android:inputType="text"
-            android:textColorHint="@color/colorSecondary"
-            android:textColor="@color/colorSecondary"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
             android:hint="@string/name" />
 
         <EditText
-            android:textColor="@color/colorSecondary"
-            android:textColorHint="@color/colorSecondary"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
             android:id="@+id/editTextTextPassword"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="67dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
@@ -64,18 +64,18 @@
             android:minHeight="48dp" />
 
         <EditText
-            android:textColor="@color/colorSecondary"
-            android:textColorHint="@color/colorSecondary"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
             android:id="@+id/editTextTextPassword2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="67dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="50dp"
             android:ems="10"
             android:gravity="center"
-            android:hint="Ripeti password"
+            android:hint="confirm password"
             android:inputType="textPassword"
             android:minHeight="48dp" />
 
@@ -90,7 +90,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5"
-            style="@style/ButtonStyle"/>
+            android:textColor="@color/screen_background_color4"
+            />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
