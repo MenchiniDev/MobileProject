@@ -6,6 +6,7 @@
 
 package com.mobile.narciso.presentation
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -23,7 +24,7 @@ import android.os.Looper
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.widget.CurvedTextView
 import com.mobile.narciso.R
@@ -58,7 +59,6 @@ class MainActivity : ComponentActivity() {
     private var isReceiverRegistered = false
 
     private lateinit var imagesCount: TextView
-
     private lateinit var timeTextView: CurvedTextView
     private val handler = Handler(Looper.getMainLooper())
 
@@ -79,14 +79,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (!isGranted) {
-                finish()
-            }
-        }
+//    private val requestPermissionLauncher =
+//        registerForActivityResult(
+//            ActivityResultContracts.RequestPermission()
+//        ) { isGranted: Boolean ->
+//            if (!isGranted) {
+//                finish()
+//            }
+//        }
 
     fun filter(input: Double): Double {
         var alpha = 0.1
@@ -174,15 +174,16 @@ class MainActivity : ComponentActivity() {
         imagesCount = findViewById(R.id.ImagesCount)
         timeTextView = findViewById(R.id.Time)
         HRText = findViewById(R.id.HeartRate)
+        HRText.text = getString(R.string.heart_rate, "No Data")
         PPGText = findViewById(R.id.PPG)
+        PPGText.text = getString(R.string.ppg, "No Data")
         EDAText = findViewById(R.id.EDA)
+        EDAText.text = getString(R.string.eda, "No Data")
         newCounter = "0"
         imagesCount.text = getString(R.string.images_seen, newCounter)
         handler.post(runnableCode)
 
-        if(checkSelfPermission(android.Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(android.Manifest.permission.BODY_SENSORS)
-        }
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BODY_SENSORS, Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
 
         sendIntent = Intent(this, MessageListener::class.java)
 
@@ -197,18 +198,16 @@ class MainActivity : ComponentActivity() {
             startService(sendIntent)
         }
     }
-    @Deprecated("This method is deprecated")
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == PERMISSION_REQUEST_CODE) {
-            if(grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                finish()
-            }
+
+    private fun checkPermission(permission: String) {
+        if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(permission), PERMISSION_REQUEST_CODE)
         }
     }
 
     override fun onStart() {
         super.onStart()
+        checkPermission(Manifest.permission.BODY_SENSORS)
         HRregisterListener()
         PPGregisterListener()
         EDAregisterListener()
@@ -220,6 +219,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onRestart() {
         super.onRestart()
+        checkPermission(Manifest.permission.BODY_SENSORS)
         HRregisterListener()
         PPGregisterListener()
         EDAregisterListener()
@@ -230,6 +230,7 @@ class MainActivity : ComponentActivity() {
     }
     override fun onResume() {
         super.onResume()
+        checkPermission(Manifest.permission.BODY_SENSORS)
         HRregisterListener()
         PPGregisterListener()
         EDAregisterListener()

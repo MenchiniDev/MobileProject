@@ -3,8 +3,15 @@ package com.mobile.narciso.presentation
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Wearable
@@ -27,6 +34,13 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
 
     private lateinit var updateCounter: Intent
 
+    private lateinit var channelId: String
+    private lateinit var channelName: String
+    private var importance: Int = 0
+    private lateinit var channel: NotificationChannel
+    private var notificationId: Int = 123
+    private lateinit var notification: NotificationCompat.Builder
+
     override fun onCreate() {
         super.onCreate()
         TAG = "MessageListener"
@@ -36,21 +50,26 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
         messageClient.addListener(this)
 
         //code from MenchiniDev
-        val channelId = "MessageListenerChannel"
-        val channelName = "Message Listener Service"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(channelId, channelName, importance)
+        channelId = "MessageListenerChannel"
+        channelName = "Message Listener Service"
+        importance = NotificationManager.IMPORTANCE_LOW
+        channel = NotificationChannel(channelId, channelName, importance)
 
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        notificationManager.createNotificationChannel(channel)
-
-        val notification: Notification = Notification.Builder(this, channelId)
+        notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Service Running")
             .setContentText("Message Listener is running...")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.splash_icon)
             .setOngoing(true)
-            .build()
-        startForeground(1, notification)
+            .setSound(null)
+
+        createNotificationChannel()
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        NotificationManagerCompat.from(this).notify(notificationId, notification.build())
+
+
     }
 
     override fun onDestroy() {
@@ -60,7 +79,21 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
         stopSelf()
     }
 
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val descriptionText = "Message Listener Service"
+            val channel = NotificationChannel(channelId, channelName, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
     override fun onMessageReceived(messageEvent: MessageEvent) {
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
         if (messageEvent.path == MESSAGE_PATH) {
             counter++
             val messageReceived = String(messageEvent.data)
@@ -95,6 +128,7 @@ class MessageListener : WearableListenerService(), MessageClient.OnMessageReceiv
                 "EDA" -> lastEDAsensorData = sensorData
             }
         }
+        startForeground(notificationId, notification.build())
         return START_STICKY
     }
 }
