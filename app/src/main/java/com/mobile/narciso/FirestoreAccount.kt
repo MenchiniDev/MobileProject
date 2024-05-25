@@ -9,6 +9,28 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import java.security.MessageDigest
 
+/**
+ * FirestoreAccountDAO is a class that handles the interaction with the Firestore database for user account operations.
+ * It uses Firebase's Firestore to store and retrieve user data.
+ *
+ * The User data class represents a user in the application. It includes the username, email, hashed password, and the number of tests done by the user.
+ *
+ * The addUser method is used to add a new user to the Firestore database. It takes a username, email, and password as parameters, hashes the password, and stores the user data in the database.
+ *
+ * The checkAccount method is used to verify a user's credentials. It retrieves the user data from the Firestore database and compares the provided email and password with the stored ones.
+ *
+ * The checkEmailExists method checks if a user with the given email already exists in the Firestore database.
+ *
+ * The resetPassword method is used to reset a user's password. It generates a new random password, hashes it, and updates the user's data in the Firestore database.
+ *
+ * The newAccount method checks if a user with the given username or email already exists in the Firestore database.
+ *
+ * The hashPassw method is used to hash a password using the SHA-256 algorithm.
+ *
+ * The generateRandomPassword method generates a random password of a given length.
+ */
+
+
 data class User(
     val username: String? = null,
     val email: String? = null,
@@ -23,6 +45,7 @@ class FirestoreAccountDAO {
     }
     private val TAG = "FirestoreHandlerUsr"
     private val USR_COLLECTION: String = "users"
+    private val NO_TEST: Int = 0
 
     suspend fun addUser(username: String, mail: String, password: String): Int{
         // password needs to be hashed
@@ -30,7 +53,7 @@ class FirestoreAccountDAO {
             username,
             mail,
             hashPassw(password),
-            0,
+            NO_TEST,
         )
         val newAccount = newAccount(username, mail)
 
@@ -51,6 +74,7 @@ class FirestoreAccountDAO {
         }
     }
 
+    // returns true if account exists and password is correct
     suspend fun checkAccount(username: String, mail: String, password: String): Boolean{
         return try{
             val userDoc = db.collection(USR_COLLECTION).document(username).get().await()
@@ -73,6 +97,7 @@ class FirestoreAccountDAO {
         }
     }
 
+    // returns true if email is already registered
     suspend fun checkEmailExists(mail: String): Boolean{
         return try{
             val userDocs = db.collection(USR_COLLECTION).whereEqualTo("email", mail).get().await()
@@ -84,6 +109,7 @@ class FirestoreAccountDAO {
         }
     }
 
+    // returns new password
     suspend fun resetPassword(mail: String): String{
         val newPassw = generateRandomPassword(8)
         val newPasswHash = hashPassw(newPassw)
@@ -104,6 +130,7 @@ class FirestoreAccountDAO {
 
     }
 
+    // returns true if new account can be created
     private suspend fun newAccount(user: String, mail: String): Boolean{
         // looking for user with username
         return try{
@@ -121,6 +148,7 @@ class FirestoreAccountDAO {
         }
     }
 
+    // returns hashed password
     private fun hashPassw(password: String): String{
         val bytes = password.toByteArray()
         val messageDigest = MessageDigest.getInstance("SHA-256")
@@ -128,6 +156,7 @@ class FirestoreAccountDAO {
         return digest.fold("", {str, it -> str + "%02x".format(it)})
     }
 
+    // returns random password
     private fun generateRandomPassword(length: Int): String {
         val allowedChars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
         return (1..length)
