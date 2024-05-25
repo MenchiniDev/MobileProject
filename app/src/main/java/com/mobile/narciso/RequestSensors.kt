@@ -50,6 +50,7 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
         messageClient.removeListener(this)
     }
 
+    //called when a message is received from the wearable device
     override fun onMessageReceived(messageEvent: MessageEvent) {
         if(messageEvent.path == DATA_PATH) {
             val message = String(messageEvent.data)
@@ -69,6 +70,7 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
         }
     }
 
+    //send a message to the wearable device to request sensor data
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val wearableNodeTask: Task<List<Node>> = Wearable.getNodeClient(this).connectedNodes
         wearableNodeTask.addOnSuccessListener { nodes ->
