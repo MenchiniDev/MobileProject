@@ -24,6 +24,22 @@ import com.mobile.narciso.databinding.FragmentDatacollectionBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+
+/**
+ * DataCollection class is a Fragment used for data collection.
+ * This fragment handles the display of images, the collection of user votes on the images,
+ * the collection of data from the wearable device sensors and the front camera, and finally the sending of data to the database.
+ *
+ * It uses an ImageAdapter to display the images in a ViewPager.
+ * The images are shown one at a time and the user can vote whether they like, dislike or are neutral towards the image.
+ * Each time the user votes, a new set of data is requested from the wearable device sensors and data is collected from the front camera.
+ *
+ * The collected data includes heart, PPG and EDA sensor data from the wearable device and face landmarks from the front camera.
+ * All this data, along with the user's vote and the image ID, are saved in a SensorsData object and added to a list of SensorsData.
+ *
+ * When the user has seen and voted on 10 images, the data is sent to the database and the user can move to the DataTesting fragment to view the results.
+ */
+
 class DataCollection : Fragment() {
 
     private val viewModel: SharedViewModel by activityViewModels()
@@ -50,16 +66,12 @@ class DataCollection : Fragment() {
     private var PPGsensorDataList: ArrayList<Float> = ArrayList()
     private var EDAsensorDataList: ArrayList<Float> = ArrayList()
 
-    //array of array of facelandmarks: the first iterator moves throug different data
-    //the second selects the single face's parts of a single istance of data
-    private var FaceLandmarksList:  ArrayList<FaceLandmarks> = ArrayList()
-
     private val firebaseDataHelp = FirestoreDataDAO()
-
 
     private var imgUsed: ArrayList<String> = ArrayList()
 
     private var sensorsData: ArrayList<SensorsData> = ArrayList()
+    //needed for firebase single data array collection
     private var singleTestData: SensorsData = SensorsData()
 
     override fun onCreateView(
@@ -84,7 +96,6 @@ class DataCollection : Fragment() {
         Log.d("Data coll image", "${imgUsed[imagesSeen]}")
         MainActivity.currentImageIndex = imgUsed[imagesSeen]
         Log.d("Main activity image", "${MainActivity.currentImageIndex}")
-
         try{
             MainActivity.serverManager.start()
         }catch (e: Exception){
@@ -93,8 +104,7 @@ class DataCollection : Fragment() {
 
 
 
-        // add the camera fragment to the fragment container
-        // val cameraFragment = CameraFragment() // Crea una nuova istanza del tuo CameraFragment
+        // add the camera fragment to the fragment container, so we can display the camera preview
         childFragmentManager.beginTransaction().apply {
             replace(R.id.child_fragment_container, cameraFragment)
             commit()
@@ -103,15 +113,17 @@ class DataCollection : Fragment() {
 
         _binding = FragmentDatacollectionBinding.inflate(inflater, container, false)
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // Permissions not granted: request camera permission
+            // permissions not granted: request camera permission
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), CAMERAPERMISSIONCODE)
         }
 
+        //this button will appear at the end of data collecting (after 10 images seen)
         binding.goToDataTesting.visibility = View.GONE
 
         return binding.root
     }
 
+    //function to change the image, called everytime a button is pressed
     private fun changeImage() {
         currentImageIndex = (currentImageIndex + 1) % images.size
         binding.viewPager.currentItem = currentImageIndex
@@ -136,7 +148,6 @@ class DataCollection : Fragment() {
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             isUserInputEnabled = false
         }
-
 
         binding.Beauty.setOnClickListener {
             imagesSeen++
@@ -165,18 +176,13 @@ class DataCollection : Fragment() {
             //saving the current vote in the list of helmet's data
             MainActivity.currentVote = DONTLIKEVALUE
             takeDatafromCamWatch(DONTLIKEVALUE, cameraFragment.getFaceLandmarks())
-            Log.d("DATA COLLECTION", "${cameraFragment.getFaceLandmarks().rightEye.toString()}")
             checkCounter()
         }
 
-        //invio i dati al fragment Datatesting (Result)
+        //sending data to database and next framgment to display graphs
         binding.goToDataTesting.setOnClickListener {
 
             val sessionUser = SessionManager(requireContext()).username
-            Log.d("SIZES", "sensor data size: ${sensorsData.size}")
-            Log.d("SIZES", "hr data size: ${HRsensorDataList.size}")
-            Log.d("SIZES", "ppg data size: ${PPGsensorDataList.size}")
-            Log.d("SIZES", "eda data size: ${EDAsensorDataList.size}")
 
             if (HRsensorDataList.isNotEmpty() && PPGsensorDataList.isNotEmpty() && EDAsensorDataList.isNotEmpty()){
                 var count = 0
@@ -205,7 +211,6 @@ class DataCollection : Fragment() {
             val HRsensorDataListString = HRsensorDataList.map { it.toString() } as ArrayList<String>
             val PPGsensorDataListString = PPGsensorDataList.map { it.toString() } as ArrayList<String>
             val EDAsensorDataListString = EDAsensorDataList.map { it.toString() } as ArrayList<String>
-            //MainActivity.EEGsensordataList da mandare al cloud
 
             val bundle = Bundle()
 
@@ -216,12 +221,14 @@ class DataCollection : Fragment() {
             findNavController().navigate(R.id.action_DataCollection_to_DataTesting, bundle)
         }
 
+        //registering the receiver to get data from the watch
         val filter = IntentFilter("com.mobile.narciso.SENSOR_DATA")
         requireActivity().registerReceiver(sensorDataReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
 
-
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
+
+    //function to check if the counter is at 10, if so it will show the button to go to the next fragment
     private fun checkCounter() {
         val sessionUser = SessionManager(requireContext()).username
 
@@ -233,61 +240,42 @@ class DataCollection : Fragment() {
             binding.Neutral.visibility = View.GONE
             binding.goToDataTesting.visibility = View.VISIBLE
 
-            singleTestData = singleTestData.copy( testUser = sessionUser)
-            sensorsData.add(singleTestData)
-
-        }else{
-
-            singleTestData = singleTestData.copy( testUser = sessionUser)
-            sensorsData.add(singleTestData)
         }
+        singleTestData = singleTestData.copy( testUser = sessionUser)
+        sensorsData.add(singleTestData)
     }
 
+    //receiver to get data from the watch
     private val sensorDataReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             HRsensorDataList.add(intent.getFloatExtra("HRsensorData", 0.0f))
-            // singleTestData = singleTestData.copy( HearthRate = intent.getFloatExtra("HRsensorData", 0.0f))
             Log.d("Check data", "HR: ${HRsensorDataList}")
 
             PPGsensorDataList.add(intent.getFloatExtra("PPGsensorData", 0.0f))
-            // singleTestData = singleTestData.copy( PPG = intent.getFloatExtra("PPGsensorData", 0.0f))
             Log.d("Check data", "PPG: ${PPGsensorDataList}")
 
             EDAsensorDataList.add(intent.getFloatExtra("EDAsensorData", 0.0f))
-            // singleTestData = singleTestData.copy( EDA = intent.getFloatExtra("EDAsensorData", 0.0f))
             Log.d("Check data", "EDA: ${EDAsensorDataList}")
-
 
         }
     }
 
+    //everytime a button is pressed we request data only from watch and save data from frontal camera
     fun takeDatafromCamWatch(Beauty: Int, faceLandmarks: FaceLandmarkClean): Boolean {
-        //taking sensor data and storing in a List that will be sento to cloud and DataTesting
+        //taking sensor data and storing in a List that will be sent to cloud and DataTesting
         val intent = Intent(requireContext(), RequestSensors::class.java)
         requireContext().startService(intent)
-        Log.d("Face data", "rightEye: ${faceLandmarks.rightEye}")
-        Log.d("Face data", "leftEye: ${faceLandmarks.leftEye}")
-        Log.d("Face data", "rightEar: ${faceLandmarks.rightEar}")
-        Log.d("Face data", "leftEar: ${faceLandmarks.leftEar}")
-        Log.d("Face data", "noseBase: ${faceLandmarks.noseBase}")
-        Log.d("Face data", "leftCheek: ${faceLandmarks.leftCheek}")
-        Log.d("Face data", "rightCheek: ${faceLandmarks.rightCheek}")
-        Log.d("Face data", "mouthLeft: ${faceLandmarks.mouthLeft}")
-        Log.d("Face data", "mouthRight: ${faceLandmarks.mouthRight}")
-        Log.d("Face data", "mouthBottom: ${faceLandmarks.mouthBottom}")
 
         //adding single landmarks group to the list
         if (faceLandmarks != null) {
             Log.d("Face data check", "Got in IF case")
             singleTestData = singleTestData.copy( faceData = faceLandmarks)
             Log.d("Face data collected", "${singleTestData.faceData}")
-            Log.d("leftear", faceLandmarks.leftEar.toString())
         }else{
             Log.d("Face data check", "Face is null")
         }
         singleTestData = singleTestData.copy( imageID = imgUsed[imagesSeen-1])  // imagesSeen already updated
         singleTestData = singleTestData.copy( likability = Beauty)
-
 
         return true
     }
@@ -298,6 +286,8 @@ class DataCollection : Fragment() {
         _binding = null
     }
 }
+
+
 class ImageAdapter(private val images: List<Int>) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
     inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

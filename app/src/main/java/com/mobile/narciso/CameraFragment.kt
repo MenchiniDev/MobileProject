@@ -18,7 +18,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.AspectRatio
@@ -39,6 +38,24 @@ import com.mobile.narciso.databinding.FragmentCameraBinding
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+/**
+ * CameraFragment is a Fragment used for capturing and processing images from the device's camera.
+ * This fragment uses the CameraX library to handle camera operations and the ML Kit library to detect faces in the captured images.
+ *
+ * The startCamera method initializes the camera and sets up the image analysis pipeline.
+ * The image analysis uses an ImageAnalyzer to process each frame and detect faces using the detectFaces method.
+ *
+ * The detectFaces method uses the ML Kit's Face Detection API to detect faces in the image.
+ * For each detected face, it extracts facial landmarks (like the position of the eyes, nose, mouth, etc.) and stores them in a FaceLandmarks object.
+ *
+ * The drawLandmarks method is used to draw the detected facial landmarks on the image for visualization.
+ *
+ * The getFaceLandmarks method returns the last detected facial landmarks. This can be used to access the facial landmarks outside of this fragment.
+ *
+ * This fragment also handles permissions for using the camera.
+ */
+
+//class for taking data from Google API ML kit
 data class FaceLandmarks(
     var leftEye: FaceLandmark? = null,
     var rightEye: FaceLandmark? = null,
@@ -51,6 +68,8 @@ data class FaceLandmarks(
     var leftCheek: FaceLandmark? = null,
     var rightCheek: FaceLandmark? = null,
 )
+
+// class for saving only positional information from FaceLandmarks
 data class FaceLandmarkClean(
     var leftEye: PointF? = PointF(0f, 0f),
     var rightEye: PointF? = PointF(0f, 0f),
@@ -78,6 +97,8 @@ class CameraFragment : Fragment() {
     private lateinit var cameraExecutor: ExecutorService
     lateinit var bitmapBuffer: Bitmap
     private lateinit var username: String
+
+    // setting options for landmarks collection
     val options = FaceDetectorOptions.Builder()
         .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
         .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
@@ -108,6 +129,7 @@ class CameraFragment : Fragment() {
                 }
             }
         }
+        //requesting camera permission
         cameraLauncher.launch(
             arrayOf(
                 Manifest.permission.CAMERA,
@@ -120,28 +142,25 @@ class CameraFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): ConstraintLayout? {
-        // Wanted behaviour is that keyboard popup will overlap the fragment
-        activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
         //bind layout to Kotlin objects
         binding = FragmentCameraBinding.inflate(inflater)
         return fragmentCameraBinding?.root
     }
 
-    //applico l'inflate delle funzioni sui bottoni
+    //onViewCreated is called after onCreateView and is used to initialize the camera and start capturing images
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
     }
 
-
+    //creating cameraExcutor thread
     override fun onStart() {
         super.onStart()
         // create background thread that will execute image processing
         cameraExecutor = Executors.newSingleThreadExecutor()
         startCamera()
-        //launchLocationRequester()
     }
 
+    // shutdown everything when the fragment is stopped
     override fun onStop() {
         super.onStop()
         // Shut down background thread
@@ -150,12 +169,15 @@ class CameraFragment : Fragment() {
         faceDetector.close()
     }
 
+    //destroying the binding object
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
         cameraExecutor.shutdown()
         faceDetector.close()
     }
+
+    //rotate the bitmap in order to have the right orientation
     private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
         // Rotate the source bitmap of angle degrees
         val matrix = Matrix()

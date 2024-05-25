@@ -10,6 +10,22 @@ import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentSignupBinding
 import kotlinx.coroutines.runBlocking
 
+/*
+ * The class Signup is used to manage the user registration process in the application.
+ *
+ * The Signup class has the following components:
+ *
+ * -    An override of the onCreateView method. This method inflates the layout for the fragment, initializes
+ *      the FirestoreAccountDAO instance, and sets up the click listener for the signup button.
+ *      When the signup button is clicked, it retrieves the user input from the form, checks if the passwords match, and if all fields are filled.
+ *      If the conditions are met, it attempts to add the user to the Firestore database.
+ *
+ * -    An override of the onDestroyView method. This method is called when the view state of the fragment is destroyed.
+ *      It sets the binding instance to null to avoid memory leaks.
+ *
+ * This class provides a simple way to manage the user registration process by interacting with the Firestore database and navigating between fragments.
+ */
+
 class Signup : Fragment() {
 
     private var _binding: FragmentSignupBinding? = null
@@ -22,7 +38,6 @@ class Signup : Fragment() {
         _binding = FragmentSignupBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        // val databaseHelper = DatabaseHelper(requireContext())
         val firebaseHelpAccount = FirestoreAccountDAO()
 
         binding.signup.setOnClickListener {
@@ -36,12 +51,11 @@ class Signup : Fragment() {
 
             if(!passwordmatch)
             {
-                Toast.makeText(requireContext(),"Le password non corrispondono", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(),"Passwords don't match", Toast.LENGTH_SHORT).show()
                 binding.signup.isEnabled = true
             }
 
             if (email.isNotEmpty() && password.isNotEmpty() && passwordrepeted.isNotEmpty() && user.isNotEmpty()) {
-                // val isInserted = databaseHelper.addUser(user, email , password)
                 val isInserted = runBlocking { firebaseHelpAccount.addUser(user, email, password) }
                 if (isInserted == 1) {
                     //insert happened, going to login

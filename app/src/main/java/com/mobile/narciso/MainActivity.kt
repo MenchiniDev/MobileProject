@@ -24,6 +24,29 @@ import mylibrary.mindrove.SensorData
 import mylibrary.mindrove.ServerManager
 import java.io.Serializable
 
+/**
+ * MainActivity is the entry point of the application and manages the main UI and navigation.
+ * It also handles network connectivity checks and manages the server for sensor data collection.
+ *
+ * The onCreate method initializes the activity, sets up the UI, and starts a handler to periodically check network connectivity.
+ * If network is not available, it opens Wi-Fi settings.
+ * It also initializes the SharedViewModel and binds it to the activity.
+ *
+ * The onCreateOptionsMenu method inflates the options menu.
+ *
+ * The onDestroy method stops the handler and the server when the activity is destroyed.
+ *
+ * The isNetworkAvailable method checks if network connectivity is available.
+ *
+ * The openWifiSettings method opens Wi-Fi settings.
+ *
+ * The onOptionsItemSelected method handles the selection of items in the options menu. When the settings item is selected, it navigates to the login screen.
+ *
+ * The onSupportNavigateUp method handles the navigation up action in the app bar.
+ *
+ * The Companion object includes a serverManager that collects sensor data and updates a MutableLiveData with the sensor data text. It also includes a list to store EEG sensor data.
+ */
+
 class EEGsensordata(val channel1: Double, val channel2: Double, val channel3: Double, val channel4: Double, val channel5: Double, val channel6: Double , val imageID: String): Serializable //, val userVote: Int): Serializable
 class MainActivity : AppCompatActivity() {
     private val networkStatus = MutableLiveData("Checking network status...")
@@ -46,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //checking for wifi connection in order to work with Mindrove
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable {
             val isNetworkAvailable = isNetworkAvailable()
@@ -66,7 +90,6 @@ class MainActivity : AppCompatActivity() {
         }
         handler.post(runnable)
 
-        //end mindrove code
         Log.d("STATUS MINDROVE", "MindroveActivity created")
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -82,7 +105,6 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
@@ -153,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             sensorDataText.postValue(sensorData.channel6.toString())
 
             EEGsensordataList.add(EEGsensordata(sensorData.channel1, sensorData.channel2, sensorData.channel3, sensorData.channel4, sensorData.channel5, sensorData.channel6,
-                 currentImageIndex)) //, currentVote)) //default values for imageID and userVote
+                 currentImageIndex)) //default values for imageID
             Thread.sleep(500)
         }
     }

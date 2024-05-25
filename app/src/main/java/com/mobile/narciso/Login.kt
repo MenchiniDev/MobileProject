@@ -10,6 +10,19 @@ import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentLoginBinding
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Login is a Fragment that handles the user login process.
+ * It interacts with Firestore to authenticate users.
+ *
+ * The onCreateView method initializes the fragment and sets up the UI. It sets up click listeners for the login, sign up, and forgot password buttons.
+ * When the login button is clicked, it retrieves the username, email, and password from the input fields, checks if they are not empty, and then calls the checkAccount method from FirestoreAccountDAO to verify the user's credentials.
+ * If the credentials are valid, it saves the username to the session using SessionManager, displays a success message, and navigates to the FirstFragment.
+ * If the credentials are not valid or if any of the input fields are empty, it displays an error message.
+ * When the sign up button is clicked, it navigates to the sign up screen.
+ * When the forgot password button is clicked, it navigates to the password reset screen.
+ */
+
+
 class Login : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
@@ -22,8 +35,7 @@ class Login : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Creazione di un'istanza di DatabaseHelper
-        val databaseHelper = DatabaseHelper(requireContext())
+        // create firebase istance
         val firebaseHelpAccount = FirestoreAccountDAO()
 
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
@@ -46,7 +58,7 @@ class Login : Fragment() {
                 val allowLogin = runBlocking { firebaseHelpAccount.checkAccount(username, email, password) }
 
                 if (allowLogin) {
-                    // Salvataggio del nome dell'utente nella variabile di sessione
+                    // saving user data to the session
                     sessionManager.username = username
 
                     Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()

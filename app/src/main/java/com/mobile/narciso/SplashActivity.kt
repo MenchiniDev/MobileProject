@@ -8,6 +8,10 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.mobile.narciso.R
 
+/**
+ * The SplashActivity class is used to display a splash screen when the application is launched.
+ */
+
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

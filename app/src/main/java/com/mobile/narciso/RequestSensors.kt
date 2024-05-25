@@ -9,6 +9,19 @@ import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 
+/**
+ * RequestSensors is a WearableListenerService that handles the interaction with the wearable device for sensor data operations.
+ * It uses Google's Wearable API to send and receive messages from the wearable device.
+ *
+ * The onCreate method initializes the service, sets up the message paths and the message client, and adds a listener to the message client.
+ *
+ * The onDestroy method removes the listener from the message client when the service is destroyed.
+ *
+ * The onMessageReceived method is called when a message is received from the wearable device. If the message path matches the data path, it processes the message, extracts the sensor data, and broadcasts an intent with the sensor data.
+ *
+ * The onStartCommand method is called when the service is started. It retrieves the connected nodes and sends a message to each node to request sensor data.
+ */
+
 class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceivedListener {
 
     private lateinit var TAG: String
@@ -37,6 +50,7 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
         messageClient.removeListener(this)
     }
 
+    //called when a message is received from the wearable device
     override fun onMessageReceived(messageEvent: MessageEvent) {
         if(messageEvent.path == DATA_PATH) {
             val message = String(messageEvent.data)
@@ -56,6 +70,7 @@ class RequestSensors : WearableListenerService(), MessageClient.OnMessageReceive
         }
     }
 
+    //send a message to the wearable device to request sensor data
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val wearableNodeTask: Task<List<Node>> = Wearable.getNodeClient(this).connectedNodes
         wearableNodeTask.addOnSuccessListener { nodes ->
