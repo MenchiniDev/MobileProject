@@ -1,9 +1,3 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter and
- * https://github.com/android/wear-os-samples/tree/main/ComposeAdvanced to find the most up to date
- * changes to the libraries and their usages.
- */
-
 package com.mobile.narciso.presentation
 
 import android.Manifest
@@ -30,6 +24,25 @@ import androidx.wear.widget.CurvedTextView
 import com.mobile.narciso.R
 import java.util.Date
 import java.util.Locale
+
+/*
+ * The class is used to manage the main activity of a wearable application, interacting with heart rate, PPG, and EDA sensors.
+ *
+ * The class has several components:
+ * - Sensor managers and sensors for heart rate, PPG, and EDA.
+ * - Sensor event listeners for each sensor.
+ * - TextViews to display sensor data.
+ * - An Intent to start the MessageListener service.
+ * - A BroadcastReceiver to update the images count.
+ * - A Handler and a Runnable to update the time every minute.
+ *
+ * The class also includes several methods:
+ * - filter(input: Double): A moving average low-pass filter.
+ * - HRregisterListener(), PPGregisterListener(), EDAregisterListener(): Methods to register listeners for each sensor.
+ * - onCreate(savedInstanceState: Bundle?): A method to set up the UI, request permissions, register sensor listeners, and start the MessageListener service.
+ * - checkPermission(permission: String): A method to check if a specific permission is granted.
+ * - onStart(), onRestart(), onResume(), onPause(), onStop(), onDestroy(): Lifecycle methods to manage sensor listeners and the BroadcastReceiver.
+ */
 
 class MainActivity : ComponentActivity() {
     private lateinit var HRsensorManager: SensorManager
@@ -62,6 +75,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var timeTextView: CurvedTextView
     private val handler = Handler(Looper.getMainLooper())
 
+    //update time every minute
     private val runnableCode = object : Runnable {
         override fun run() {
             val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
@@ -70,6 +84,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    //update images count
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "updateVariable") {
@@ -79,15 +94,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-//    private val requestPermissionLauncher =
-//        registerForActivityResult(
-//            ActivityResultContracts.RequestPermission()
-//        ) { isGranted: Boolean ->
-//            if (!isGranted) {
-//                finish()
-//            }
-//        }
-
+    //create a moving average low-pass filter
     fun filter(input: Double): Double {
         var alpha = 0.1
         alpha = alpha.coerceIn(0.0, 1.0)
@@ -95,6 +102,7 @@ class MainActivity : ComponentActivity() {
         return lastFilteredValue
     }
 
+    //register listeners for each sensor
     private fun HRregisterListener() {
         HRsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         HRsensor = HRsensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)!!
@@ -199,6 +207,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    //check if permission is granted
     private fun checkPermission(permission: String) {
         if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(permission), PERMISSION_REQUEST_CODE)
