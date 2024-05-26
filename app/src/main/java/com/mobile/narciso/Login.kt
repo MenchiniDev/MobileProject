@@ -54,7 +54,6 @@ class Login : Fragment() {
             val password = binding.editTextTextPassword.text.toString()
 
             if (username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                // val isInserted = databaseHelper.checkUser(username, email, password) // Modifica questa linea
                 val allowLogin = runBlocking { firebaseHelpAccount.checkAccount(username, email, password) }
 
                 if (allowLogin) {

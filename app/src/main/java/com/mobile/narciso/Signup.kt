@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentSignupBinding
 import kotlinx.coroutines.runBlocking
 
-/*
+/**
  * The class Signup is used to manage the user registration process in the application.
  *
  * The Signup class has the following components:

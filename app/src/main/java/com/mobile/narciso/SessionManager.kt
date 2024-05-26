@@ -3,7 +3,7 @@ package com.mobile.narciso
 import android.content.Context
 import android.content.SharedPreferences
 
-/*
+/**
  * SessionManager is used to manage user sessions.
  * It uses Android's SharedPreferences to store and retrieve user data, specifically the username in this case.
  *
@@ -13,8 +13,6 @@ import android.content.SharedPreferences
  *
  * - A private SharedPreferences instance that is initialized in the constructor using the provided context.
  *   The SharedPreferences file is named "UserSession" and is accessed in private mode.
- *
- * This class provides a simple way to manage user sessions by persistently storing and retrieving the username.
  */
 
 class SessionManager(context: Context) {

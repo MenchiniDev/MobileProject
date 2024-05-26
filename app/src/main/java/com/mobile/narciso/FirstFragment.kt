@@ -29,8 +29,6 @@ import com.mobile.narciso.databinding.FragmentFirstBinding
  * The onViewCreated method sets up the click listener for the "Go to Data Collection" button. When this button is clicked, it navigates to the `DataCollection` fragment.
  *
  * The onDestroyView method is called when the view is destroyed. It sets the binding to null to avoid memory leaks.
- *
- * This fragment is part of an application that collects and analyzes sensor data for research purposes.
  */
 
 class FirstFragment : Fragment() {

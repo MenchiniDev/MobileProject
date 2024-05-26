@@ -24,10 +24,6 @@ import kotlinx.coroutines.runBlocking
  * If the email does not exist or if the input field is empty, it displays an error message.
  *
  * The popUpPass method displays the new password and copies it to the clipboard.
- *
- * The onDestroyView method is called when the view is destroyed. It sets the binding to null to avoid memory leaks.
- *
- * This fragment is part of an application that collects and analyzes sensor data for research purposes.
  */
 
 class Password : Fragment() {
@@ -48,14 +44,10 @@ class Password : Fragment() {
     }
 
     private fun sendResetPasswordEmail(email: String) {
-        //creating an istance of DataBaseHelper to query database
-
-        // val databaseHelper = DatabaseHelper(requireContext())
         val firebaseHelpAccount = FirestoreAccountDAO()
 
         if (email.isNotEmpty()) {
-            if (runBlocking { firebaseHelpAccount.checkEmailExists(email) }) {   // with SQLite use databaseHelper.checkEmailExists(email)
-                //the user exists, send the email with the new password
+            if (runBlocking { firebaseHelpAccount.checkEmailExists(email) }) {
                 val newpass = runBlocking { firebaseHelpAccount.resetPassword(email) }
 
                 popUpPass(email,newpass)
