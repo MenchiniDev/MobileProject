@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/logo"
     android:layout_width="match_parent"
@@ -26,13 +25,15 @@
         tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/Permission"
+        android:id="@+id/Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:text="@string/permission_granted"
-        android:textColor="#7992f5"/>
+        android:text="@string/title"
+        android:textColor="#7992f5"
+        android:textStyle="bold"
+        android:textSize="17sp"/>
 
     <TextView
         android:id="@+id/ImagesCount"

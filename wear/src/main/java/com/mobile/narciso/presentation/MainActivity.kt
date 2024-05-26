@@ -1,11 +1,6 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter and
- * https://github.com/android/wear-os-samples/tree/main/ComposeAdvanced to find the most up to date
- * changes to the libraries and their usages.
- */
-
 package com.mobile.narciso.presentation
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -23,12 +18,31 @@ import android.os.Looper
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.widget.CurvedTextView
 import com.mobile.narciso.R
 import java.util.Date
 import java.util.Locale
+
+/*
+ * The class is used to manage the main activity of a wearable application, interacting with heart rate, PPG, and EDA sensors.
+ *
+ * The class has several components:
+ * - Sensor managers and sensors for heart rate, PPG, and EDA.
+ * - Sensor event listeners for each sensor.
+ * - TextViews to display sensor data.
+ * - An Intent to start the MessageListener service.
+ * - A BroadcastReceiver to update the images count.
+ * - A Handler and a Runnable to update the time every minute.
+ *
+ * The class also includes several methods:
+ * - filter(input: Double): A moving average low-pass filter.
+ * - HRregisterListener(), PPGregisterListener(), EDAregisterListener(): Methods to register listeners for each sensor.
+ * - onCreate(savedInstanceState: Bundle?): A method to set up the UI, request permissions, register sensor listeners, and start the MessageListener service.
+ * - checkPermission(permission: String): A method to check if a specific permission is granted.
+ * - onStart(), onRestart(), onResume(), onPause(), onStop(), onDestroy(): Lifecycle methods to manage sensor listeners and the BroadcastReceiver.
+ */
 
 class MainActivity : ComponentActivity() {
     private lateinit var HRsensorManager: SensorManager
@@ -58,10 +72,10 @@ class MainActivity : ComponentActivity() {
     private var isReceiverRegistered = false
 
     private lateinit var imagesCount: TextView
-
     private lateinit var timeTextView: CurvedTextView
     private val handler = Handler(Looper.getMainLooper())
 
+    //update time every minute
     private val runnableCode = object : Runnable {
         override fun run() {
             val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
@@ -70,6 +84,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    //update images count
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "updateVariable") {
@@ -79,15 +94,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (!isGranted) {
-                finish()
-            }
-        }
-
+    //create a moving average low-pass filter
     fun filter(input: Double): Double {
         var alpha = 0.1
         alpha = alpha.coerceIn(0.0, 1.0)
@@ -95,6 +102,7 @@ class MainActivity : ComponentActivity() {
         return lastFilteredValue
     }
 
+    //register listeners for each sensor
     private fun HRregisterListener() {
         HRsensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         HRsensor = HRsensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)!!
@@ -174,15 +182,16 @@ class MainActivity : ComponentActivity() {
         imagesCount = findViewById(R.id.ImagesCount)
         timeTextView = findViewById(R.id.Time)
         HRText = findViewById(R.id.HeartRate)
+        HRText.text = getString(R.string.heart_rate, "No Data")
         PPGText = findViewById(R.id.PPG)
+        PPGText.text = getString(R.string.ppg, "No Data")
         EDAText = findViewById(R.id.EDA)
+        EDAText.text = getString(R.string.eda, "No Data")
         newCounter = "0"
         imagesCount.text = getString(R.string.images_seen, newCounter)
         handler.post(runnableCode)
 
-        if(checkSelfPermission(android.Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(android.Manifest.permission.BODY_SENSORS)
-        }
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BODY_SENSORS, Manifest.permission.POST_NOTIFICATIONS), PERMISSION_REQUEST_CODE)
 
         sendIntent = Intent(this, MessageListener::class.java)
 
@@ -197,18 +206,17 @@ class MainActivity : ComponentActivity() {
             startService(sendIntent)
         }
     }
-    @Deprecated("This method is deprecated")
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == PERMISSION_REQUEST_CODE) {
-            if(grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                finish()
-            }
+
+    //check if permission is granted
+    private fun checkPermission(permission: String) {
+        if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(permission), PERMISSION_REQUEST_CODE)
         }
     }
 
     override fun onStart() {
         super.onStart()
+        checkPermission(Manifest.permission.BODY_SENSORS)
         HRregisterListener()
         PPGregisterListener()
         EDAregisterListener()
@@ -220,6 +228,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onRestart() {
         super.onRestart()
+        checkPermission(Manifest.permission.BODY_SENSORS)
         HRregisterListener()
         PPGregisterListener()
         EDAregisterListener()
@@ -230,6 +239,7 @@ class MainActivity : ComponentActivity() {
     }
     override fun onResume() {
         super.onResume()
+        checkPermission(Manifest.permission.BODY_SENSORS)
         HRregisterListener()
         PPGregisterListener()
         EDAregisterListener()

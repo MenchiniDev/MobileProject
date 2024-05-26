@@ -11,6 +11,17 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.mobile.narciso.databinding.FragmentDatatestingBinding
 
+/**
+ * DataTesting is a Fragment used for visualizing sensor data collected during a data collection session.
+ * This fragment receives sensor data as arguments and plots them on different graphs using the GraphView library.
+ *
+ * The sensor data includes Heart Rate (HR), Photoplethysmography (PPG), Electrodermal Activity (EDA), and Electroencephalography (EEG) data.
+ * Each type of sensor data is plotted on a separate graph, allowing the user to visualize the changes in sensor readings over time.
+ *
+ * The createGraph method is used to create a line graph for a given set of sensor data. It takes a GraphView, an ArrayList of sensor data, and a title for the graph as parameters.
+ * This method creates a LineGraphSeries from the sensor data, configures the viewport and appearance of the graph, and adds the series to the graph.
+ */
+
 class DataTesting : Fragment() {
 
     private var _binding: FragmentDatatestingBinding? = null
@@ -24,12 +35,12 @@ class DataTesting : Fragment() {
 
         _binding = FragmentDatatestingBinding.inflate(inflater, container, false)
 
+        //taking the sensor data from the arguments
         val HRsensorDataListString = arguments?.getStringArrayList("HRsensorDataList")
         val PPGsensorDataListString = arguments?.getStringArrayList("PPGsensorDataList")
         val EDAsensorDataListString = arguments?.getStringArrayList("EDAsensorDataList")
-        //val EEGsensorDataListString = arguments?.getStringArrayList("EEGsensorDataList")
 
-        // Conversione dell'ArrayList<String> in ArrayList<Float>
+        // conversion of the ArrayList<String> in ArrayList<Float>
         val HRsensorDataList = HRsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
         val PPGsensorDataList = PPGsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
         val EDAsensorDataList = EDAsensorDataListString?.map { it.toFloat() } as ArrayList<Float>
@@ -40,6 +51,7 @@ class DataTesting : Fragment() {
 
         val EEGsensorDataList = ArrayList<Float>()
 
+        //creating graph views for each sensor data
         val lineGraphView1 = binding.idGraphView1
         val lineGraphView2 = binding.idGraphView2
         val lineGraphView3 = binding.idGraphView3
@@ -50,9 +62,6 @@ class DataTesting : Fragment() {
         val lineGraphView7 = binding.idGraphView7
         val lineGraphView8 = binding.idGraphView8
         val lineGraphView9 = binding.idGraphView9
-
-
-        Log.d("EEGsensorDataList", MainActivity.EEGsensordataList.toString())
 
         //lets plot all different values of channel 1
         for (i in 0 until MainActivity.EEGsensordataList.size) {
@@ -90,10 +99,6 @@ class DataTesting : Fragment() {
         }
         createGraph(lineGraphView9,EEGsensorDataList, "CHANNEL 6")
 
-
-        //TODO display all plots of data collected during dataCollection session
-
-
         createGraph(lineGraphView1,HRsensorDataList, "Hearth Rate")
         createGraph(lineGraphView2,PPGsensorDataList, "PPG value")
         createGraph(lineGraphView3,EDAsensorDataList, "EDA value")
@@ -104,7 +109,7 @@ class DataTesting : Fragment() {
 
     private fun createGraph(lineGraphView: GraphView, sensorDataList: ArrayList<Float>, s: String) {
 
-        // Creazione di un array di DataPoint vuoto
+        // creating a list of data points
         val dataPoints = ArrayList<DataPoint>()
 
         for (i in sensorDataList.indices) {

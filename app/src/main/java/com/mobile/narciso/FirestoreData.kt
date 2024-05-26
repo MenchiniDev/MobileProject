@@ -6,9 +6,27 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
-import com.google.mlkit.vision.face.FaceLandmark
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+
+/**
+ * FirestoreDataDAO is a class that handles the interaction with the Firestore database for sensor data operations.
+ * It uses Firebase's Firestore to store and retrieve sensor data.
+ *
+ * The SensorsData data class represents a set of sensor data in the application. It includes the test user, image ID, heart rate, PPG, EDA, face data, and likability.
+ *
+ * The EEGonly data class represents a set of EEG sensor data. It includes the readings from six channels.
+ *
+ * The sendData method is used to send a list of sensor data and EEG data to the Firestore database. It first gets the current sample count, then for each set of sensor data, it creates a document in the Firestore database and adds the sensor data to it. If there are corresponding EEG data, it also adds them to a subcollection of the document.
+ *
+ * The EEGdataSelector method is used to select the EEG data that correspond to each set of sensor data based on the image ID.
+ *
+ * The EEDdataSend method is used to send a list of EEG data to the Firestore database. It adds each set of EEG data to a document in the EEG subcollection of the corresponding sensor data document.
+ *
+ * The updateSampleCount method is used to update the number of tests done by a user in the Firestore database.
+ *
+ * The getSampleCount method is used to get the current number of tests done by a user from the Firestore database.
+ */
 
 data class SensorsData(
     val testUser: String? = null,

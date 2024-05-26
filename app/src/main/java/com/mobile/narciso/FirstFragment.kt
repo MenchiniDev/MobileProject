@@ -17,6 +17,22 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.mobile.narciso.databinding.FragmentFirstBinding
 
+/**
+ * FirstFragment is a Fragment that serves as the main screen of the application.
+ * It checks the status of Bluetooth, camera permission, and Wi-Fi connection.
+ *
+ * The onCreateView method initializes the fragment and sets up the UI. It checks if Bluetooth is enabled, if camera permission is granted, and if Wi-Fi is connected.
+ * If Bluetooth is not enabled, it sends an intent to enable Bluetooth.
+ * If camera permission is not granted, it requests the permission.
+ * The status of the Wi-Fi connection is observed using a LiveData from the `SharedViewModel`.
+ *
+ * The onViewCreated method sets up the click listener for the "Go to Data Collection" button. When this button is clicked, it navigates to the `DataCollection` fragment.
+ *
+ * The onDestroyView method is called when the view is destroyed. It sets the binding to null to avoid memory leaks.
+ *
+ * This fragment is part of an application that collects and analyzes sensor data for research purposes.
+ */
+
 class FirstFragment : Fragment() {
     private val viewModel: SharedViewModel by activityViewModels()
 
